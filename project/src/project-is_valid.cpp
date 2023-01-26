@@ -11,9 +11,9 @@ bool project::is_valid(std::ostream& os) {
    bool rv = true;
 
    // First, validate the members of this object.
-   TEST_POPULATED( m_path, "path" );
-   TEST_POPULATED( m_name, "name" );
-   TEST_POPULATED( m_ver,  "version" );
+   TEST_POPULATED(m_path, "path");
+   TEST_POPULATED(m_name, "name");
+   TEST_POPULATED(m_ver, "version");
 
    // Now validate: apps, libs, and tests.
 

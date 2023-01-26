@@ -27,7 +27,7 @@ namespace key {
 
 
 const char* literals[] = {
-#define CASE_OF(E,STR) STR,
+#define CASE_OF(E, STR) STR,
    WORD_CASE_OF
 #undef CASE_OF
 };
@@ -49,18 +49,18 @@ std::string to_string(word e) {
 }
 
 
-//template<typename STRING_TYPE>
-//word to_word(STRING_TYPE s) {
+// template<typename STRING_TYPE>
+// word to_word(STRING_TYPE s) {
 word to_word(std::string_view s) {
 
-#define CASE_OF(E, STR) if( s == STR) return key::word::E;
-   WORD_CASE_OF
-      ;
+#define CASE_OF(E, STR) \
+   if (s == STR)        \
+      return key::word::E;
+   WORD_CASE_OF;
 #undef CASE_OF
 
    return key::word::none;
 }
-
 
 
 

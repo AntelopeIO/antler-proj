@@ -6,8 +6,8 @@
 
 namespace {
 
-inline bool is_valid_hash(std::string_view s, size_t byte_count=32) noexcept {
-   if(s.size() != byte_count)
+inline bool is_valid_hash(std::string_view s, size_t byte_count = 32) noexcept {
+   if (s.size() != byte_count)
       return false;
    for(auto a : s) {
       if( !(a >= '0' && a <= '9')
@@ -76,7 +76,7 @@ void dependency::name(std::string_view s) noexcept {
 void dependency::patch_add(const std::filesystem::path& path) noexcept {
    // Only add if it doesn't already exist.
    auto i = std::find(m_patchfiles.begin(), m_patchfiles.end(), path);
-   if( i != m_patchfiles.end() )
+   if (i != m_patchfiles.end())
       return;
    m_patchfiles.push_back(path);
    std::sort(m_patchfiles.begin(), m_patchfiles.end()); // <-- this could be optimized with a binary search...
@@ -91,7 +91,7 @@ const dependency::patch_list_t& dependency::patch_files() const noexcept {
 void dependency::patch_remove(const std::filesystem::path& path) noexcept {
 
    auto i = std::find(m_patchfiles.begin(), m_patchfiles.end(), path);
-   if( i != m_patchfiles.end() )
+   if (i != m_patchfiles.end())
       m_patchfiles.erase(i);
 }
 
@@ -118,13 +118,12 @@ void dependency::set(std::string_view name, std::string_view loc, std::string_vi
    m_patchfiles.clear();
 
 
-   if(!m_tag_or_commit.empty() && !m_rel.empty()) {
+   if (!m_tag_or_commit.empty() && !m_rel.empty()) {
       std::cerr << "Unexpectedly have tag AND release. ";
-      if(is_valid_hash(m_tag_or_commit)) {
+      if (is_valid_hash(m_tag_or_commit)) {
          std::cerr << "Discarding release info.\n";
          m_rel.clear();
-      }
-      else {
+      } else {
          std::cerr << "Discarding tag info.\n";
          m_tag_or_commit.clear();
       }
@@ -155,40 +154,38 @@ bool dependency::validate_location(std::string_view s) {
 bool dependency::validate_location(std::string_view loc, std::string_view tag, std::string_view rel, std::string_view hash, std::ostream& os) {
 
    // If location is empty, everything else should be too.
-   if(loc.empty()) {
-      if(tag.empty() && rel.empty() && hash.empty())
+   if (loc.empty()) {
+      if (tag.empty() && rel.empty() && hash.empty())
          return true;
       os << "If location is empty, then:";
-      if(!tag.empty())
+      if (!tag.empty())
          os << " tag";
-      if(!rel.empty())
+      if (!rel.empty())
          os << " release";
-      if(!hash.empty())
+      if (!hash.empty())
          os << " hash";
       os << " must also be empty.";
       return false;
    }
 
-   if(!tag.empty()) {
-      if(!rel.empty()) {
+   if (!tag.empty()) {
+      if (!rel.empty()) {
          os << "release AND tag/commit flags are not valid at the same time for location.";
          return false;
       }
-      if(!hash.empty()) {
+      if (!hash.empty()) {
          os << "hash AND tag/commit flags are not valid at the same time for location.";
          return false;
       }
    }
 
-   if(location::is_archive(loc)) {
-      if(hash.empty())
+   if (location::is_archive(loc)) {
+      if (hash.empty())
          os << "Warning: archive locations should have a SHA256 hash.";
-   }
-   else if(location::is_github_repo(loc) || location::is_org_repo_shorthand(loc)) {
-      if(rel.empty() && tag.empty())
+   } else if (location::is_github_repo(loc) || location::is_org_repo_shorthand(loc)) {
+      if (rel.empty() && tag.empty())
          os << "Warning: github locations should have either a tag/commit or release field.";
-   }
-   else {
+   } else {
       os << "Unknown location type.";
       return false;
    }

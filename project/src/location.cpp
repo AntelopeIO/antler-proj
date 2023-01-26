@@ -26,34 +26,32 @@ bool is_archive(std::string_view s) {
 bool is_github_archive(std::string_view s) {
 
    return s.starts_with("https://github.com") && is_archive(s);
-
 }
 
 
 bool is_github_repo(std::string_view s) {
 
    return s.starts_with("https://github.com") && !is_archive(s);
-
 }
 
 
 bool is_local_file(std::string_view s) {
 
-   if(s.starts_with("https://github.com"))
+   if (s.starts_with("https://github.com"))
       return false;
 
-   if(s.starts_with("file://"))
+   if (s.starts_with("file://"))
       s = s.substr(7);
 
    std::error_code sec;
-   return std::filesystem::exists(s,sec);
+   return std::filesystem::exists(s, sec);
 }
 
 
 bool is_org_repo_shorthand(std::string_view s) {
 
    auto splits = string::split(s, "/");
-   if(splits.size() != 2)
+   if (splits.size() != 2)
       return false;
 
    // Set ss to the command string.
@@ -62,7 +60,7 @@ bool is_org_repo_shorthand(std::string_view s) {
 
    // Call the command, test the result.
    const auto result = system::exec(ss.str());
-   if(!result) {
+   if (!result) {
       std::cerr << result.output << "\n";
       return false;
    }
@@ -74,7 +72,6 @@ bool is_org_repo_shorthand(std::string_view s) {
    // Search for the repo.
    return result.output.find(ss.str()) != std::string::npos;
 }
-
 
 
 

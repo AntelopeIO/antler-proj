@@ -22,6 +22,7 @@ public:
       any,                      // any/all
    };
    using list_t = std::vector<object>;
+
 public:
    // use default constructors, copy and move constructors and assignments
    object(type_t ot);

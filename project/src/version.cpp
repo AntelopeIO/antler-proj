@@ -18,22 +18,20 @@ namespace project {
 version::version() = default;
 
 
-version::version(std::string_view ver)
-{
+version::version(std::string_view ver) {
    load(ver);
 }
 
 
-version::version(const semver& sv)
-{
+version::version(const semver& sv) {
    load(sv);
 }
 
 
 version::version(const self& rhs)
-   : m_raw{rhs.m_raw}
+   : m_raw{ rhs.m_raw }
 {
-   if(rhs.m_semver)
+   if (rhs.m_semver)
       m_semver = std::make_unique<semver>(*rhs.m_semver);
 }
 
@@ -54,7 +52,7 @@ version& version::operator=(const semver& sv) {
 
 version& version::operator=(const self& rhs) {
    m_raw = rhs.m_raw;
-   if(rhs.m_semver)
+   if (rhs.m_semver)
       m_semver = std::make_unique<semver>(*rhs.m_semver);
    else
       m_semver.reset();
@@ -72,7 +70,7 @@ bool version::operator!=(const self& rhs) const noexcept {
 }
 
 
-bool version::operator<(const self& rhs)  const noexcept {
+bool version::operator<(const self& rhs) const noexcept {
    return compare(rhs) == cmp::lt;
 }
 
@@ -93,11 +91,10 @@ bool version::operator>=(const self& rhs) const noexcept {
 
 
 version::operator semver() const noexcept {
-   if(m_semver)
+   if (m_semver)
       return *m_semver;
    return semver{};
 }
-
 
 
 
@@ -111,10 +108,10 @@ void version::clear() noexcept {
 
 
 version::cmp version::compare(const self& rhs) const noexcept {
-   if(is_semver() && rhs.is_semver()) {
-      if( *m_semver == *rhs.m_semver )
+   if (is_semver() && rhs.is_semver()) {
+      if (*m_semver == *rhs.m_semver)
          return cmp::eq;
-      if( *m_semver < *rhs.m_semver )
+      if (*m_semver < *rhs.m_semver)
          return cmp::lt;
       return cmp::gt;
    }
@@ -128,7 +125,7 @@ bool version::empty() const noexcept {
 
 
 bool version::is_semver() const noexcept {
-   if( m_semver )
+   if (m_semver)
       return true;
    return false;
 }
@@ -137,7 +134,7 @@ bool version::is_semver() const noexcept {
 void version::load(std::string_view s) {
    m_raw = s;
    auto temp = semver::parse(m_raw);
-   if(!temp)
+   if (!temp)
       m_semver.reset();
    else
       m_semver = std::make_unique<semver>(temp.value());
@@ -158,77 +155,76 @@ std::string_view version::raw() const noexcept {
 
 
 version::cmp version::raw_compare(std::string_view l_in, std::string_view r_in) noexcept {
-   if(l_in == r_in)
+   if (l_in == r_in)
       return cmp::eq;
 
-   auto l = string::split(l_in,".,-;");
-   auto r = string::split(r_in,".,-;");
+   auto l = string::split(l_in, ".,-;");
+   auto r = string::split(r_in, ".,-;");
 
-   for(size_t i = 0; i < std::min(l.size(), r.size()); ++i) {
-      if(l[i] == r[i])
+   for (size_t i = 0; i < std::min(l.size(), r.size()); ++i) {
+      if (l[i] == r[i])
          continue;
 
-      int lnum=0;
-      int rnum=0;
+      int lnum = 0;
+      int rnum = 0;
 
       // Can we convert the whole thing to a number?
       auto ln = l[i].find_first_not_of("0123456789");
       auto rn = r[i].find_first_not_of("0123456789");
-      if(ln != std::string_view::npos || rn != std::string_view::npos) {
+      if (ln != std::string_view::npos || rn != std::string_view::npos) {
 
          // Nope, so try to compare numbers and letters.
 
          std::string_view lremain;
-         if(ln == std::string_view::npos) {
-            string::from(l[i],lnum);
+         if (ln == std::string_view::npos) {
+            string::from(l[i], lnum);
             lremain = l[i];
          }
          else {
-            string::from(l[i].substr(0,ln),lnum);
+            string::from(l[i].substr(0, ln), lnum);
             lremain = l[i].substr(ln);
          }
 
          std::string_view rremain;
-         if(rn == std::string_view::npos) {
-            string::from(r[i],rnum);
+         if (rn == std::string_view::npos) {
+            string::from(r[i], rnum);
             rremain = r[i];
          }
          else {
-            string::from(r[i].substr(0,rn),rnum);
+            string::from(r[i].substr(0, rn), rnum);
             rremain = r[i].substr(rn);
          }
 
-         if(lnum != rnum) {
-            if(lnum < rnum)
+         if (lnum != rnum) {
+            if (lnum < rnum)
                return cmp::lt;
             return cmp::gt;
          }
 
          auto temp = lremain.compare(rremain);
-         if(temp < 0)
+         if (temp < 0)
             return cmp::lt;
          return cmp::gt;
       }
 
-      if( !string::from(l[i],lnum) || !string::from(r[i],rnum) ) {
+      if (!string::from(l[i], lnum) || !string::from(r[i], rnum)) {
          // Nope, STILL can't convert to JUST a number. Just do a raw string compare.
          auto temp = l[i].compare(r[i]);
-         if(temp < 0)
+         if (temp < 0)
             return cmp::lt;
          return cmp::gt;
       }
-      if(lnum < rnum)
+      if (lnum < rnum)
          return cmp::lt;
       return cmp::gt;
    }
 
-   if(l.size() < r.size())
+   if (l.size() < r.size())
       return cmp::lt;
-   if(l.size() > r.size())
+   if (l.size() > r.size())
       return cmp::gt;
    return cmp::eq;
 }
-
 
 
 

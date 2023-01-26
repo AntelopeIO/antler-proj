@@ -9,24 +9,22 @@ namespace project {
 //--- constructors/detractor --------------------------------------------------------------------------------------------
 
 object::object(type_t ot)
-   : m_type{ot}
-{
-}
+   : m_type{ ot } {}
 
 
 object::object(type_t ot, std::string_view name, antler::project::language lang, std::string_view opts)
-   : m_type{ot}
-   , m_name{name}
-   , m_language{lang}
-   , m_options{opts}
+   : m_type{ ot }
+   , m_name{ name }
+   , m_language{ lang }
+   , m_options{ opts }
 {
 }
 
 
 object::object(std::string_view name, std::string_view command)
-   : m_type{object::test}
-   , m_name{name}
-   , m_command{command}
+   : m_type{ object::test }
+   , m_name{ name }
+   , m_command{ command }
 {
 }
 
@@ -51,7 +49,7 @@ const antler::project::dependency::list_t& object::dependencies() const noexcept
 
 std::optional<antler::project::dependency> object::dependency(std::string_view name) {
    auto rv = std::find_if(m_dependencies.begin(), m_dependencies.end(), [name](const auto& d) { return d.name() == name; });
-   if( rv != m_dependencies.end() )
+   if (rv != m_dependencies.end())
       return *rv;
 
    return std::optional<antler::project::dependency>{};
@@ -136,8 +134,12 @@ void object::upsert_dependency(antler::project::dependency&& dep) noexcept {
 
 
 std::ostream& operator<<(std::ostream& os, const antler::project::object::type_t& e) {
-   switch(e) {
-#define CASE_OF(X,Y) case antler::project::object::type_t::X: { os << Y;  return os; }
+   switch (e) {
+#define CASE_OF(X, Y)                         \
+   case antler::project::object::type_t::X: { \
+      os << Y;                                \
+      return os;                              \
+   }
       TYPE_T_CASE_OF;
 #undef CASE_OF
    }
@@ -149,8 +151,12 @@ std::ostream& operator<<(std::ostream& os, const antler::project::object::type_t
 std::istream& operator>>(std::istream& is, antler::project::object::type_t& e) {
 
    std::string temp;
-   if(is >> temp) {
-#define CASE_OF(X,Y) if( temp == Y) { e = antler::project::object::type_t::X; return is; }
+   if (is >> temp) {
+#define CASE_OF(X, Y)                         \
+   if (temp == Y) {                           \
+      e = antler::project::object::type_t::X; \
+      return is;                              \
+   }
       TYPE_T_CASE_OF;
 #undef CASE_OF
    }

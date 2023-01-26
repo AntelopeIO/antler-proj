@@ -35,16 +35,16 @@ std::optional<std::string> load(const std::filesystem::path& path, std::ostream&
    std::error_code sec;
 
    // Sanity check and determine the file size.
-   if( !std::filesystem::exists(path,sec) ) {
+   if (!std::filesystem::exists(path, sec)) {
       os << "Path doesn't exist: " << path << "\n";
       return return_type();
    }
-   if( !std::filesystem::is_regular_file(path,sec) ) {
+   if (!std::filesystem::is_regular_file(path, sec)) {
       os << "Path must be regular file: " << path << "\n";
       return return_type();
    }
-   std::uintmax_t sz = std::filesystem::file_size(path,sec);
-   if(sz == static_cast<std::uintmax_t>(-1)) {
+   std::uintmax_t sz = std::filesystem::file_size(path, sec);
+   if (sz == static_cast<std::uintmax_t>(-1)) {
       os << "Can't determine file size for: " << path << " with error " << sec << "\n";
       return return_type();
    }
@@ -77,24 +77,24 @@ std::optional<dependency> parse_depends(const ryml::NodeRef& node, std::ostream&
    // We assume node is a map.
 
    // For each element in this node.
-   for(auto i : node) {
+   for (auto i : node) {
       // Sanity check.
-      if( !i.has_key()) {
+      if (!i.has_key()) {
          os << "no key\n";
          continue;
       }
 
       // Get the key as one of our enums for a switch.
       key::word word = key::to_word(i.key());
-      switch(word) {
+      switch (word) {
 
          case key::word::name: {
             // Sanity check before setting value.
-            if( !i.has_val() ) {
+            if (!i.has_val()) {
                os << word << " tag in dependency list with no value.\n";
                return return_type();
             }
-            if( !rv.name().empty() ) {
+            if (!rv.name().empty()) {
                os << "Duplicate " << word << " values in dependency list: " << i.val() << ", " << rv.name() << "\n";
                return return_type();
             }
@@ -103,11 +103,11 @@ std::optional<dependency> parse_depends(const ryml::NodeRef& node, std::ostream&
 
          case key::word::tag: {
             // Sanity check before setting value.
-            if( !i.has_val() ) {
+            if (!i.has_val()) {
                os << word << " tag in dependency list with no value.\n";
                return return_type();
             }
-            if( !rv.tag().empty() ) {
+            if (!rv.tag().empty()) {
                os << "Duplicate " << word << " values in dependency list: " << i.val() << ", " << rv.tag() << "\n";
                return return_type();
             }
@@ -117,11 +117,11 @@ std::optional<dependency> parse_depends(const ryml::NodeRef& node, std::ostream&
          case key::word::release:
          case key::word::version: { // Allow version to mean release.
             // Sanity check before setting value.
-            if( !i.has_val() ) {
+            if (!i.has_val()) {
                os << word << " tag in dependency list with no value.\n";
                return return_type();
             }
-            if( !rv.release().empty() ) {
+            if (!rv.release().empty()) {
                os << "Duplicate " << word << " values in dependency list: " << i.val() << ", " << rv.release() << "\n";
                return return_type();
             }
@@ -130,11 +130,11 @@ std::optional<dependency> parse_depends(const ryml::NodeRef& node, std::ostream&
 
          case key::word::hash: {
             // Sanity check before setting value.
-            if( !i.has_val() ) {
+            if (!i.has_val()) {
                os << word << " tag in dependency list with no value.\n";
                return return_type();
             }
-            if( !rv.hash().empty() ) {
+            if (!rv.hash().empty()) {
                os << "Duplicate " << word << " values in dependency list: " << i.val() << ", " << rv.hash() << "\n";
                return return_type();
             }
@@ -143,15 +143,15 @@ std::optional<dependency> parse_depends(const ryml::NodeRef& node, std::ostream&
 
          case key::word::from: {
             // Sanity check before setting value.
-            if( !i.has_val() ) {
+            if (!i.has_val()) {
                os << word << " tag in dependency list with no value.\n";
                return return_type();
             }
-            if( !rv.location().empty() ) {
+            if (!rv.location().empty()) {
                os << "Duplicate " << word << " values in dependency list: " << i.val() << ", " << rv.location() << "\n";
                return return_type();
             }
-            if( !dependency::validate_location(i.val()) ) {
+            if (!dependency::validate_location(i.val())) {
                os << "Invalid location: " << i.val() << "\n";
                return return_type();
             }
@@ -160,9 +160,9 @@ std::optional<dependency> parse_depends(const ryml::NodeRef& node, std::ostream&
 
          case key::word::patch: {
             // Get the patch file paths.
-            for(auto fn : i) {
+            for (auto fn : i) {
                // Sanity check.
-               if( !fn.has_val()) {
+               if (!fn.has_val()) {
                   os << "no val\n";
                   continue;
                }
@@ -205,23 +205,23 @@ std::optional<object> parse_object(const ryml::NodeRef& node, object::type_t typ
 
    object rv(type);
 
-   for(auto i : node) {
-      if( !i.has_key()) {
+   for (auto i : node) {
+      if (!i.has_key()) {
          os << "no key\n";
          continue;
       }
 
       // Get the key as one of our enums for a switch.
       key::word word = key::to_word(i.key());
-      switch(word) {
+      switch (word) {
 
          case key::word::name: {
             // Sanity check before setting value.
-            if( !i.has_val() ) {
+            if (!i.has_val()) {
                os << "Name tag in " << type << " list with no value.\n";
                return return_type();
             }
-            if( !rv.name().empty() ) {
+            if (!rv.name().empty()) {
                os << "Duplicate name values in " << type << " list: " << i.val() << "\n";
                return return_type();
             }
@@ -230,16 +230,16 @@ std::optional<object> parse_object(const ryml::NodeRef& node, object::type_t typ
 
          case key::word::lang: {
             // Sanity check before setting value.
-            if( !i.has_val() ) {
+            if (!i.has_val()) {
                os << word << " tag in " << type << " list with no value.\n";
                return return_type();
             }
             auto lang = to_language(i.val());
-            if(lang == language::none) {
+            if (lang == language::none) {
                os << "Invalid language tag in " << type << " list: " << i.val() << "\n";
                return return_type();
             }
-            if( rv.language() != language::none ) {
+            if (rv.language() != language::none) {
                os << "Duplicate language values in " << type << " list: " << rv.language() << ", " << lang << "\n";
                return return_type();
             }
@@ -248,11 +248,11 @@ std::optional<object> parse_object(const ryml::NodeRef& node, object::type_t typ
 
          case key::word::options: {
             // Sanity check before setting value.
-            if( !i.has_val() ) {
+            if (!i.has_val()) {
                os << word << " tag in " << type << " list with no value.\n";
                return return_type();
             }
-            if(!rv.options().empty()) {
+            if (!rv.options().empty()) {
                os << "Duplicate " << word << " values in " << type << " list: " << rv.options() << ", " << i.val() << "\n";
                return return_type();
             }
@@ -262,11 +262,11 @@ std::optional<object> parse_object(const ryml::NodeRef& node, object::type_t typ
 
          case key::word::command: {
             // Sanity check before setting value.
-            if( !i.has_val() ) {
+            if (!i.has_val()) {
                os << word << " tag in " << type << " list with no value.\n";
                return return_type();
             }
-            if(!rv.command().empty()) {
+            if (!rv.command().empty()) {
                os << "Duplicate " << word << " values in " << type << " list: " << rv.command() << ", " << i.val() << "\n";
                return return_type();
             }
@@ -276,16 +276,16 @@ std::optional<object> parse_object(const ryml::NodeRef& node, object::type_t typ
 
          case key::word::depends: {
             // sanity check
-            if( i.has_val() && !i.val().empty() ) {
+            if (i.has_val() && !i.val().empty()) {
                os << "Unexpected value in " << word << " list: " << i.val() << "\n";
                return return_type();
             }
             // Depends should be a map. For each element, parse out the dependency and store it.
-            for(auto j : i) {
+            for (auto j : i) {
                auto optional_dep = parse_depends(j, os);
-               if(!optional_dep)
+               if (!optional_dep)
                   return return_type();
-               if(rv.dependency_exists(optional_dep.value().name())) {
+               if (rv.dependency_exists(optional_dep.value().name())) {
                   os << "Multiple dependencies with the same name in " << word << " list: " << optional_dep.value().name() << "\n";
                   return return_type();
                }
@@ -312,7 +312,6 @@ std::optional<object> parse_object(const ryml::NodeRef& node, object::type_t typ
             os << "Unknown tag in " << type << " list: " << i.key() << "\n";
             return return_type();
          }
-
       }
    }
 
@@ -327,8 +326,8 @@ std::optional<project> project::parse(const std::filesystem::path& path, std::os
    // Get file contents and store it in source.
    std::string source;
    {
-      auto temp = load(path,os);
-      if(!temp)
+      auto temp = load(path, os);
+      if (!temp)
          return return_type();
       source = temp.value();
    }
@@ -341,24 +340,24 @@ std::optional<project> project::parse(const std::filesystem::path& path, std::os
    rv.path(path);
 
    // For each member of the tree...
-   for( const auto& i : tree.rootref() ) {
+   for (const auto& i : tree.rootref()) {
       // Sanity check.
-      if( !i.has_key()) {
+      if (!i.has_key()) {
          os << "Missing key in root.\n";
          return return_type{};
       }
 
       // Get the key as one of our enums for a switch.
       key::word word = key::to_word(i.key());
-      switch(word) {
+      switch (word) {
 
          case key::word::project: {
             // Sanity check before setting value.
-            if( !i.has_val() ) {
+            if (!i.has_val()) {
                os << "Project tag at root level with no value.\n";
                return return_type();
             }
-            if( !rv.name().empty() ) {
+            if (!rv.name().empty()) {
                os << "Multiple project tags at root level: " << rv.name() << ", " << i.val() << "\n";
                return return_type();
             }
@@ -367,22 +366,22 @@ std::optional<project> project::parse(const std::filesystem::path& path, std::os
 
          case key::word::version: {
             // Sanity check before setting value.
-            if( !i.has_val() ) {
+            if (!i.has_val()) {
                os << "Version tag at root level with no value.\n";
                return return_type();
             }
-            if( !rv.version().empty() ) {
+            if (!rv.version().empty()) {
                os << "Multiple version tags at root level: " << rv.version() << ", " << i.val() << "\n";
                return return_type();
             }
-            rv.version( antler::project::version(i.val()) );
+            rv.version(antler::project::version(i.val()));
          } break;
 
          case key::word::apps:
          case key::word::libs:
          case key::word::tests: {
             // sanity check
-            if( i.has_val() && !i.val().empty() ) {
+            if (i.has_val() && !i.val().empty()) {
                os << "Unexpected value in " << word << " list: " << i.val() << "\n";
                return return_type();
             }
@@ -402,12 +401,12 @@ std::optional<project> project::parse(const std::filesystem::path& path, std::os
                      (ot == object::lib ? rv.m_libs : rv.m_tests) );
 
             // For each object in the list, call parse object.
-            for(auto node : i) {
+            for (auto node : i) {
                auto optional_obj = parse_object(node, ot, os);
                // sanity check before storing.
-               if(!optional_obj)
+               if (!optional_obj)
                   return return_type();
-               if(rv.object_exists(optional_obj.value().name(),ot)) {
+               if (rv.object_exists(optional_obj.value().name(), ot)) {
                   os << "Multiple object with the same name in " << word << " list: " << optional_obj.value().name() << "\n";
                   return return_type();
                }
@@ -434,13 +433,12 @@ std::optional<project> project::parse(const std::filesystem::path& path, std::os
             os << "Unknown tag at root level: " << i.key() << "\n";
             return return_type();
          }
-
       }
    }
 
 
    // Validate here.
-   if( !rv.is_valid(os) )
+   if (!rv.is_valid(os))
       return return_type();
 
    return rv;

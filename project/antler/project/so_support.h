@@ -9,9 +9,9 @@ extern "C" {
 
 // Support for shared libs.
 #if defined(BUILDING_AP_PROJ)
-#  define AP_PROJ_API SO_EXPORT
+#define AP_PROJ_API SO_EXPORT
 #else
-#  define AP_PROJ_API SO_IMPORT
+#define AP_PROJ_API SO_IMPORT
 #endif
 
 

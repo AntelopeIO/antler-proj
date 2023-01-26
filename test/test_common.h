@@ -11,19 +11,19 @@ int result = 0;
 
 /// Evaluate X. On failure print STR, X, and increment global result.
 /// @param STR  Value to print if the tests fails.
-#define TEST(STR, X) {                                                  \
-      if( !(X) ) {                                                      \
+#define TEST(STR, X)                                                                                             \
+   {                                                                                                             \
+      if (!(X)) {                                                                                                \
          std::cerr << __FILE__ << ":" << __LINE__ << " - " << STR << " - error: failed test \"" << #X << "\"\n"; \
-         ++global::result;                                              \
-      }                                                                 \
-   } \
+         ++global::result;                                                                                       \
+      }                                                                                                          \
+   }                                                                                                             \
    /* end TEST */
 
 
 inline int result() {
 
    return -global::result;
-
 }
 
 

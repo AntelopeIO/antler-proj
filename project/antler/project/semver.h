@@ -19,7 +19,7 @@ public:
    using value_type = unsigned;
 
 
-   semver(value_type x=0, value_type y=0, value_type z=0, std::string_view pre_release="", std::string_view build="") noexcept;
+   semver(value_type x = 0, value_type y = 0, value_type z = 0, std::string_view pre_release = "", std::string_view build = "") noexcept;
 
    // comparison operators
    bool operator==(const self& rhs) const noexcept;
@@ -55,8 +55,8 @@ private:
 
 private:
    std::array<value_type, 4> m_xyz;
-   std::string m_pre;           // pre-release
-   std::string m_build;         // build number
+   std::string m_pre;   // pre-release
+   std::string m_build; // build number
 };
 
 

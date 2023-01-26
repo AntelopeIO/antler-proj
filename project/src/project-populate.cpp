@@ -17,24 +17,24 @@ const std::string magic_all{ std::string(magic1) + "\n" + std::string(magic2) + 
 
 /// Test to see if a file has the magic maintenance string.
 /// @return true if the file either does NOT exist OR contains the magic
-bool has_magic(const std::filesystem::path& path, std::ostream& error_stream=std::cerr) {
+bool has_magic(const std::filesystem::path& path, std::ostream& error_stream = std::cerr) {
 
    std::error_code sec;
 
-   if(!std::filesystem::exists(path,sec))
+   if (!std::filesystem::exists(path, sec))
       return true;
 
    // search path for magic1.
    std::ifstream ifs(path);
-   if(!ifs.is_open()) {
+   if (!ifs.is_open()) {
       error_stream << "Failed to open " << path << "\n";
       return false;
    }
 
-   for(std::array<char,255> buffer; ifs.getline(buffer.data(), buffer.size()); /**/) {
+   for (std::array<char, 255> buffer; ifs.getline(buffer.data(), buffer.size()); /**/) {
       // Sanity check size of search string against the buffer.
       static_assert(magic1.size() < buffer.size(), "Buffer is to small to test for magic value.");
-      if(magic1 == buffer.data())
+      if (magic1 == buffer.data())
          return true;
    }
 
@@ -50,29 +50,29 @@ bool project::populate(pop action_type, std::ostream& error_stream) noexcept {
    bool force_replace = (action_type == pop::force_replace);
 
    // Sanity check: ensure path is valid.
-   if(m_path.empty()) {
+   if (m_path.empty()) {
       error_stream << "Can not populate a project without a path.\n";
       return false;
    }
 
    // Find the project path, and make sure the subdirs/project directory tree exists.
    auto project_path = m_path.parent_path();
-   if(!init_dirs(project_path, false, error_stream)) // expect_empty is `false`, it's okay if everthing exists.
-      return false;                                  // But its not okay if the filesystem doesn't already exist AND can't be created.
+   if (!init_dirs(project_path, false, error_stream)) // expect_empty is `false`, it's okay if everthing exists.
+      return false;                                   // But its not okay if the filesystem doesn't already exist AND can't be created.
 
    std::error_code sec;
 
    // Check to see if the top level cmake file needs to be created.
    {
-      auto path=project_path/cmake_lists;
+      auto path = project_path / cmake_lists;
       bool create = true;
-      if(!force_replace && std::filesystem::exists(path,sec) )  {
+      if (!force_replace && std::filesystem::exists(path, sec)) {
          // Look to see if the header contains the magic, if it does we will not create the file.
-         create=has_magic(path);
+         create = has_magic(path);
       }
-      if(create) {
+      if (create) {
          std::ofstream ofs(path);
-         if(!ofs.good()) {
+         if (!ofs.good()) {
             error_stream << "Can not open path for writing: << " << path << "\n";
          }
          else {
@@ -118,7 +118,6 @@ bool project::populate(pop action_type, std::ostream& error_stream) noexcept {
 
 
    // Finally CMake the project. Ensure the output goes to a log file.
-
 
 
 

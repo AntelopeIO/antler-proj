@@ -1,5 +1,5 @@
-#ifndef	antler_system_exec_h
-# error "bad inclusion"
+#ifndef antler_system_exec_h
+#error "bad inclusion"
 #endif
 
 #include <stdio.h>
@@ -19,15 +19,15 @@ inline result exec(std::string_view cmd_in) noexcept {
 
    // Open the pipe...
    FILE* pipe = popen(cmd.c_str(), "r");
-   if(!pipe) {
+   if (!pipe) {
       // ...let the user know on failure.
       rv.return_code = -1;
       rv.output = "antler::system::exec() error: failed to open pipe.";
       return rv;
    }
 
-   std::array<char,256> buffer;
-   while( fgets(buffer.data(), buffer.size(), pipe) != nullptr)
+   std::array<char, 256> buffer;
+   while (fgets(buffer.data(), buffer.size(), pipe) != nullptr)
       rv.output += buffer.data();
 
    rv.return_code = pclose(pipe);

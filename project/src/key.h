@@ -29,8 +29,8 @@ enum class word {
    version,                     // Deps: version is a synonym for release.
 };
 
-//template<typename STRING_TYPE>
-//word to_word(STRING_TYPE s);
+// template<typename STRING_TYPE>
+// word to_word(STRING_TYPE s);
 word to_word(std::string_view s);
 
 std::string to_string(word e);

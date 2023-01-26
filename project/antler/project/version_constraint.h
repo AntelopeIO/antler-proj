@@ -32,8 +32,7 @@ public:
    void print(std::ostream& os) const noexcept;
 
 private:
-
-   void load(std::string_view s, std::ostream& os=std::cerr);
+   void load(std::string_view s, std::ostream& os = std::cerr);
 
 
    std::string m_raw;

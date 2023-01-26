@@ -21,14 +21,10 @@ public:
    };
 
 public:
-
-
-
    // parse a project from a project.yml
 
    // constructors
    project();
-   //project(const char* filename);
    //project(const std::filesystem::path& filename);
 
 
@@ -53,7 +49,7 @@ public:
    /// @param name  The object name to search for.
    /// @param type  Limit the search to a single type.
    /// @return true if an object with the provided name exists in the indicated list.
-   bool object_exists(std::string_view name, object::type_t type=object::type_t::any) const noexcept;
+   bool object_exists(std::string_view name, object::type_t type = object::type_t::any) const noexcept;
    /// Return the first object with the matching name where search order is apps, libs, tests.
    /// @param name  The name to search for in the object lists.
    /// @return optional with a copy of the object.
@@ -65,7 +61,7 @@ public:
    antler::project::object::list_t all_objects() const noexcept;
 
    /// Validate the project.
-   bool is_valid(std::ostream& error_stream=std::cerr);
+   bool is_valid(std::ostream& error_stream = std::cerr);
 
 
 
@@ -79,13 +75,13 @@ public:
    /// @note path() must be set.
    /// @param error_stream  The stream to print failure reports to.
    /// @return true for success; false for failure.
-   bool sync(std::ostream& error_stream=std::cerr) noexcept;
+   bool sync(std::ostream& error_stream = std::cerr) noexcept;
 
    /// Populate the directory by generating files.
    /// @param action_type  The type of population action to perform.
    /// @param error_stream  The stream to print failure reports to.
    /// @return true for success; false for failure.
-   bool populate(pop action_type, std::ostream& error_stream=std::cerr) noexcept;
+   bool populate(pop action_type, std::ostream& error_stream = std::cerr) noexcept;
 
 
    /// Factory function.
@@ -94,7 +90,7 @@ public:
    /// @param path  The location of the project.yaml file or the path containing it.
    /// @param error_stream  The stream to print failure reports to.
    /// @return std::optional containing a project if parsing succeeded.
-   static std::optional<project> parse(const std::filesystem::path& path, std::ostream& error_stream=std::cerr);
+   static std::optional<project> parse(const std::filesystem::path& path, std::ostream& error_stream = std::cerr);
 
    /// Initialize the directories
    /// @param path  The location of the project.yaml file or the path containing it.
@@ -103,7 +99,7 @@ public:
    ///                        when false, only failures to create will generate a false return.
    /// @param error_stream  The stream to print failure reports to.
    /// @return true for success; false indidates failure.
-   static bool init_dirs(const std::filesystem::path& path, bool expect_empty=true, std::ostream& error_stream=std::cerr) noexcept;
+   static bool init_dirs(const std::filesystem::path& path, bool expect_empty = true, std::ostream& error_stream = std::cerr) noexcept;
 
    /// Search this and directories above for `project.yaml` file.
    /// @note if path extension is `.yaml` no directory search is performed, instead return value indicating existence of path a regular file.

@@ -10,7 +10,7 @@ namespace antler {
 namespace cmake {
 
 /// @return the cmake_minimum string with trailing newline.
-std::string minimum(unsigned major, unsigned minor=0, unsigned patch=0) noexcept;
+std::string minimum(unsigned major, unsigned minor = 0, unsigned patch = 0) noexcept;
 
 std::string add_subdirectory(const std::filesystem::path path) noexcept;
 

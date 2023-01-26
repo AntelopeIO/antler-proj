@@ -30,10 +30,9 @@ int usage(std::string_view err) {
       << "\n"
       << " If either TEST_NAME or TEST_CMD is absent, the user is prompted.\n"
       << " Note that an empty value for TEST_CMD is valid (e.g. \"\" is a valid empty argument.\n"
-      << "\n"
-      ;
+      << "\n";
 
-   if(err.empty())
+   if (err.empty())
       return 0;
    os << "Error: " << err << "\n";
    return -1;
@@ -45,19 +44,19 @@ int main(int argc, char** argv) {
    COMMON_INIT("Add a test entry.");
 
    // Test arg count is valid.
-   if(argc < 2)
+   if (argc < 2)
       return usage("path is required.");
-   if(argc > 4)
+   if (argc > 4)
       return usage("too many options.");
 
    // Get the path to the project.
-   std::filesystem::path path=argv[1];
-   if(!antler::project::project::update_path(path))
+   std::filesystem::path path = argv[1];
+   if (!antler::project::project::update_path(path))
       return usage("path either did not exist or no `project.yaml` file could be found.");
 
    // Load the project.
    auto optional_proj = antler::project::project::parse(path);
-   if( !optional_proj )
+   if (!optional_proj)
       return usage("Failed to load project file.");
    auto proj = optional_proj.value();
 
@@ -65,46 +64,44 @@ int main(int argc, char** argv) {
    std::string name;
    std::string cmd;
 
-   if(argc >= 3) {
+   if (argc >= 3) {
       name = argv[2];
-      if(proj.object_exists(name, antler::project::object::type_t::test))
+      if (proj.object_exists(name, antler::project::object::type_t::test))
          return usage("TEST_NAME already exists in project.");
    }
 
-   if(argc >= 4)
+   if (argc >= 4)
       cmd = argv[3];
    else {
-      for(;;) {
-         if(!name.empty()) {
+      for (;;) {
+         if (!name.empty()) {
 
             std::cout
                << "\n"
                << "test name: " << name << "\n"
                << "command:   " << cmd << "\n"
-               << "\n"
-               ;
+               << "\n";
 
-            if(proj.object_exists(name, antler::project::object::type_t::test)) {
+            if (proj.object_exists(name, antler::project::object::type_t::test)) {
                std::cerr << "Test " << name << " already exists in project. Can't add.\n\n";
-            }
-            else {
-               if(proj.object_exists(name))
+            } else {
+               if (proj.object_exists(name))
                   std::cerr << "WARNING: " << name << " already exists in project as app and/or lib.\n\n";
 
-               if(is_this_correct())
+               if (is_this_correct())
                   break;
             }
          }
 
          get_name("test name", name);
 
-         for(;;) {
+         for (;;) {
             std::cout << "Enter test command (space to clear): [" << cmd << "]" << std::flush;
             std::string temp;
-            std::getline(std::cin,temp);
-            if(temp == " ")
+            std::getline(std::cin, temp);
+            if (temp == " ")
                cmd.clear();
-            else if(!temp.empty())
+            else if (!temp.empty())
                cmd = temp;
             else
                continue;

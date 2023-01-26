@@ -6,7 +6,7 @@
 #include <antler/project/version.h>
 #include <vector>
 #include <iostream>
-#include <utility>              // std::pair
+#include <utility> // std::pair
 #include <filesystem>
 
 
@@ -83,8 +83,6 @@ private:
 
 } // namespace project
 } // namespace antler
-
-
 
 
 

@@ -27,10 +27,9 @@ int usage(std::string_view err) {
       << " `project.yaml` is updated to add a new app.\n"
       << "\n"
       << " If either APP_NAME or APP_LANG is absent, the user is prompted.\n"
-      << "\n"
-      ;
+      << "\n";
 
-   if(err.empty())
+   if (err.empty())
       return 0;
    os << "Error: " << err << "\n";
    return -1;
@@ -42,20 +41,20 @@ int main(int argc, char** argv) {
    COMMON_INIT("Populate the project with CMake files.");
 
    // Test arg count is valid.
-   if(argc < 2)
+   if (argc < 2)
       return usage("path is required.");
-   if(argc > 2)
+   if (argc > 2)
       return usage("too many options.");
 
 
    // Get the path to the project.
-   std::filesystem::path path=argv[1];
-   if(!antler::project::project::update_path(path))
+   std::filesystem::path path = argv[1];
+   if (!antler::project::project::update_path(path))
       return usage("path either did not exist or no `project.yaml` file could be found.");
 
    // Load the project.
    auto optional_proj = antler::project::project::parse(path);
-   if( !optional_proj )
+   if (!optional_proj)
       return usage("Failed to load project file.");
    auto proj = optional_proj.value();
 
@@ -63,7 +62,7 @@ int main(int argc, char** argv) {
 
    bool result = proj.populate(pop_type);
 
-   if(result)
+   if (result)
       return 0;
    std::cerr << "Fail\n";
    return -1;
