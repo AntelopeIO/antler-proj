@@ -1,0 +1,32 @@
+diff -uN tomlc99-894902820a3ea2f1ec470cd7fe338bde54045cf5/CMakeLists.txt tomlc99-894902820a3ea2f1ec470cd7fe338bde54045cf52/CMakeLists.txt
+--- tomlc99-894902820a3ea2f1ec470cd7fe338bde54045cf5/CMakeLists.txt	1969-12-31 18:00:00.000000000 -0600
++++ tomlc99-894902820a3ea2f1ec470cd7fe338bde54045cf52/CMakeLists.txt	2022-12-01 15:00:18.867019565 -0600
+@@ -0,0 +1,28 @@
++#
++# Add the library
++#
++add_library(toml STATIC toml.h toml.c)
++target_include_directories(toml PUBLIC
++  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
++  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
++  $<INSTALL_INTERFACE:${INSTALL_INCLUDE_DIR}>
++  )
++
++
++#
++# Install rules
++#
++install(
++  FILES
++    toml.h
++  DESTINATION include COMPONENT Development
++  )
++
++install(
++  TARGETS toml
++  EXPORT tomlTargets
++  RUNTIME DESTINATION "${INSTALL_BIN_DIR}" COMPONENT Runtime
++  LIBRARY DESTINATION "${INSTALL_LIB_DIR}" COMPONENT Development
++  ARCHIVE DESTINATION "${INSTALL_LIB_DIR}" COMPONENT Development
++  )
++

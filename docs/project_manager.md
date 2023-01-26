@@ -62,7 +62,7 @@ The directory structure for the project manager system will be as such:
 ```
 ──project_root
     ├───apps
-    ├───include  
+    ├───include
     ├───ricardian
     ├───libs
     ├───tests
@@ -232,3 +232,8 @@ class project {
 
 } // ns antler
 ```
+
+# Example projects
+
+https://github.com/larryk85/sample_contract
+https://github.com/larryk85/test_lib

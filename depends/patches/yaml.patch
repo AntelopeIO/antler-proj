@@ -1,0 +1,13 @@
+Common subdirectories: yaml-src/.github and yaml-src-mod/.github
+diff -uN yaml-src/CMakeLists.txt yaml-src-mod/CMakeLists.txt
+--- yaml-src/CMakeLists.txt	2022-12-01 16:14:14.224201830 -0600
++++ yaml-src-mod/CMakeLists.txt	2022-12-01 16:16:07.654574375 -0600
+@@ -100,7 +100,7 @@
+ #
+ include(CTest) # This module defines BUILD_TESTING option
+ if(BUILD_TESTING)
+-  add_subdirectory(tests)
++#  add_subdirectory(tests)
+ endif()
+
+ #

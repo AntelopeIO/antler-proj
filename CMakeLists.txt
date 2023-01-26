@@ -1,0 +1,25 @@
+cmake_minimum_required(VERSION 3.11)
+
+project("Antelope Project Management System")
+
+# Add dependent libraries.
+#   Make sure this happens BEFORE we include our common settings,
+#   otherwise we'll be compiling outside libraries with -Wall,
+#   -Wextra, -Werror
+add_subdirectory( depends )
+
+# Add some common stuff.
+include( ./common.cmake REQUIRED )
+
+
+add_subdirectory( common )
+add_subdirectory( project )
+add_subdirectory( aproj )
+#add_subdirectory( aproj-qt )
+
+
+option(BUILD_TESTS "Build and run the tests." On)
+if(BUILD_TESTS)
+  enable_testing()
+  add_subdirectory( test )
+endif()
