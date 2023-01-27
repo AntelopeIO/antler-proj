@@ -44,6 +44,13 @@ Note that CMake's FetchDependencies command is used. It occasiaonally
 errors out. If this happens, it may be necessary to remove the `_deps`
 directory from your build directory.
 
+## Test
+
+Currently, the following will run some automated tests:
+```bash
+ninja && ninja test
+```
+
 ## Maintaining
 
 Directories in the project root:
