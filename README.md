@@ -32,7 +32,7 @@ Additionally we recomend using [ninja build](https://ninja-build.org/) for fast 
 
 ## Building
 
-From the project root, the following will build the project.
+Assuming you have ninja and the other dependencies installed, from the project root, the following will build the project:
 ```bash
 mkdir -p Build \
     && cd Build \
