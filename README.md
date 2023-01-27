@@ -25,7 +25,7 @@ work.
 
 Building aproj requires the following dependencies:
 - C++20 compiler (e.g. gcc-10 or clang-13).
-- [CMake](https://cmake.org/overview/) version 3.11 or greater (note the requirement [here](./CMakeLists.txt#1)).
+- [CMake](https://cmake.org/overview/) version 3.11 or greater (note the requirement [here](./CMakeLists.txt#L1)).
 
 Additionally we recomend using [ninja build](https://ninja-build.org/) for fast builds.
 
