@@ -40,6 +40,10 @@ mkdir -p Build \
     && cmake --build .
 ```
 
+Note that CMake's FetchDependencies command is used. It occasiaonally
+errors out. If this happens, it may be necessary to remove the `_deps`
+directory from your build directory.
+
 ## Maintaining
 
 Directories in the project root:
