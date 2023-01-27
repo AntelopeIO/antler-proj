@@ -15,7 +15,12 @@ endfunction()
 file(GLOB src_cpp ./*.cpp)
 
 foreach(file_name IN ITEMS ${src_cpp})
-  cmake_path(GET file_name FILENAME fn)
+  if(${CMAKE_VERSION} VERSION_LESS "3.20")
+    get_filename_component(fn ${file_name} NAME)
+  else()
+    cmake_path(GET file_name FILENAME fn)
+  endif()
+
   string(REPLACE ".cpp" "" name ${fn})
   add_aproj("${name}" "${fn}")
 endforeach()

@@ -4,7 +4,12 @@ include(CTest)
 file(GLOB src_cpp ./*.cpp)
 
 foreach(file_name IN ITEMS ${src_cpp})
-  cmake_path(GET file_name FILENAME temp)
+  if(${CMAKE_VERSION} VERSION_LESS "3.20")
+    get_filename_component(temp ${file_name} NAME)
+  else()
+    cmake_path(GET file_name FILENAME temp)
+  endif()
+
   string(REPLACE ".cpp" "" name ${temp})
   set(name "test-${name}")
 
