@@ -40,6 +40,8 @@ mkdir -p Build \
     && cmake --build .
 ```
 
+### Troubleshooting
+
 Note that CMake's
 [FetchContent](https://cmake.org/cmake/help/latest/module/FetchContent.html)
 command is used for getting dependencies. It occasiaonally errors
