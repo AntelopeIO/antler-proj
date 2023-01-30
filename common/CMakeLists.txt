@@ -1,3 +1,5 @@
+# @copyright See `LICENSE` in the root directory of this project.
+
 set( target_name antler_common )
 
 # I know. But it's appropriate to glob for now.

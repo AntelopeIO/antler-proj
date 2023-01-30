@@ -1,4 +1,5 @@
 # rapidyaml (ryml) dependency
+# @copyright See `LICENSE` in the root directory of this project.
 
 
 if(true)

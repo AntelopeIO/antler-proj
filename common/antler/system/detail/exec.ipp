@@ -2,6 +2,8 @@
 #error "bad inclusion"
 #endif
 
+/// @copyright See `LICENSE` in the root directory of this project.
+
 #include <stdio.h>
 #include <array>
 #include <sstream>

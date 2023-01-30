@@ -1,3 +1,5 @@
+/// @copyright See `LICENSE` in the root directory of this project.
+
 #include <antler/project/object.h>
 
 #include <algorithm> // find_if()

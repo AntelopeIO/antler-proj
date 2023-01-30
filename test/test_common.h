@@ -1,6 +1,8 @@
 #ifndef antelope_test_common_h
 #define antelope_test_common_h
 
+/// @copyright See `LICENSE` in the root directory of this project.
+
 
 namespace global {
 

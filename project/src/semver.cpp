@@ -1,3 +1,5 @@
+/// @copyright See `LICENSE` in the root directory of this project.
+
 #include <antler/project/semver.h>
 #include <antler/string/from.h>
 #include <antler/string/split.h>
@@ -92,6 +94,8 @@ cmp_result semver::compare_pb_rule12(std::string_view lhs, std::string_view rhs)
 
    // Requirements here:
    //    https://semver.org/spec/v2.0.0-rc.1.html#spec-item-12
+   // Correct requirements are actually here:
+   //    https://github.com/semver/semver/blob/v2.0.0/semver.md
 
    // Split on '.'
    auto l = string::split(lhs, ".");

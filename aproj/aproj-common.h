@@ -1,6 +1,8 @@
 #ifndef antler_aproj_aproj_common_h
 #define antler_aproj_aproj_common_h
 
+/// @copyright See `LICENSE` in the root directory of this project.
+
 #include <stdlib.h>
 #include <iostream>
 #include <filesystem>
@@ -10,6 +12,9 @@
 
 const std::string_view project_prefix{ "aproj-" };
 
+/// Convert an exe_name into a subcommand and print. Example aproj-init <brief> become "--init <brief>".
+/// @param exe_name  The executable name to convert to subcommand.
+/// @param brief  The brief description of the subcommand.
 inline void print_brief(std::string& exe_name, const std::string& brief_text) {
    exe_name.erase(0, project_prefix.size());
    // constexpr size_t width{17};
@@ -19,6 +24,9 @@ inline void print_brief(std::string& exe_name, const std::string& brief_text) {
 }
 
 
+/// macro to simplify creating the err string for usage.
+/// Example:
+///   RETURN_USAGE( << "Command " << cmd << " resulted in error number: " << enum << ": " << e.what() );
 #define RETURN_USAGE(X)       \
    {                          \
       std::stringstream ss;   \
@@ -26,6 +34,9 @@ inline void print_brief(std::string& exe_name, const std::string& brief_text) {
       return usage(ss.str()); \
    }
 
+
+/// Common init macro for subcommands. This function sets up expected values and prints the brief string if it was command to.
+/// @param BRIEF_TEXT  The brief portion of the text to print when the falg `--brief` is received.
 #define COMMON_INIT(BRIEF_TEXT)                                                      \
    {                                                                                 \
       /* set exe name for usage */                                                   \
@@ -55,7 +66,11 @@ inline void print_brief(std::string& exe_name, const std::string& brief_text) {
    } // COMMON_INIT
 
 
-
+/// Print object dependencies to a stream.
+/// @param obj_list  The list of objects to interate over.
+/// @param app  Set to true to print dependencies from objects of type app, otherwise they are skipped.
+/// @param lib  Set to true to print dependencies from objects of type lib, otherwise they are skipped.
+/// @param tst  Set to true to print dependencies from objects of type tst, otherwise they are skipped.
 template<typename T>
 inline void dump_obj_deps(const T& obj_list, bool app, bool lib, bool tst, std::ostream& os = std::cout) {
    os << "Displaying dependencies from entries of type:";
@@ -102,13 +117,17 @@ inline void dump_obj_deps(const T& obj_list, bool app, bool lib, bool tst, std::
 }
 
 
+/// Print object dependencies to a stream.
+/// @param obj_list  The list of objects to interate over.
 template<typename T>
 inline void dump_obj_deps(const T& obj_list, std::ostream& os = std::cout) {
    dump_obj_deps(obj_list, true, true, true, os);
 }
 
 
-/// ask the user if this is correct.
+/// Ask the user if this is correct.
+/// @param msg  The message to print.
+/// @return  The result of the query: true indicates yes, correct; false indicates no, incorrect.
 inline bool is_this_correct(std::string_view msg = "Is this correct?") noexcept {
    std::string yn = "x"; // yes or no?
    while (yn != "y" && yn != "n") {
@@ -125,6 +144,8 @@ inline bool is_this_correct(std::string_view msg = "Is this correct?") noexcept 
 
 
 /// Test to see if an object (app/lib/test) name is valid.
+/// @param s  An object name.
+/// @return true indicates s was valid; false otherwise.
 inline bool is_valid_name(std::string_view s) noexcept {
    if (s.empty())
       return false;
@@ -136,7 +157,10 @@ inline bool is_valid_name(std::string_view s) noexcept {
 }
 
 
-
+/// Ask the user for a value.
+/// @param friendly_name  The label/text to display in the prompt.
+/// @param name  Reference to the value to set. Comes in as default value.
+/// @param allow_empty  Set to true to allow the user to clear the value.
 inline void get_name(std::string_view friendly_name, std::string& name, bool allow_empty = false) noexcept {
    // Loop until return.
    for (;;) {
@@ -166,6 +190,9 @@ inline void get_name(std::string_view friendly_name, std::string& name, bool all
 
 
 /// Test to see if a hash is valid.
+/// @param s  The hash string to check.
+/// @param byte_count  Expected size of the hash in bytes.
+/// @return true if s is `byte_count` bytes long and contains only valid hex values.
 inline bool is_valid_hash(std::string_view s, size_t byte_count = 32) noexcept {
    if (s.size() != byte_count)
       return false;
@@ -178,6 +205,8 @@ inline bool is_valid_hash(std::string_view s, size_t byte_count = 32) noexcept {
 }
 
 
+//
+**********
 inline void get_hash(std::string_view friendly_name, std::string& hash, bool allow_empty = false) noexcept {
    // Loop until return.
    for (;;) {

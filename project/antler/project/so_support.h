@@ -1,6 +1,8 @@
 #ifndef project_parser_so_support_h
 #define project_parser_so_support_h
 
+/// @copyright See `LICENSE` in the root directory of this project.
+
 #ifdef __cplusplus
 extern "C" {
 #endif

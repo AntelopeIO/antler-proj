@@ -1,3 +1,5 @@
+/// @copyright See `LICENSE` in the root directory of this project.
+
 #include <iostream>
 #include <filesystem>
 
@@ -11,6 +13,9 @@ std::string exe_name;
 std::string indirect;
 
 
+/// Print usage information to std::cout and return 0 or, optionally - if err is not-empty() - print to std::cerr and return -1.
+/// @param err  An error string to print. If empty, print to std::cout and return 0; otherwise std::cerr and return -1.
+/// @return 0 if err.empty(); otherwise -1. This value is suitable for using at exit.
 int usage(std::string_view err) {
 
    std::ostream& os = (err.empty() ? std::cout : std::cerr);

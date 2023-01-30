@@ -1,3 +1,5 @@
+/// @copyright See `LICENSE` in the root directory of this project.
+
 #include <antler/project/version.h>
 #include <antler/string/from.h>
 #include <antler/string/split.h>
@@ -158,8 +160,8 @@ version::cmp version::raw_compare(std::string_view l_in, std::string_view r_in) 
    if (l_in == r_in)
       return cmp::eq;
 
-   auto l = string::split(l_in, ".,-;");
-   auto r = string::split(r_in, ".,-;");
+   auto l = string::split(l_in, ".,-+;");
+   auto r = string::split(r_in, ".,-+;");
 
    for (size_t i = 0; i < std::min(l.size(), r.size()); ++i) {
       if (l[i] == r[i])

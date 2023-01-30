@@ -1,6 +1,8 @@
 #ifndef antler_project_project_h
 #define antler_project_project_h
 
+/// @copyright See `LICENSE` in the root directory of this project.
+
 #include <antler/project/object.h>
 #include <filesystem>
 #include <optional>
@@ -11,12 +13,13 @@
 namespace antler {
 namespace project {
 
+/// This class represents the contents of a `project.yaml` file. Functions exist to encode and decode from a `project.yaml` file.
 class project {
 public:
-   //
+   /// How to populate enum - this enum indicates how a project directory should be populated.
    enum class pop {
-      force_replace,
-      honor_deltas,
+      force_replace,            ///< Overwrite any existing files, even the ones the user marked do not change.
+      honor_deltas,             ///< Honor do not change markers.
       // merge_deltas,
    };
 
@@ -27,42 +30,75 @@ public:
    project();
    //project(const std::filesystem::path& filename);
 
-
+   /// Get the project name.
+   /// @return  The name of the project.
    std::string_view name() const noexcept;
+   /// Set the project name.
+   /// @param s  The new name of the project.
    void name(std::string_view s) noexcept;
 
+   /// Get the path to the project. This is the actual `project.yaml` file, not the containing directory.
+   /// @return  The path to the project file.
    std::filesystem::path path() const noexcept;
+   /// Set the path to the project. This is the actual `project.yaml` file, not the containing directory.
+   /// @param path  The new path to the project file.
    void path(const std::filesystem::path& path) noexcept;
 
+   /// Get this project's version info.
+   /// @return  The version information.
    antler::project::version version() const noexcept;
+   /// Set this project's version info.
+   /// @param ver  The new version information.
    void version(const antler::project::version& ver) noexcept;
 
-
+   /// Remove a named object of a given type. If type is any, then all objects with name are removed.
+   /// @param name  The name of the object(s) to remove.
+   /// @param type  The type of the object(s) to remove. If type is any, then all objects with name are removed.
+   /// @return True if one or more objects are removed; otherwise, false.
    bool remove(std::string_view name, object::type_t type) noexcept;
 
+   /// update or insert a new object. It's type() is evaluated to determine which list it belongs in. If the object already
+   /// exists, an update is performed by removing the old one and adding the new one.
+   /// @param obj  The object to update or insert.
    void upsert(object&& obj) noexcept;
+   /// update or insert a new application object. If the object already exists, an update is performed by removing the old one and
+   /// adding the new one.
+   /// @param obj  The object to update or insert.
    void upsert_app(object&& app) noexcept;
+   /// update or insert a new library object. If the object already exists, an update is performed by removing the old one and
+   /// adding the new one.
+   /// @param obj  The object to update or insert.
    void upsert_lib(object&& lib) noexcept;
+   /// update or insert a new test object. If the object already exists, an update is performed by removing the old one and
+   /// adding the new one.
+   /// @param obj  The object to update or insert.
    void upsert_test(object&& test) noexcept;
 
    /// Search the lists to see if an object exists.
    /// @param name  The object name to search for.
-   /// @param type  Limit the search to a single type.
+   /// @param type  If type is other than any, the search is limited to that single type.
    /// @return true if an object with the provided name exists in the indicated list.
    bool object_exists(std::string_view name, object::type_t type = object::type_t::any) const noexcept;
    /// Return the first object with the matching name where search order is apps, libs, tests.
+   /// @TODO replace this with a std::vector<antler::project::object>/antler::project::object::list_t to return all the objects
+   /// with matching names.
    /// @param name  The name to search for in the object lists.
    /// @return optional with a copy of the object.
    std::optional<antler::project::object> object(std::string_view name) const noexcept;
 
+   /// @return A const ref to the application list.
    const antler::project::object::list_t& apps() const noexcept;
+   /// @return A const ref to the library list.
    const antler::project::object::list_t& libs() const noexcept;
+   /// @return A const ref to the test list.
    const antler::project::object::list_t& tests() const noexcept;
+   /// @return a list of ALL the
    antler::project::object::list_t all_objects() const noexcept;
 
    /// Validate the project.
+   /// @param error_stream  Stream location for printing warnings and errors.
+   /// @return true if the project is valid; otherwise, false.
    bool is_valid(std::ostream& error_stream = std::cerr);
-
 
 
    /// Print the yaml object to a stream.
@@ -108,21 +144,22 @@ public:
    static bool update_path(std::filesystem::path& path) noexcept;
 
    /// Print the pop enum.
+   /// @param os  The output stream to print to.
+   /// @param e  The pop enum to print.
    static void print(std::ostream& os, pop e) noexcept;
 
 private:
-   std::filesystem::path m_path; // path to the project.yaml file
-   std::string m_name;
-   antler::project::version m_ver;
-   object::list_t m_apps;
-   object::list_t m_libs;
-   object::list_t m_tests;
+   std::filesystem::path m_path;   ///< path to the project.yaml file.
+   std::string m_name;             ///< The project name.
+   antler::project::version m_ver; ///< The version information for this project.
+   object::list_t m_apps;          ///< List of applications.
+   object::list_t m_libs;          ///< List of libraries.
+   object::list_t m_tests;         ///< List of tests.
 };
-
-
 
 } // namespace project
 } // namespace antler
+
 
 inline std::ostream& operator<<(std::ostream& os, const antler::project::project& o) { o.print(os); return os; }
 inline std::ostream& operator<<(std::ostream& os, const antler::project::project::pop& e) { antler::project::project::print(os,e); return os; }

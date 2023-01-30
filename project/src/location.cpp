@@ -1,3 +1,5 @@
+/// @copyright See `LICENSE` in the root directory of this project.
+
 #include <antler/project/location.h>
 #include <antler/system/exec.h>
 #include <antler/string/split.h>

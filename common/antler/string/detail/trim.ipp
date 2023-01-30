@@ -2,6 +2,7 @@
 #error "bad inclusion"
 #endif
 
+/// @copyright See `LICENSE` in the root directory of this project.
 
 
 namespace antler {

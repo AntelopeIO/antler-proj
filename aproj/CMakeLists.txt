@@ -1,3 +1,4 @@
+# @copyright See `LICENSE` in the root directory of this project.
 
 #
 # These files are generally built in a common way, so here are some functions to simplify the process.

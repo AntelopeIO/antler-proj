@@ -1,5 +1,7 @@
 # common.cmake
 #
+# @copyright See `LICENSE` in the root directory of this project.
+#
 # This file sets the following values:
 #
 #

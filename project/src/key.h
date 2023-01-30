@@ -1,6 +1,8 @@
 #ifndef src_key_h
 #define src_key_h
 
+/// @copyright See `LICENSE` in the root directory of this project.
+
 #include <string>
 #include <string_view>
 #include <antler/project/object.h>
@@ -8,7 +10,7 @@
 
 namespace key {
 
-
+// These are the valid keywords for the `project.yaml` file.
 enum class word {
    none,
 
@@ -31,10 +33,18 @@ enum class word {
 
 // template<typename STRING_TYPE>
 // word to_word(STRING_TYPE s);
+
+/// Convert a string into a word. `none` is returned for a failure to parse.
+/// @param s  The string to parse.
+/// @return s as a key word, none if s could not be parsed.
 word to_word(std::string_view s);
 
+/// Convert e to a string.
+/// @param e  The word to convert to a string.
+/// @return String representation of e.
 std::string to_string(word e);
 
+/// This is a convinience for the yaml encoder/decoder.
 extern const char* literals[];
 
 } // namespace key

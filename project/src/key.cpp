@@ -1,6 +1,9 @@
+/// @copyright See `LICENSE` in the root directory of this project.
+
 #include <key.h>
 #include <ostream>
 
+/// Macro to automate insertion and extraction of key::word enum.
 #define WORD_CASE_OF                               \
    CASE_OF( none,    "none" )                      \
                                                    \

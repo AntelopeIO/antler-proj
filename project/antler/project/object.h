@@ -1,6 +1,8 @@
 #ifndef antler_project_object_h
 #define antler_project_object_h
 
+/// @copyright See `LICENSE` in the root directory of this project.
+
 #include <string>
 #include <string_view>
 #include <antler/project/dependency.h>
@@ -12,25 +14,36 @@
 namespace antler {
 namespace project {
 
+/// This class represents one of the app, lib, or test objects in a `project.yaml` file.
 class object {
 public:
+   /// This enum is used to communicate object type.
    enum type_t {
-      none,
-      app,
-      lib,
-      test,
-      any,                      // any/all
+      none,                     ///< generally used for invalid state.
+      app,                      ///< An application.
+      lib,                      ///< A library.
+      test,                     ///< A test.
+      any,                      ///< any/all, used for searches.
    };
    using list_t = std::vector<object>;
 
 public:
    // use default constructors, copy and move constructors and assignments
+
+   /// Create a n object.
+   /// @param ot  The type of this object.
    object(type_t ot);
 
    /// Object constructor for app and lib types.
+   /// @param ot  The type of this object. Must be app or lib.
+   /// @param name  The Name of the object.
+   /// @param lang  The language type of this object.
+   /// @param opts  Compile time options for this object. May be empty.
    object(type_t ot, std::string_view name, antler::project::language lang, std::string_view opts);
    /// Object constructor for test type.
-   object(std::string_view test_name, std::string_view command);
+   /// @param name  The Name of the object.
+   /// @param command  The command to run for this test.
+   object(std::string_view name, std::string_view command);
 
 
    /// @return The type of this object.
@@ -54,7 +67,9 @@ public:
    /// @param options  The new options to store.
    void options(std::string_view options) noexcept;
 
+   /// @return  The test command.
    std::string_view command() const noexcept;
+   /// @param s  The new test command.
    void command(std::string_view s) noexcept;
 
 
@@ -75,21 +90,21 @@ public:
    std::optional<antler::project::dependency> dependency(std::string_view name);
 
 private:
-   type_t m_type = none;
-   std::string m_name;
-   antler::project::dependency::list_t m_dependencies;
+   type_t m_type = none;                               ///< Object type: app, lib, or test.
+   std::string m_name;                                 ///< Object name.
+   antler::project::dependency::list_t m_dependencies; ///< list of dependencies.
 
    // app, lib:
-   antler::project::language m_language = language::none;
-   std::string m_options;
+   antler::project::language m_language = language::none; ///< Language type, only valid for app or lib.
+   std::string m_options;                                 ///< Compile options, only valid for app or lib.
 
    // test:
-   std::string m_command;
+   std::string m_command;       ///< Test command, only valid for test.
 };
-
 
 } // namespace project
 } // namespace antler
+
 
 std::ostream& operator<<(std::ostream& os, const antler::project::object::type_t& e);
 std::istream& operator>>(std::istream& is, antler::project::object::type_t& e);

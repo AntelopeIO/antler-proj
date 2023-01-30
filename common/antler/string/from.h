@@ -1,9 +1,10 @@
 #ifndef antler_string_from_h
 #define antler_string_from_h
 
-/*
-   Sourced from libsb
-*/
+/// Convert from string into some numberic type.
+/// Sourced from libsb.
+/// @copyright See `LICENSE` in the root directory of this project.
+
 
 
 #include <string_view>
@@ -23,6 +24,7 @@ namespace string {
 ///   else {
 ///     std::cout << " Received value: " << num << "\n";
 ///   }
+/// @todo Correct for negative `-`, hex `0x`, and binary `0b` numbers. Don't worry about octal.
 /// @param s  The text source to convert.
 /// @param rv  This is a return value, it's updated if s was convertable to a T.
 /// @return  Returns true if rv was updated, false otherwise.

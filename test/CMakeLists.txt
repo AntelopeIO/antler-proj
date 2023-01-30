@@ -1,3 +1,5 @@
+# @copyright See `LICENSE` in the root directory of this project.
+
 include(CTest)
 
 # I know. But it's appropriate for now.
