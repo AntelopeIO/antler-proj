@@ -46,7 +46,7 @@ std::optional<std::string> load(const std::filesystem::path& path, std::ostream&
       return return_type();
    }
    std::uintmax_t sz = std::filesystem::file_size(path, sec);
-   if (sz == static_cast<std::uintmax_t>(-1)) {
+   if (sec || sz == static_cast<std::uintmax_t>(-1)) {
       os << "Can't determine file size for: " << path << " with error " << sec << "\n";
       return return_type();
    }
