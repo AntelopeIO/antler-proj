@@ -75,43 +75,43 @@ int main(int argc, char** argv) {
          return usage("TEST_NAME already exists in project.");
    }
 
-   if (argc >= 4)
+   // Interactive?
+   if (argc >= 4) {
+      // Non-interactive path.
       cmd = argv[3];
+   }
    else {
+      // Interactive path.
       for (;;) {
+         // If name is populated, we can show the info so far. If it's not populated, then skip straight to the queries.
          if (!name.empty()) {
 
+            // Print values.
             std::cout
                << "\n"
                << "test name: " << name << "\n"
                << "command:   " << cmd << "\n"
                << "\n";
 
+            // Check to see if name is a TEST duplicate.
             if (proj.object_exists(name, antler::project::object::type_t::test)) {
+               // Enform user of the duplicate.
                std::cerr << "Test " << name << " already exists in project. Can't add.\n\n";
             } else {
+               // Check to see if name is otherwise a duplicate, warn if so.
                if (proj.object_exists(name))
                   std::cerr << "WARNING: " << name << " already exists in project as app and/or lib.\n\n";
-
+               // Ask if the printed values are correct, if so break out of this loop.
                if (is_this_correct())
                   break;
             }
          }
 
+         // Querry for test name.
          get_name("test name", name);
 
-         for (;;) {
-            std::cout << "Enter test command (space to clear): [" << cmd << "]" << std::flush;
-            std::string temp;
-            std::getline(std::cin, temp);
-            if (temp == " ")
-               cmd.clear();
-            else if (!temp.empty())
-               cmd = temp;
-            else
-               continue;
-            break;
-         }
+         // Querry for test command.
+         get_string("test command", cmd, true);
       }
    }
 

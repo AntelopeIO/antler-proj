@@ -174,7 +174,8 @@ inline void get_name(std::string_view friendly_name, std::string& name, bool all
       if (temp.empty()) {
          if (allow_empty || !name.empty())
             return;
-      } else {
+      }
+      else {
          if (allow_empty && temp == " ") {
             name.clear();
             return;
@@ -223,7 +224,8 @@ inline void get_hash(std::string_view friendly_name, std::string& hash, bool all
       if (temp.empty()) {
          if (allow_empty || !hash.empty())
             return;
-      } else {
+      }
+      else {
          if (allow_empty && temp == " ") {
             hash.clear();
             return;
@@ -255,13 +257,49 @@ inline void get_loc(std::string_view friendly_name, std::string& loc, bool allow
       if (temp.empty()) {
          if (allow_empty || !loc.empty())
             return;
-      } else {
+      }
+      else {
          if (allow_empty && temp == " ") {
             loc.clear();
             return;
          }
          if (antler::project::dependency::validate_location(temp)) {
             loc = temp;
+            return;
+         }
+      }
+   }
+}
+
+
+/// Ask the user for a string value. Do not validate result.
+/// @param friendly_name  The label/text to display in the prompt.
+/// @param str  Reference to the value to set. Comes in as default value.
+/// @param allow_empty  Set to true to allow the user to clear the value.
+inline void get_string(std::string_view friendly_name, std::string& str, bool allow_empty = false) noexcept {
+   // Loop until return.
+   for (;;) {
+      std::cout << "Enter " << friendly_name;
+      if (allow_empty)
+         std::cout << " (space to clear)";
+      std::cout << ": [" << str << "]" << std::flush;
+
+      std::string temp;
+      std::getline(std::cin, temp);
+      // No change?
+      if (temp.empty()) {
+         if (allow_empty || !str.empty())
+            return;
+      }
+      else {
+         if (temp == " ") {
+            if (allow_empty) {
+               str.clear();
+               return;
+            }
+         }
+         else if (!temp.empty()) {
+            str = temp;
             return;
          }
       }
