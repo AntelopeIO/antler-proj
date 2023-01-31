@@ -198,8 +198,7 @@ bool project::sync(std::ostream& es) noexcept {
    }
 
    // Now, truly sync.
-   system("sync");
-   return true;
+   return system("sync") == 0;
 }
 
 
