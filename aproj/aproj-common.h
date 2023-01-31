@@ -6,9 +6,11 @@
 #include <stdlib.h>
 #include <iostream>
 #include <filesystem>
+#include <cctype>               // std::isxdigit()
 
 #include <antler/project/dependency.h>
 #include <antler/project/object.h>
+
 
 const std::string_view project_prefix{ "aproj-" };
 
@@ -157,7 +159,7 @@ inline bool is_valid_name(std::string_view s) noexcept {
 }
 
 
-/// Ask the user for a value.
+/// Ask the user for a value. Validated with is_valid_name().
 /// @param friendly_name  The label/text to display in the prompt.
 /// @param name  Reference to the value to set. Comes in as default value.
 /// @param allow_empty  Set to true to allow the user to clear the value.
@@ -197,7 +199,8 @@ inline bool is_valid_hash(std::string_view s, size_t byte_count = 32) noexcept {
    if (s.size() != byte_count)
       return false;
    for (auto a : s) {
-      if (!(a >= '0' && a <= '9') && !(a >= 'a' && a <= 'f') && !(a >= 'A' && a <= 'F')) {
+      // Return false if any digit isn't a valid hex value.
+      if (!std::isxdigit(a)) {
          return false;
       }
    }
@@ -205,8 +208,10 @@ inline bool is_valid_hash(std::string_view s, size_t byte_count = 32) noexcept {
 }
 
 
-//
-**********
+/// Ask the user for a hash. Validated with is_valid_hash().
+/// @param friendly_name  The label/text to display in the prompt.
+/// @param hash  Reference to the value to set. Comes in as default value.
+/// @param allow_empty  Set to true to allow the user to clear the value.
 inline void get_hash(std::string_view friendly_name, std::string& hash, bool allow_empty = false) noexcept {
    // Loop until return.
    for (;;) {
@@ -235,6 +240,10 @@ inline void get_hash(std::string_view friendly_name, std::string& hash, bool all
 }
 
 
+/// Ask the user for a location value. Validated with antler::project::dependency::validate_location().
+/// @param friendly_name  The label/text to display in the prompt.
+/// @param loc  Reference to the value to set. Comes in as default value.
+/// @param allow_empty  Set to true to allow the user to clear the value.
 inline void get_loc(std::string_view friendly_name, std::string& loc, bool allow_empty = false) noexcept {
    // Loop until return.
    for (;;) {
