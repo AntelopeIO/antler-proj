@@ -1,7 +1,7 @@
 # @copyright See `LICENSE` in the root directory of this project.
 cmake_minimum_required(VERSION 3.11)
 
-project("Antelope Project Management System")
+project("ANTLER Project Tools ")
 
 # Add dependent libraries.
 #   Make sure this happens BEFORE we include our common settings,
