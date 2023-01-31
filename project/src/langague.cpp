@@ -2,6 +2,7 @@
 
 #include <antler/project/language.h>
 
+// Mapping of enum to string, please maintain string as lowercase.
 #define LANGUAGE_CASE_OF                        \
    CASE_OF(none, "none")                        \
                                                 \
@@ -22,24 +23,28 @@ const char* language_literals[]{
 #undef CASE_OF
 };
 
+
 language to_language(std::string_view s) {
 
-#define CASE_OF(X,Y) if( s == Y) return antler::project::language::X;
+   // Look for an exact match with the lowercase string.
+#define CASE_OF(E,STR) if( s == STR) return antler::project::language::E;
    LANGUAGE_CASE_OF
       ;
 #undef CASE_OF
 
-   // This should be changed to have an internal function:
-   //   Call it once, if it returns none, downcase `s` and call it again.
+   // Unable to find exact match, downcase the input and try again.
+   std::string dc{s};
+   std::transform(dc.cbegin(), dc.cend(), dc.begin(), [](unsigned char c) { return std::tolower(c); });
+#define CASE_OF(E,STR) if( dc == STR) return antler::project::language::E;
+   LANGUAGE_CASE_OF
+      ;
+#undef CASE_OF
 
-   // Some additional values:
-   if (s == "C++" || s == "CPP" || s == "c++")
+   // We have been unable to find a matching string thus far. Try some aliases before returning none.
+   if (s == "c++")
       return antler::project::language::cpp;
-   if (s == "C")
-      return antler::project::language::c;
-   if (s == "Java" || s == "JAVA")
-      return antler::project::language::java;
 
+   // All options are exhausted, return none.
    return antler::project::language::none;
 }
 
