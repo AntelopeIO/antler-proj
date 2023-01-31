@@ -19,9 +19,6 @@ const std::string_view project_prefix{ "aproj-" };
 /// @param brief  The brief description of the subcommand.
 inline void print_brief(std::string& exe_name, const std::string& brief_text) {
    exe_name.erase(0, project_prefix.size());
-   // constexpr size_t width{17};
-   // const size_t space_count = (exe_name.size() < width ? width-exe_name.size() : 2);
-   // exe_name.append(space_count,' ');
    std::cout << "--" << exe_name << ' ' << brief_text << '\n';
 }
 
