@@ -17,7 +17,7 @@ const std::string_view project_prefix{ "aproj-" };
 /// Convert an exe_name into a subcommand and print. Example aproj-init <brief> become "--init <brief>".
 /// @param exe_name  The executable name to convert to subcommand.
 /// @param brief  The brief description of the subcommand.
-inline void print_brief(std::string& exe_name, const std::string& brief_text) {
+inline void print_brief(std::string& exe_name, std::string_view brief_text) {
    exe_name.erase(0, project_prefix.size());
    std::cout << "--" << exe_name << ' ' << brief_text << '\n';
 }
@@ -35,8 +35,7 @@ inline void print_brief(std::string& exe_name, const std::string& brief_text) {
 
 
 /// Common init macro for subcommands. This function sets up expected values and prints the brief string if it was command to.
-/// @param BRIEF_TEXT  The brief portion of the text to print when the falg `--brief` is received.
-#define COMMON_INIT(BRIEF_TEXT)                                                      \
+#define COMMON_INIT                                                                  \
    {                                                                                 \
       /* set exe name for usage */                                                   \
       exe_name = std::filesystem::path(argv[0]).filename().string();                 \
@@ -58,7 +57,7 @@ inline void print_brief(std::string& exe_name, const std::string& brief_text) {
                std::cerr << "Can't provide --brief for" << argv[0] << '\n';          \
                return -1;                                                            \
             }                                                                        \
-            print_brief(exe_name, BRIEF_TEXT);                                       \
+            print_brief(exe_name, brief_str);                                        \
             return 0;                                                                \
          }                                                                           \
       }                                                                              \

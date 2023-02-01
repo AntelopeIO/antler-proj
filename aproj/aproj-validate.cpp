@@ -5,6 +5,7 @@
 #include <aproj-common.h>
 #include <antler/project/project.h>
 
+constexpr std::string_view brief_str = "Attempt to load a project.yaml file. This is the default command.";
 std::string exe_name;
 std::string indirect;
 
@@ -16,25 +17,26 @@ int usage(std::string_view err) {
    std::ostream& os = (err.empty() ? std::cout : std::cerr);
 
    os << exe_name << ": PATH\n"
-      << "\n"
+      << "  " << brief_str << '\n'
+      << '\n'
       << " Attempt to load the project.yaml file pointed to by PATH.\n"
-      << "\n"
+      << '\n'
       << "  --help         Print this help and exit.\n"
       << "  -q,--quiet     Do NOT print the contents of the project.yaml file.\n"
-      << "\n"
+      << '\n'
       << " PATH is either path to `project.yaml` or the path containing it.\n"
-      << "\n";
+      << '\n';
 
    if (err.empty())
       return 0;
-   os << "Error: " << err << "\n";
+   os << "Error: " << err << '\n';
    return -1;
 }
 
 
 int main(int argc, char** argv) {
 
-   COMMON_INIT("Attempt to load a project.yaml file. This is the default command.");
+   COMMON_INIT;
 
    // Test arg count is valid.
    if (argc < 2)
@@ -67,7 +69,7 @@ int main(int argc, char** argv) {
    auto proj = optional_proj.value();
 
    if (!quiet)
-      std::cout << proj.to_yaml() << "\n";
+      std::cout << proj.to_yaml() << '\n';
 
    return 0;
 }

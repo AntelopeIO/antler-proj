@@ -15,6 +15,7 @@
 
 
 
+constexpr std::string_view brief_str = "Add a test entry.";
 std::string exe_name;
 std::string indirect;
 
@@ -26,27 +27,28 @@ int usage(std::string_view err) {
    std::ostream& os = (err.empty() ? std::cout : std::cerr);
 
    os << exe_name << ": PATH [TEST_NAME [TEST_CMD]]\n"
-      << "\n"
+      << "  " << brief_str << '\n'
+      << '\n'
       << " PATH is either path to `project.yaml` or the path containing it.\n"
       << " TEST_NAME is the the name of the test to add.\n"
       << " TEST_CMD is the testing command to execute.\n"
-      << "\n"
+      << '\n'
       << " `project.yaml` is updated to add a new test.\n"
-      << "\n"
+      << '\n'
       << " If either TEST_NAME or TEST_CMD is absent, the user is prompted.\n"
       << " Note that an empty value for TEST_CMD is valid (e.g. \"\" is a valid empty argument.\n"
-      << "\n";
+      << '\n';
 
    if (err.empty())
       return 0;
-   os << "Error: " << err << "\n";
+   os << "Error: " << err << '\n';
    return -1;
 }
 
 
 int main(int argc, char** argv) {
 
-   COMMON_INIT("Add a test entry.");
+   COMMON_INIT;
 
    // Test arg count is valid.
    if (argc < 2)
@@ -88,10 +90,10 @@ int main(int argc, char** argv) {
 
             // Print values.
             std::cout
-               << "\n"
-               << "test name: " << name << "\n"
-               << "command:   " << cmd << "\n"
-               << "\n";
+               << '\n'
+               << "test name: " << name << '\n'
+               << "command:   " << cmd << '\n'
+               << '\n';
 
             // Check to see if name is a TEST duplicate.
             if (proj.object_exists(name, antler::project::object::type_t::test)) {

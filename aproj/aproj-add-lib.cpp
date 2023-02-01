@@ -15,6 +15,7 @@
 
 
 
+constexpr std::string_view brief_str = "Add a library entry.";
 std::string exe_name;
 std::string indirect;
 
@@ -26,27 +27,28 @@ int usage(std::string_view err) {
    std::ostream& os = (err.empty() ? std::cout : std::cerr);
 
    os << exe_name << ": PATH [LIB_NAME [LIB_LANG [LIB_OPTIONS]]]\n"
-      << "\n"
+      << "  " << brief_str << '\n'
+      << '\n'
       << " PATH is either path to `project.yaml` or the path containing it.\n"
       << " LIB_NAME is the the name of the lib to add.\n"
       << " LIB_LANG is the language of the additional lib.\n"
       << " LIB_OPTIONS is the string of options to pass to the compiler.\n"
-      << "\n"
+      << '\n'
       << " `project.yaml` is updated to add a new lib.\n"
-      << "\n"
+      << '\n'
       << " If either LIB_NAME or LIB_LANG is absent, the user is prompted.\n"
-      << "\n";
+      << '\n';
 
    if (err.empty())
       return 0;
-   os << "Error: " << err << "\n";
+   os << "Error: " << err << '\n';
    return -1;
 }
 
 
 int main(int argc, char** argv) {
 
-   COMMON_INIT("Add a library entry.");
+   COMMON_INIT;
 
    // Test arg count is valid.
    if (argc < 2)
@@ -86,11 +88,11 @@ int main(int argc, char** argv) {
          if (!name.empty() && lang != antler::project::language::none) {
 
             std::cout
-               << "\n"
-               << "lib name: " << name << "\n"
-               << "language: " << lang << "\n"
-               << "options:  " << opts << "\n"
-               << "\n";
+               << '\n'
+               << "lib name: " << name << '\n'
+               << "language: " << lang << '\n'
+               << "options:  " << opts << '\n'
+               << '\n';
 
             if (proj.object_exists(name, antler::project::object::type_t::lib)) {
                std::cerr << "Library " << name << " already exists in project. Can't add.\n\n";

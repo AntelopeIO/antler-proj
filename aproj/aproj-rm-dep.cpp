@@ -11,6 +11,7 @@
 #include <aproj-common.h>
 
 
+constexpr std::string_view brief_str = "Remove a dependency.";
 std::string exe_name;
 std::string indirect;
 
@@ -22,27 +23,28 @@ int usage(std::string_view err) {
    std::ostream& os = (err.empty() ? std::cout : std::cerr);
 
    os << exe_name << ": PATH [DEP_NAME] [OPTIONS]\n"
-      << "\n"
+      << "  " << brief_str << '\n'
+      << '\n'
       << "Remove dependency from project applications, libraries, and tests.\n"
-      << "\n"
+      << '\n'
       << " PATH is either path to `project.yaml` or the path containing it.\n"
       << " DEP_NAME is the the name of the dependency to remove.\n"
-      << "\n"
+      << '\n'
       << " Options:\n"
       << "  --all            Remove the dep from all objects (implies --app, --lib, test). Default option.\n"
       << "  --app            Remove the dep from application objects.\n"
       << "  --lib            Remove the dep from library objects.\n"
       << "  --test           Remove the dep from test objects.\n"
       << "  --name=OBJ_NAME  Remove the dep from object OBJ_NAME.\n"
-      << "\n"
+      << '\n'
       << " The `project.yaml` object is updated to add a new dependency.\n"
-      << "\n"
+      << '\n'
       << " If DEP_NAME is absent, the user is prompted.\n"
-      << "\n";
+      << '\n';
 
    if (err.empty())
       return 0;
-   os << "Error: " << err << "\n";
+   os << "Error: " << err << '\n';
    return -1;
 }
 
@@ -92,7 +94,7 @@ antler::project::object::list_t populate_update_list(
             break;
          case antler::project::object::type_t::none:
          case antler::project::object::type_t::any:
-            std::cerr << "Unexpected type: " << a.type() << " in object: " << a.name() << "\n";
+            std::cerr << "Unexpected type: " << a.type() << " in object: " << a.name() << '\n';
             continue;
       }
 
@@ -108,7 +110,7 @@ antler::project::object::list_t populate_update_list(
 
 int main(int argc, char** argv) {
 
-   COMMON_INIT("Remove a dependency.");
+   COMMON_INIT;
 
    // Test arg count is valid.
    if (argc < 2)
@@ -229,15 +231,15 @@ int main(int argc, char** argv) {
                std::cerr << "No objects with dependency " << dep_name << "\n\n";
          } else {
             std::cout
-               << "\n"
-               << "Dependency name: " << dep_name << "\n";
+               << '\n'
+               << "Dependency name: " << dep_name << '\n';
             if (!obj_name.empty())
-               std::cout << "Object name:     " << obj_name << "\n";
+               std::cout << "Object name:     " << obj_name << '\n';
 
             std::cout << "Objects that will be updated (" << temp0.size() << "):\n";
             for (auto a : temp0)
                std::cout << "  " << a.name() << " [" << a.type() << "]\n";
-            std::cout << "\n";
+            std::cout << '\n';
 
             if (is_this_correct()) {
                update_list = temp0;
@@ -253,7 +255,7 @@ int main(int argc, char** argv) {
             if (std::find(all_dep_names.begin(), all_dep_names.end(), dep_name) == all_dep_names.end()) {
                std::cerr << "Valid dependencies: \n";
                for (auto a : all_dep_names)
-                  std::cout << "  " << a << "\n";
+                  std::cout << "  " << a << '\n';
                continue;
             }
             break;

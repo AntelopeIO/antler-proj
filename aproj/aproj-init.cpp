@@ -11,6 +11,7 @@
 
 
 
+constexpr std::string_view brief_str = "Initialize a new projet creating the directory tree and a `project.yaml` file.";
 std::string exe_name;
 std::string indirect;
 
@@ -22,28 +23,29 @@ int usage(std::string_view err) {
    std::ostream& os = (err.empty() ? std::cout : std::cerr);
 
    os << exe_name << ": PATH [PROJECT_NAME [VERSION]]\n"
-      << "\n"
+      << "  " << brief_str << '\n'
+      << '\n'
       << " PATH is the root path to create the project in.\n"
       << " PROJECT_NAME is the the name of the project.\n"
       << " VERSION is the version to store in the project file.\n"
-      << "\n"
+      << '\n'
       << " `project.yaml` is created in PATH if PATH is an empty directory AND the filename matches PROJECT_NAME;\n"
       << "  otherwise, a directory matching PROJECT_NAME is created at PATH to contain `project.yaml`.\n"
-      << "\n"
+      << '\n'
       << " If PROJECT_NAME is absent, the user is prompted.\n"
       << " If PROJECT_NAME exists, VERSION will default to 0.0.0\n"
-      << "\n";
+      << '\n';
 
    if (err.empty())
       return 0;
-   os << "Error: " << err << "\n";
+   os << "Error: " << err << '\n';
    return -1;
 }
 
 
 int main(int argc, char** argv) {
 
-   COMMON_INIT("Initialize a new projet creating the directory tree and a `project.yaml` file.");
+   COMMON_INIT;
 
    if (argc < 2)
       return usage("path is required.");
@@ -89,11 +91,11 @@ int main(int argc, char** argv) {
                project_root /= name;
 
             std::cout
-               << "\n"
-               << "Path:         " << project_root << "\n"
-               << "Project name: " << name << "\n"
-               << "Version:      " << ver << "\n"
-               << "\n";
+               << '\n'
+               << "Path:         " << project_root << '\n'
+               << "Project name: " << name << '\n'
+               << "Version:      " << ver << '\n'
+               << '\n';
 
             if (is_this_correct())
                break;

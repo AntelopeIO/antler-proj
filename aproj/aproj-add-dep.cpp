@@ -10,6 +10,7 @@
 
 #include <aproj-common.h>
 
+constexpr std::string_view brief_str = "Add a dependency.";
 std::string exe_name;
 std::string indirect;
 
@@ -21,33 +22,34 @@ int usage(std::string_view err) {
    std::ostream& os = (err.empty() ? std::cout : std::cerr);
 
    os << exe_name << ": PATH [OBJECT_NAME DEP_NAME [LOCATION [options]]]\n"
-      << "\n"
+      << "  " << brief_str << '\n'
+      << '\n'
       << " PATH is either path to `project.yaml` or the path containing it.\n"
       << " OBJ_NAME is the the name of the object to receive DEP_NAME.\n"
       << " DEP_NAME is the the name of this dependency.\n"
       << " LOCATION is either a path or URL for finding this dependency.\n"
-      << "\n"
+      << '\n'
       << " Options:\n"
       << "  --tag     The github tag or commit hash; only valid when LOCATION is a github repository.\n"
       << "  --rel     The github version for LOCATION.\n"
       << "  --hash    SHA256 hash; only valid when LOCATION gets an archive (i.e. *.tar.gz or similar).\n"
       << "  --help    Print this help and exit.\n"
-      << "\n"
+      << '\n'
       << " The `project.yaml` object is updated to add a new dependency.\n"
-      << "\n"
+      << '\n'
       << " If either OBJECT_NAME or DEP_NAME is absent, the user is prompted.\n"
-      << "\n";
+      << '\n';
 
    if (err.empty())
       return 0;
-   os << "Error: " << err << "\n";
+   os << "Error: " << err << '\n';
    return -1;
 }
 
 
 int main(int argc, char** argv) {
 
-   COMMON_INIT("Add a dependency.");
+   COMMON_INIT;
 
    // Test arg count is valid.
    if (argc < 2)
@@ -127,14 +129,14 @@ int main(int argc, char** argv) {
                std::cerr << obj_name << " does not exist in project.\n";
             else {
                std::cout
-                  << "\n"
-                  << "Object name (to update): " << obj_name << "\n"
-                  << "Dependency name:         " << dep_name << "\n"
-                  << "Dependency location:     " << dep_loc << "\n"
-                  << "tag/commit hash:         " << dep_tag << "\n"
-                  << "release version:         " << dep_rel << "\n"
-                  << "SHA256 hash:             " << dep_hash << "\n"
-                  << "\n";
+                  << '\n'
+                  << "Object name (to update): " << obj_name << '\n'
+                  << "Dependency name:         " << dep_name << '\n'
+                  << "Dependency location:     " << dep_loc << '\n'
+                  << "tag/commit hash:         " << dep_tag << '\n'
+                  << "release version:         " << dep_rel << '\n'
+                  << "SHA256 hash:             " << dep_hash << '\n'
+                  << '\n';
 
                // Get object here and warn user if dep_name already exists.
                auto obj = obj_opt.value();
@@ -152,7 +154,7 @@ int main(int argc, char** argv) {
             get_name("object (app/lib/test) name", obj_name);
             obj_opt = proj.object(obj_name);
             if (!obj_opt) {
-               std::cerr << obj_name << " does not exist in " << proj.name() << "\n";
+               std::cerr << obj_name << " does not exist in " << proj.name() << '\n';
                continue;
             }
             break;
