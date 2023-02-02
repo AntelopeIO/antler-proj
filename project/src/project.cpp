@@ -89,21 +89,29 @@ void project::name(std::string_view s) noexcept {
 }
 
 
-std::optional<antler::project::object> project::object(std::string_view name) const noexcept {
+std::vector<antler::project::object> project::object(std::string_view name,  object::type_t type) const noexcept {
 
-   auto rv = std::find_if(m_apps.begin(), m_apps.end(), [name](const auto& o) { return o.name() == name; });
-   if (rv != m_apps.end())
-      return *rv;
+   std::vector<antler::project::object> rv;
 
-   rv = std::find_if(m_libs.begin(), m_libs.end(), [name](const auto& o) { return o.name() == name; });
-   if (rv != m_libs.end())
-      return *rv;
+   if(type == object::type_t::any || type == object::type_t::app) {
+      auto temp = std::find_if(m_apps.begin(), m_apps.end(), [name](const auto& o) { return o.name() == name; });
+      if (temp != m_apps.end())
+         rv.emplace_back(*temp);
+   }
 
-   rv = std::find_if(m_tests.begin(), m_tests.end(), [name](const auto& o) { return o.name() == name; });
-   if (rv != m_tests.end())
-      return *rv;
+   if(type == object::type_t::any || type == object::type_t::lib) {
+      auto temp = std::find_if(m_libs.begin(), m_libs.end(), [name](const auto& o) { return o.name() == name; });
+      if (temp != m_libs.end())
+         rv.emplace_back(*temp);
+   }
 
-   return std::optional<antler::project::object>{};
+   if(type == object::type_t::any || type == object::type_t::test) {
+      auto temp= std::find_if(m_tests.begin(), m_tests.end(), [name](const auto& o) { return o.name() == name; });
+      if (temp != m_tests.end())
+         rv.emplace_back(*temp);
+   }
+
+   return rv;
 }
 
 

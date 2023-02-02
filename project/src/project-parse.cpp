@@ -51,6 +51,10 @@ std::optional<std::string> load(const std::filesystem::path& path, std::ostream&
       return return_type();
    }
 
+   // Add warning for file size > 1 meg
+   if (sz > 1'000'000)
+      os << "Unexpectededly large file size for " << path << " of " << sz << " bytes.\n";
+
    // Create a string of the appropriate size for loading.
    std::string rv;
    rv.reserve(sz);
@@ -245,6 +249,12 @@ std::optional<object> parse_object(const ryml::NodeRef& node, object::type_t typ
                os << "Duplicate language values in " << type << " list: " << rv.language() << ", " << lang << "\n";
                return return_type();
             }
+
+            if (type == object::type_t::test) {
+               os << type << " objects may not have a language tag.";
+               return return_type();
+            }
+
             rv.language(lang);
          } break;
 
@@ -258,6 +268,11 @@ std::optional<object> parse_object(const ryml::NodeRef& node, object::type_t typ
                os << "Duplicate " << word << " values in " << type << " list: " << rv.options() << ", " << i.val() << "\n";
                return return_type();
             }
+            if (type == object::type_t::test) {
+               os << type << " objects may not have an options tag.";
+               return return_type();
+            }
+
             rv.options(i.val());
          } break;
 
@@ -272,6 +287,11 @@ std::optional<object> parse_object(const ryml::NodeRef& node, object::type_t typ
                os << "Duplicate " << word << " values in " << type << " list: " << rv.command() << ", " << i.val() << "\n";
                return return_type();
             }
+            if (type != object::type_t::test) {
+               os << type << " objects may not have a command tag.";
+               return return_type();
+            }
+
             rv.command(i.val());
          } break;
 

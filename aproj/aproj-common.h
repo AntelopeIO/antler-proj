@@ -1,5 +1,4 @@
-#ifndef antler_aproj_aproj_common_h
-#define antler_aproj_aproj_common_h
+#pragma once
 
 /// @copyright See `LICENSE` in the root directory of this project.
 
@@ -7,19 +6,28 @@
 #include <iostream>
 #include <filesystem>
 #include <cctype>               // std::isxdigit()
+#include <cstdlib>              // std::exit()
 
 #include <antler/project/dependency.h>
 #include <antler/project/object.h>
 
+#include <aproj-prefix.h>
 
-const std::string_view project_prefix{ "aproj-" };
+// Forward declaration.
+int usage(std::string_view);
+
+// Global declarations.
+std::string brief_str;
+std::string exe_name;
+std::string indirect;
+
 
 /// Convert an exe_name into a subcommand and print. Example aproj-init <brief> become "--init <brief>".
 /// @param exe_name  The executable name to convert to subcommand.
 /// @param brief  The brief description of the subcommand.
-inline void print_brief(std::string& exe_name, std::string_view brief_text) {
-   exe_name.erase(0, project_prefix.size());
-   std::cout << "--" << exe_name << ' ' << brief_text << '\n';
+inline void print_brief(std::string& exe_name_in, std::string_view brief_text) {
+   exe_name_in.erase(0, project_prefix.size());
+   std::cout << "--" << exe_name_in << ' ' << brief_text << '\n';
 }
 
 
@@ -34,34 +42,39 @@ inline void print_brief(std::string& exe_name, std::string_view brief_text) {
    }
 
 
-/// Common init macro for subcommands. This function sets up expected values and prints the brief string if it was command to.
-#define COMMON_INIT                                                                  \
-   {                                                                                 \
-      /* set exe name for usage */                                                   \
-      exe_name = std::filesystem::path(argv[0]).filename().string();                 \
-      /* search for indirect string */                                               \
-      if (argc > 0) {                                                                \
-         constexpr std::string_view indirect_str{ "--indirect=" };                   \
-         if (std::string_view(argv[argc - 1]).starts_with(indirect_str)) {           \
-            indirect = std::string_view(argv[argc - 1]).substr(indirect_str.size()); \
-            exe_name = indirect;                                                     \
-            --argc;                                                                  \
-         }                                                                           \
-      }                                                                              \
-      /* search for brief and help flags */                                          \
-      for (int i = 0; i < argc; ++i) {                                               \
-         if (std::string_view(argv[i]) == "--help")                                  \
-            return usage("");                                                        \
-         if (std::string_view(argv[i]) == "--brief") {                               \
-            if (!exe_name.starts_with(project_prefix)) {                             \
-               std::cerr << "Can't provide --brief for" << argv[0] << '\n';          \
-               return -1;                                                            \
-            }                                                                        \
-            print_brief(exe_name, brief_str);                                        \
-            return 0;                                                                \
-         }                                                                           \
-      }                                                                              \
-   } // COMMON_INIT
+/// Common init function for subcommands.
+/// This function sets up expected values and prints the brief string if it was command to.
+/// @param argc argc
+/// @param argv argv
+/// @param brief_in value to store as brief string.
+inline void common_init(int& argc, char** argv, std::string_view brief_in) {
+   // set brief string
+   brief_str = brief_in;
+   // set exe name for usage
+   exe_name = std::filesystem::path(argv[0]).filename().string();
+   // search for indirect string
+   if (argc > 0) {
+      constexpr std::string_view indirect_str{ "--indirect=" };
+      if (std::string_view(argv[argc - 1]).starts_with(indirect_str)) {
+         indirect = std::string_view(argv[argc - 1]).substr(indirect_str.size());
+         exe_name = indirect;
+         --argc;
+      }
+   }
+   // search for brief and help flags
+   for (int i = 0; i < argc; ++i) {
+      if (std::string_view(argv[i]) == "--help")
+         std::exit( usage("") );
+      if (std::string_view(argv[i]) == "--brief") {
+         if (!exe_name.starts_with(project_prefix)) {
+            std::cerr << "Can't provide --brief for" << argv[0] << '\n';
+            std::exit( -1 );
+         }
+         print_brief(exe_name, brief_str);
+         std::exit(0);
+      }
+   }
+} // COMMON_INIT
 
 
 /// Print object dependencies to a stream.
@@ -304,7 +317,3 @@ inline void get_string(std::string_view friendly_name, std::string& str, bool al
       }
    }
 }
-
-
-
-#endif

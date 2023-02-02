@@ -8,12 +8,6 @@
 #include <aproj-common.h>
 
 
-
-constexpr std::string_view brief_str = "Populate the project with CMake files.";
-std::string exe_name;
-std::string indirect;
-
-
 /// Print usage information to std::cout and return 0 or, optionally - if err is not-empty() - print to std::cerr and return -1.
 /// @param err  An error string to print. If empty, print to std::cout and return 0; otherwise std::cerr and return -1.
 /// @return 0 if err.empty(); otherwise -1. This value is suitable for using at exit.
@@ -45,7 +39,7 @@ int usage(std::string_view err) {
 
 int main(int argc, char** argv) {
 
-   COMMON_INIT;
+   common_init(argc,argv,"Populate the project with CMake files.");
 
    // Test arg count is valid.
    if (argc < 2)

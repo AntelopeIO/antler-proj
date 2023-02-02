@@ -83,8 +83,9 @@ public:
    /// @TODO replace this with a std::vector<antler::project::object>/antler::project::object::list_t to return all the objects
    /// with matching names.
    /// @param name  The name to search for in the object lists.
-   /// @return optional with a copy of the object.
-   std::optional<antler::project::object> object(std::string_view name) const noexcept;
+   /// @param type  If type is other than any, the search is limited to that single type.
+   /// @return vector with copies of the objects.
+   std::vector<antler::project::object> object(std::string_view name, object::type_t type = object::type_t::any) const noexcept;
 
    /// @return A const ref to the application list.
    const antler::project::object::list_t& apps() const noexcept;

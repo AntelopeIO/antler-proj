@@ -15,9 +15,7 @@
 #include <aproj-common.h>
 
 
-constexpr std::string_view brief_str = "Add an application entry to the project.";
-std::string exe_name;
-std::string indirect;
+//constexpr std::string_view brief_str = "Add an application entry to the project.";
 
 /// Print usage information to std::cout and return 0 or, optionally - if err is not-empty() - print to std::cerr and return -1.
 /// @param err  An error string to print. If empty, print to std::cout and return 0; otherwise std::cerr and return -1.
@@ -50,7 +48,7 @@ int usage(std::string_view err) {
 
 int main(int argc, char** argv) {
 
-   COMMON_INIT;
+   common_init(argc,argv,"Add an application entry to the project.");
 
    // Test arg count is valid.
    if (argc < 2)

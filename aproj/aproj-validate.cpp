@@ -5,9 +5,8 @@
 #include <aproj-common.h>
 #include <antler/project/project.h>
 
-constexpr std::string_view brief_str = "Attempt to load a project.yaml file. This is the default command.";
-std::string exe_name;
-std::string indirect;
+#include <aproj-common.h>
+
 
 /// Print usage information to std::cout and return 0 or, optionally - if err is not-empty() - print to std::cerr and return -1.
 /// @param err  An error string to print. If empty, print to std::cout and return 0; otherwise std::cerr and return -1.
@@ -36,7 +35,7 @@ int usage(std::string_view err) {
 
 int main(int argc, char** argv) {
 
-   COMMON_INIT;
+   common_init(argc,argv,"Attempt to load a project.yaml file. This is the default command.");
 
    // Test arg count is valid.
    if (argc < 2)

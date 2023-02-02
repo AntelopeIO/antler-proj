@@ -13,7 +13,7 @@
 #include <sb/filesystem/executable_path.h>
 
 
-#include <aproj-common.h>
+#include <aproj-prefix.h>
 
 
 namespace { // anonymous

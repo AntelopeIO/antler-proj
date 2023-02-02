@@ -11,10 +11,6 @@
 #include <aproj-common.h>
 
 
-constexpr std::string_view brief_str = "Remove a dependency.";
-std::string exe_name;
-std::string indirect;
-
 /// Print usage information to std::cout and return 0 or, optionally - if err is not-empty() - print to std::cerr and return -1.
 /// @param err  An error string to print. If empty, print to std::cout and return 0; otherwise std::cerr and return -1.
 /// @return 0 if err.empty(); otherwise -1. This value is suitable for using at exit.
@@ -110,7 +106,7 @@ antler::project::object::list_t populate_update_list(
 
 int main(int argc, char** argv) {
 
-   COMMON_INIT;
+   common_init(argc,argv,"Remove a dependency.");
 
    // Test arg count is valid.
    if (argc < 2)

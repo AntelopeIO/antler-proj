@@ -10,11 +10,6 @@
 #include <aproj-common.h>
 
 
-
-constexpr std::string_view brief_str = "Initialize a new projet creating the directory tree and a `project.yaml` file.";
-std::string exe_name;
-std::string indirect;
-
 /// Print usage information to std::cout and return 0 or, optionally - if err is not-empty() - print to std::cerr and return -1.
 /// @param err  An error string to print. If empty, print to std::cout and return 0; otherwise std::cerr and return -1.
 /// @return 0 if err.empty(); otherwise -1. This value is suitable for using at exit.
@@ -45,7 +40,7 @@ int usage(std::string_view err) {
 
 int main(int argc, char** argv) {
 
-   COMMON_INIT;
+   common_init(argc,argv,"Initialize a new projet creating the directory tree and a `project.yaml` file.");
 
    if (argc < 2)
       return usage("path is required.");

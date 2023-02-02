@@ -10,9 +10,6 @@
 
 #include <aproj-common.h>
 
-constexpr std::string_view brief_str = "Add a dependency.";
-std::string exe_name;
-std::string indirect;
 
 /// Print usage information to std::cout and return 0 or, optionally - if err is not-empty() - print to std::cerr and return -1.
 /// @param err  An error string to print. If empty, print to std::cout and return 0; otherwise std::cerr and return -1.
@@ -49,7 +46,7 @@ int usage(std::string_view err) {
 
 int main(int argc, char** argv) {
 
-   COMMON_INIT;
+   common_init(argc,argv,"Add a dependency.");
 
    // Test arg count is valid.
    if (argc < 2)
@@ -125,7 +122,7 @@ int main(int argc, char** argv) {
             auto obj_opt = proj.object(obj_name);
 
             // If it doesn't exist, none of the existing values can be correct, so alert and jump straigt to queries.
-            if (!obj_opt)
+            if (obj_opt.empty())
                std::cerr << obj_name << " does not exist in project.\n";
             else {
                std::cout
@@ -139,7 +136,7 @@ int main(int argc, char** argv) {
                   << '\n';
 
                // Get object here and warn user if dep_name already exists.
-               auto obj = obj_opt.value();
+               auto obj = obj_opt[0];
                if (!dep_name.empty() && obj.dependency_exists(dep_name))
                   std::cerr << dep_name << " already exists for " << obj_name << " in project.\n";
 
@@ -149,11 +146,11 @@ int main(int argc, char** argv) {
          }
 
          // here we want to test that object name exists before we go on.
-         std::optional<antler::project::object> obj_opt;
+         std::vector<antler::project::object> obj_vec;
          for (;;) {
             get_name("object (app/lib/test) name", obj_name);
-            obj_opt = proj.object(obj_name);
-            if (!obj_opt) {
+            obj_vec = proj.object(obj_name);
+            if (obj_vec.empty()) {
                std::cerr << obj_name << " does not exist in " << proj.name() << '\n';
                continue;
             }
@@ -163,7 +160,7 @@ int main(int argc, char** argv) {
          // here we want to validate dep name before we go on.
          for (;;) {
             get_name("dependency name", dep_name);
-            auto obj = obj_opt.value();
+            auto obj = obj_vec[0];
             if (!dep_name.empty() && obj.dependency_exists(dep_name)) {
                std::cerr << dep_name << " already exists for " << obj_name << " in project.\n";
                continue;
@@ -179,10 +176,10 @@ int main(int argc, char** argv) {
    }
 
    // Get the object to update.
-   auto obj_opt = proj.object(obj_name);
-   if (!obj_opt)
+   auto obj_vec = proj.object(obj_name);
+   if (obj_vec.empty())
       RETURN_USAGE(<< obj_name << " does not exist in project.");
-   auto obj = obj_opt.value();
+   auto obj = obj_vec[0];
 
    // If we are not in interactive mode, test for the pre-existence of the dependency.
    if (!interactive && obj.dependency_exists(dep_name))
