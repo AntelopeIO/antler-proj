@@ -1,8 +1,8 @@
 /// @copyright See `LICENSE` in the root directory of this project.
 
-#include <antler/project/version_compare.h>
-#include <antler/string/split.h>
-#include <antler/string/from.h>
+#include <antler/project/version_compare.hpp>
+#include <antler/string/split.hpp>
+#include <antler/string/from.hpp>
 
 
 namespace antler {

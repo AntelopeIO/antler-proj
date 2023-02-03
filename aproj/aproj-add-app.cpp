@@ -10,9 +10,9 @@
 #include <sstream>
 #include <vector>
 
-#include <antler/project/project.h>
+#include <antler/project/project.hpp>
 
-#include <aproj-common.h>
+#include <aproj-common.hpp>
 
 
 //constexpr std::string_view brief_str = "Add an application entry to the project.";

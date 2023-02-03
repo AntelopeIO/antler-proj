@@ -1,10 +1,10 @@
 /// @copyright See `LICENSE` in the root directory of this project.
 
-#include <antler/project/version.h>
-#include <antler/project/version_constraint.h>
-#include <antler/string/from.h>
-#include <antler/string/split.h>
-#include <antler/string/trim.h>
+#include <antler/project/version.hpp>
+#include <antler/project/version_constraint.hpp>
+#include <antler/string/from.hpp>
+#include <antler/string/split.hpp>
+#include <antler/string/trim.hpp>
 
 #include <iostream>
 #include <limits>

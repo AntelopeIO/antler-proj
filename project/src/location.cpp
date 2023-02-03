@@ -1,8 +1,8 @@
 /// @copyright See `LICENSE` in the root directory of this project.
 
-#include <antler/project/location.h>
-#include <antler/system/exec.h>
-#include <antler/string/split.h>
+#include <antler/project/location.hpp>
+#include <antler/system/exec.hpp>
+#include <antler/string/split.hpp>
 
 #include <filesystem>
 

@@ -1,7 +1,7 @@
 /// @copyright See `LICENSE` in the root directory of this project.
 
-#include <antler/project/project.h>
-#include <key.h>
+#include <antler/project/project.hpp>
+#include <key.hpp>
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wold-style-cast"

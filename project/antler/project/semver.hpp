@@ -5,11 +5,10 @@
 
 #include <iostream>
 #include <string_view>
-
-#include <antler/project/version_compare.h>
-
 #include <optional>
 #include <array>
+
+#include <antler/project/version_compare.hpp>
 
 
 namespace antler {

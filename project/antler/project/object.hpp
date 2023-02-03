@@ -5,8 +5,8 @@
 
 #include <string>
 #include <string_view>
-#include <antler/project/dependency.h>
-#include <antler/project/language.h>
+#include <antler/project/dependency.hpp>
+#include <antler/project/language.hpp>
 
 #include <unordered_set>
 #include <vector>

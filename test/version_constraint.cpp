@@ -1,7 +1,7 @@
 /// @copyright See `LICENSE` in the root directory of this project.
 
-#include <antler/project/version_constraint.h>
-#include <test_common.h>
+#include <antler/project/version_constraint.hpp>
+#include <test_common.hpp>
 
 #include <string>
 #include <vector>

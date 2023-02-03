@@ -3,7 +3,7 @@
 
 /// @copyright See `LICENSE` in the root directory of this project.
 
-#include <antler/project/version.h>
+#include <antler/project/version.hpp>
 #include <vector>
 #include <iostream>
 

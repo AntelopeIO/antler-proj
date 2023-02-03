@@ -1,8 +1,8 @@
 /// @copyright See `LICENSE` in the root directory of this project.
 
-#include <antler/project/semver.h>
-#include <antler/string/from.h>
-#include <antler/string/split.h>
+#include <antler/project/semver.hpp>
+#include <antler/string/from.hpp>
+#include <antler/string/split.hpp>
 
 #include <limits>
 #include <vector>

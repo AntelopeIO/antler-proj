@@ -7,13 +7,13 @@
 #include <vector>
 #include <algorithm> // std::sort
 
-#include <antler/project/project.h>
-#include <antler/string/split.h>
-#include <antler/system/exec.h>
+#include <antler/project/project.hpp>
+#include <antler/string/split.hpp>
+#include <antler/system/exec.hpp>
 #include <sb/filesystem/executable_path.h>
 
 
-#include <aproj-prefix.h>
+#include <aproj-prefix.hpp>
 
 
 namespace { // anonymous

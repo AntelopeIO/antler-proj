@@ -3,9 +3,9 @@
 #include <iostream>
 #include <filesystem>
 
-#include <antler/project/project.h>
+#include <antler/project/project.hpp>
 
-#include <aproj-common.h>
+#include <aproj-common.hpp>
 
 
 /// Print usage information to std::cout and return 0 or, optionally - if err is not-empty() - print to std::cerr and return -1.

@@ -1,7 +1,7 @@
 /// @copyright See `LICENSE` in the root directory of this project.
 
-#include <antler/project/project.h>
-#include <cmake.h>
+#include <antler/project/project.hpp>
+#include <cmake.hpp>
 
 #include <filesystem>
 #include <fstream>

@@ -6,11 +6,12 @@
 
 #include <string>
 #include <string_view>
-#include <antler/project/version.h>
 #include <vector>
 #include <iostream>
 #include <utility> // std::pair
 #include <filesystem>
+
+#include <antler/project/version.hpp>
 
 
 namespace antler {

@@ -1,6 +1,6 @@
 /// @copyright See `LICENSE` in the root directory of this project.
 
-#include <antler/project/project.h>
+#include <antler/project/project.hpp>
 
 
 #define TEST_POPULATED(X,Y) if(X.empty()) { os << Y << " is unpopulated.\n"; rv = false; }

@@ -1,7 +1,7 @@
 /// @copyright See `LICENSE` in the root directory of this project.
 
-#include <antler/project/dependency.h>
-#include <antler/project/location.h>
+#include <antler/project/dependency.hpp>
+#include <antler/project/location.hpp>
 
 #include <algorithm> // std::sort, std::find()
 

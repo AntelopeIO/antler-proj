@@ -8,10 +8,10 @@
 #include <cctype>               // std::isxdigit()
 #include <cstdlib>              // std::exit()
 
-#include <antler/project/dependency.h>
-#include <antler/project/object.h>
+#include <antler/project/dependency.hpp>
+#include <antler/project/object.hpp>
 
-#include <aproj-prefix.h>
+#include <aproj-prefix.hpp>
 
 // Forward declaration.
 int usage(std::string_view);

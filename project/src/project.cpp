@@ -1,11 +1,11 @@
 /// @copyright See `LICENSE` in the root directory of this project.
 
-#include <antler/project/project.h>
+#include <antler/project/project.hpp>
 
 #include <iostream>
 #include <fstream>
 #include <algorithm>            // find_if()
-#include <key.h>
+#include <key.hpp>
 
 namespace antler {
 namespace project {

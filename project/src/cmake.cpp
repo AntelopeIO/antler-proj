@@ -1,6 +1,6 @@
 /// @copyright See `LICENSE` in the root directory of this project.
 
-#include <cmake.h>
+#include <cmake.hpp>
 #include <sstream>
 
 namespace antler {
