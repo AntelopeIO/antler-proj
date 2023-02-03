@@ -3,7 +3,7 @@ BraceWrapping:
   SplitEmptyFunction: false
   SplitEmptyRecord: false
 IndentWidth: 3
-ColumnLimit: 120
+ColumnLimit: 0
 PointerAlignment: Left
 AccessModifierOffset: -3
 AlwaysBreakTemplateDeclarations: true
