@@ -1,5 +1,4 @@
-#ifndef antler_project_semver_h
-#define antler_project_semver_h
+#pragma once
 
 /// @copyright See `LICENSE` in the root directory of this project.
 
@@ -102,6 +101,3 @@ private:
 
 
 inline std::ostream& operator<<(std::ostream& os, const antler::project::semver& o) { o.print(os); return os; }
-
-
-#endif

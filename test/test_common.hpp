@@ -1,5 +1,4 @@
-#ifndef antelope_test_common_h
-#define antelope_test_common_h
+#pragma once
 
 /// @copyright See `LICENSE` in the root directory of this project.
 
@@ -27,6 +26,3 @@ inline int result() {
 
    return -global::result;
 }
-
-
-#endif

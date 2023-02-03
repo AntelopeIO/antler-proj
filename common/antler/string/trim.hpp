@@ -1,5 +1,5 @@
-#ifndef antler_string_trim_h
-#define antler_string_trim_h
+#pragma once
+#define antler_string_trim_hpp
 
 /// @copyright See `LICENSE` in the root directory of this project.
 
@@ -19,5 +19,3 @@ std::string_view trim(std::string_view s);
 } // namespace antler
 
 #include <antler/string/detail/trim.ipp>
-
-#endif

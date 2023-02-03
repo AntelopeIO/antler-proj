@@ -1,5 +1,4 @@
-#ifndef antler_project_project_h
-#define antler_project_project_h
+#pragma once
 
 /// @copyright See `LICENSE` in the root directory of this project.
 
@@ -164,5 +163,3 @@ private:
 
 inline std::ostream& operator<<(std::ostream& os, const antler::project::project& o) { o.print(os); return os; }
 inline std::ostream& operator<<(std::ostream& os, const antler::project::project::pop& e) { antler::project::project::print(os,e); return os; }
-
-#endif

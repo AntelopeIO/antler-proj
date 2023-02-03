@@ -1,4 +1,4 @@
-#ifndef antler_string_split_h
+#ifndef antler_string_split_hpp
 #error "bad inclusion"
 #endif
 

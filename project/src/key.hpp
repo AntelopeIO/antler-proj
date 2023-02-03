@@ -1,5 +1,4 @@
-#ifndef src_key_h
-#define src_key_h
+#pragma once
 
 /// @copyright See `LICENSE` in the root directory of this project.
 
@@ -57,6 +56,3 @@ std::ostream& operator<<(std::ostream& os, const key::word& e);
 namespace std {
 inline std::string to_string(key::word e) { return key::to_string(e); };
 } // namespace std
-
-
-#endif

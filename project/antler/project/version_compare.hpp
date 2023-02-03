@@ -1,5 +1,4 @@
-#ifndef antler_project_version_compare_h
-#define antler_project_version_compare_h
+#pragma once
 
 /// Support for comparisons.
 /// @copyright See `LICENSE` in the root directory of this project.
@@ -28,5 +27,3 @@ cmp_result raw_compare(std::string_view lhs, std::string_view rhs) noexcept;
 } // namespace antler
 
 inline std::ostream& operator<<(std::ostream& os, const antler::project::cmp_result& e) { antler::project::print(os,e); return os; }
-
-#endif

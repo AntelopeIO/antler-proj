@@ -1,4 +1,4 @@
-#ifndef antler_string_from_h
+#ifndef antler_string_from_hpp
 #error "bad inclusion"
 #endif
 

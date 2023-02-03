@@ -1,5 +1,4 @@
-#ifndef antler_project_object_h
-#define antler_project_object_h
+#pragma once
 
 /// @copyright See `LICENSE` in the root directory of this project.
 
@@ -108,6 +107,3 @@ private:
 
 std::ostream& operator<<(std::ostream& os, const antler::project::object::type_t& e);
 std::istream& operator>>(std::istream& is, antler::project::object::type_t& e);
-
-
-#endif

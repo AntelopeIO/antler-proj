@@ -1,5 +1,5 @@
-#ifndef antler_system_exec_h
-#define antler_system_exec_h
+#pragma once
+#define antler_system_exec_hpp
 
 /// @copyright See `LICENSE` in the root directory of this project.
 
@@ -36,5 +36,3 @@ result exec(std::string_view cmd) noexcept;
 } // namespace antler
 
 #include <antler/system/detail/exec.ipp>
-
-#endif

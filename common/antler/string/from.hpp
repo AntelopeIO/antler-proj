@@ -1,5 +1,5 @@
-#ifndef antler_string_from_h
-#define antler_string_from_h
+#pragma once
+#define antler_string_from_hpp
 
 /// Convert from string into some numberic type.
 /// Sourced from libsb.
@@ -35,5 +35,3 @@ bool from(std::string_view s, T& rv);
 } // namespace antler
 
 #include <antler/string/detail/from.ipp>
-
-#endif

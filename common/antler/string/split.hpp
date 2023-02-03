@@ -1,5 +1,5 @@
-#ifndef antler_string_split_h
-#define antler_string_split_h
+#pragma once
+#define antler_string_split_hpp
 
 /// @copyright See `LICENSE` in the root directory of this project.
 
@@ -22,5 +22,3 @@ std::vector<STRING_TYPE> split(std::string_view s, std::string_view split_chars)
 } // namespace antler
 
 #include <antler/string/detail/split.ipp>
-
-#endif

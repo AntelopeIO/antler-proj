@@ -1,5 +1,4 @@
-#ifndef antler_cmake_h
-#define antler_cmake_h
+#pragma once
 
 /// @copyright See `LICENSE` in the root directory of this project.
 
@@ -24,5 +23,3 @@ std::string project(std::string_view proj_name, const project::semver& ver) noex
 
 } // namespace cmake
 } // namespace antler
-
-#endif

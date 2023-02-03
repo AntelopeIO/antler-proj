@@ -1,5 +1,4 @@
-#ifndef antler_project_dependency_h
-#define antler_project_dependency_h
+#pragma once
 
 /// @copyright See `LICENSE` in the root directory of this project.
 
@@ -123,7 +122,3 @@ private:
 
 } // namespace project
 } // namespace antler
-
-
-
-#endif

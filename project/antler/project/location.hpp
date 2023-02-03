@@ -1,5 +1,4 @@
-#ifndef antler_project_location_h
-#define antler_project_location_h
+#pragma once
 
 /// @copyright See `LICENSE` in the root directory of this project.
 
@@ -30,5 +29,3 @@ bool is_org_repo_shorthand(std::string_view s);
 } // namespace location
 } // namespace project
 } // namespace antler
-
-#endif
