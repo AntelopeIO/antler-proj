@@ -10,7 +10,7 @@
 #include <antler/project/project.hpp>
 #include <antler/string/split.hpp>
 #include <antler/system/exec.hpp>
-#include <sb/filesystem/executable_path.h>
+#include <whereami/whereami.hpp>
 
 
 #include <aproj-prefix.hpp>
@@ -104,7 +104,7 @@ int exec_helper(std::filesystem::path exe, iterator_type begin, iterator_type en
 
 int main(int argc, char** argv) {
 
-   std::filesystem::path bin_path = sb::filesystem::executable_path().parent_path();
+   std::filesystem::path bin_path = eosio::cdt::whereami::where();
    std::filesystem::path project_path = std::filesystem::current_path();
 
    // Update globals - these are for the usage() function and in the arg list decoder.
