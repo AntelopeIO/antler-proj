@@ -5,6 +5,7 @@
 #include <ctype.h>
 #include <sstream>
 #include <vector>
+#include <algorithm>            // std::sort
 
 #include <antler/project/project.hpp>
 
