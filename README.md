@@ -59,7 +59,7 @@ ninja && ninja test
 
 Directories in the project root:
 - aproj: This contains the various CLI tools, all of which depend on the project library.
-- common: This contains a common library that might be useful elsewhere and parts of libsb, a 3rd party utility library.
+- common: This contains a common library that might be useful elsewhere.
 - project: This is standalone library that contains the majority of implementation that creates and maintains the `project.yaml` file as well as initialize and populate the project's directory tree, among other things.
 - test: This direcory contains a number of unit tests. In future, it's likely to contain system level tests as well.
 - depends: This directory contains the CMake instructions for including libraries.
@@ -67,13 +67,8 @@ Directories in the project root:
 
 ## License
 
-The majority of this project is licensed using the MIT License as
-found [here](./LICENSE).
-
-A [few files](./common/sb) are directly included from
-[libsb](https://github.com/ScottBailey/libsb), which uses the
-`BSD-3-Clause` license. Note that these files independently contain
-their own license information.
+This project is licensed using the MIT License as found
+[here](./LICENSE).
 
 Additionally, apack depends on [Rapid YAML](https://github.com/biojppm/rapidyaml),
 which uses the `MIT` license.
