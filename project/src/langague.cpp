@@ -1,5 +1,7 @@
 /// @copyright See `LICENSE` in the root directory of this project.
 
+#include <algorithm>            // std::transform
+
 #include <antler/project/language.hpp>
 
 // Mapping of enum to string, please maintain string as lowercase.
