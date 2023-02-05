@@ -7,8 +7,7 @@
 #include <string_view>
 
 
-namespace antler {
-namespace project {
+namespace antler::project {
 
 /// Enum for comparison results.
 enum class cmp_result {
@@ -23,7 +22,7 @@ void print(std::ostream& os, cmp_result e) noexcept;
 cmp_result raw_compare(std::string_view lhs, std::string_view rhs) noexcept;
 
 
-} // namespace project
-} // namespace antler
+} // namespace antler::project
+
 
 inline std::ostream& operator<<(std::ostream& os, const antler::project::cmp_result& e) { antler::project::print(os,e); return os; }

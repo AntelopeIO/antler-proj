@@ -13,8 +13,7 @@
 #include <antler/project/version.hpp>
 
 
-namespace antler {
-namespace project {
+namespace antler::project {
 
 /// This class models and containts the dependency portion of an ANTLER project.
 class dependency {
@@ -120,5 +119,4 @@ private:
 };
 
 
-} // namespace project
-} // namespace antler
+} // namespace antler::project

@@ -11,8 +11,7 @@
 
 
 
-namespace antler {
-namespace project {
+namespace antler::project {
 
 
 //--- constructors/destruct ------------------------------------------------------------------------------------------
@@ -229,6 +228,4 @@ version::cmp version::raw_compare(std::string_view l_in, std::string_view r_in) 
 }
 
 
-
-} // namespace project
-} // namespace antler
+} // namespace antler::project

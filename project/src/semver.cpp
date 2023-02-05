@@ -11,8 +11,7 @@
 
 
 
-namespace antler {
-namespace project {
+namespace antler::project {
 
 
 //--- constructors/destrructor ------------------------------------------------------------------------------------------
@@ -245,5 +244,4 @@ bool semver::validate_pb_rule10or11(std::string_view s) noexcept {
 }
 
 
-} // namespace project
-} // namespace antler
+} // namespace antler::project

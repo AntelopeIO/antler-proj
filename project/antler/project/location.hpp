@@ -5,9 +5,7 @@
 
 #include <string_view>
 
-namespace antler {
-namespace project {
-namespace location {
+namespace antler::project::location {
 
 /// @param s  String to eveluate.
 /// @return true if s looks like an archive (e.g. ends in `.tar.gz`, `.tar.bz2`, `.tar.zstd`).
@@ -26,6 +24,4 @@ bool is_local_file(std::string_view s);
 /// @return true if s is a repo, calls `gh` to test.
 bool is_org_repo_shorthand(std::string_view s);
 
-} // namespace location
-} // namespace project
-} // namespace antler
+} // namespace antler::project::location

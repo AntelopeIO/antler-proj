@@ -7,8 +7,7 @@
 #include <istream>
 #include <string_view>
 
-namespace antler {
-namespace project {
+namespace antler::project {
 
 /// enum class to decode and store the language type.
 enum class language {
@@ -31,8 +30,7 @@ std::string to_string(language e);
 /// This is a convinience for the yaml encoder/decoder.
 extern const char* language_literals[];
 
-} // namespace project
-} // namespace antler
+} // namespace antler::project
 
 
 std::ostream& operator<<(std::ostream& os, const antler::project::language& e);

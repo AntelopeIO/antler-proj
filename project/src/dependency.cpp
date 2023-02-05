@@ -25,8 +25,7 @@ inline bool is_valid_hash(std::string_view s, size_t byte_count = 32) noexcept {
 } // anonymous namespace
 
 
-namespace antler {
-namespace project {
+namespace antler::project {
 
 
 //--- constructors/destructor ------------------------------------------------------------------------------------------
@@ -196,5 +195,4 @@ bool dependency::validate_location(std::string_view loc, std::string_view tag, s
 }
 
 
-} // namespace project
-} // namespace antler
+} // namespace antler::project

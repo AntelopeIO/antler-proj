@@ -9,9 +9,7 @@
 #include <iostream>
 
 
-namespace antler {
-namespace project {
-namespace location {
+namespace antler::project::location {
 
 bool is_archive(std::string_view s) {
 
@@ -76,7 +74,4 @@ bool is_org_repo_shorthand(std::string_view s) {
 }
 
 
-
-} // namespace location
-} // namespace project
-} // namespace antler
+} // namespace antler::project::location

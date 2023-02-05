@@ -10,8 +10,7 @@
 #include <antler/project/version_compare.hpp>
 
 
-namespace antler {
-namespace project {
+namespace antler::project {
 
 /// This class encapsulates a semanantic version.
 /// For more information about semantic versioning, see: https://semver.org/
@@ -96,8 +95,7 @@ private:
    std::string m_build;             /// build number string, possibly empty.
 };
 
-} // namespace project
-} // namespace antler
+} // namespace antler::project
 
 
 inline std::ostream& operator<<(std::ostream& os, const antler::project::semver& o) { o.print(os); return os; }

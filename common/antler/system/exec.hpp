@@ -7,8 +7,7 @@
 #include <string>
 
 
-namespace antler {
-namespace system {
+namespace antler::system {
 
 /// Structure to contain the results of exec().
 struct result {
@@ -32,7 +31,6 @@ struct result {
 /// @return The result struct containing the integer result and captured stdout and stderr streams.
 result exec(std::string_view cmd) noexcept;
 
-} // namespace system
-} // namespace antler
+} // namespace antler::system
 
 #include <antler/system/detail/exec.ipp>

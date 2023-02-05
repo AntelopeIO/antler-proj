@@ -9,8 +9,7 @@
 #include <iostream>
 
 
-namespace antler {
-namespace project {
+namespace antler::project {
 
 /// This class represents the contents of a `project.yaml` file. Functions exist to encode and decode from a `project.yaml` file.
 class project {
@@ -157,8 +156,7 @@ private:
    object::list_t m_tests;         ///< List of tests.
 };
 
-} // namespace project
-} // namespace antler
+} // namespace antler::project
 
 
 inline std::ostream& operator<<(std::ostream& os, const antler::project::project& o) { o.print(os); return os; }

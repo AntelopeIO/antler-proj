@@ -5,8 +5,7 @@
 
 #define TEST_POPULATED(X,Y) if(X.empty()) { os << Y << " is unpopulated.\n"; rv = false; }
 
-namespace antler {
-namespace project {
+namespace antler::project {
 
 bool project::is_valid(std::ostream& os) {
 
@@ -24,5 +23,4 @@ bool project::is_valid(std::ostream& os) {
 }
 
 
-} // namespace project
-} // namespace antler
+} // namespace antler::project

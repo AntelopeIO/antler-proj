@@ -15,8 +15,7 @@
 
 
 
-namespace antler {
-namespace project {
+namespace antler::project {
 
 
 const char* language_literals[]{
@@ -66,8 +65,7 @@ std::string to_string(language e) {
 }
 
 
-} // namespace project
-} // namespace antler
+} // namespace antler::project
 
 
 std::ostream& operator<<(std::ostream& os, const antler::project::language& e) {

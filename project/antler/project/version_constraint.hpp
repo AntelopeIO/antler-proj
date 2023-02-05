@@ -7,8 +7,7 @@
 #include <iostream>
 
 
-namespace antler {
-namespace project {
+namespace antler::project {
 
 /// This class encapsulates a version constraint. (e.g `package > 3.0.2`, `package > 3.0.2 < 4 | > 4.1`)
 class version_constraint {
@@ -68,8 +67,8 @@ private:
 };
 
 
-} // namespace project
-} // namespace antler
+} // namespace antler::project
+
 
 inline std::ostream& operator<<(std::ostream& os, const antler::project::version_constraint& o) { o.print(os); return os; }
 //std::istream& operator>>(std::istream& is, antler::project::object::version& e);

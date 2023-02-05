@@ -8,8 +8,7 @@
 #include <array>
 #include <sstream>
 
-namespace antler {
-namespace system {
+namespace antler::system {
 
 inline result exec(std::string_view cmd_in) noexcept {
 
@@ -38,5 +37,4 @@ inline result exec(std::string_view cmd_in) noexcept {
 }
 
 
-} // namespace system
-} // namespace antler
+} // namespace antler::system

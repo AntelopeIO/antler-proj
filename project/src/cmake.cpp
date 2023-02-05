@@ -3,8 +3,7 @@
 #include <cmake.hpp>
 #include <sstream>
 
-namespace antler {
-namespace cmake {
+namespace antler::cmake {
 
 std::string add_subdirectory(const std::filesystem::path path) noexcept {
    // return std::format("add_subdirectory( {} )\n", path.string());
@@ -50,5 +49,4 @@ std::string project(std::string_view proj_name, const project::semver& ver) noex
    return ss.str();
 }
 
-} // namespace cmake
-} // namespace antler
+} // namespace antler::cmake

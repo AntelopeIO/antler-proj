@@ -10,8 +10,7 @@
 #include <unordered_set>
 #include <vector>
 
-namespace antler {
-namespace project {
+namespace antler::project {
 
 /// This class represents one of the app, lib, or test objects in a `project.yaml` file.
 class object {
@@ -101,8 +100,7 @@ private:
    std::string m_command;       ///< Test command, only valid for test.
 };
 
-} // namespace project
-} // namespace antler
+} // namespace antler::project
 
 
 std::ostream& operator<<(std::ostream& os, const antler::project::object::type_t& e);

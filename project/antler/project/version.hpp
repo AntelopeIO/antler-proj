@@ -12,8 +12,7 @@
 
 
 
-namespace antler {
-namespace project {
+namespace antler::project {
 
 /// Simple class to encapsulate a project version.
 class version {
@@ -87,8 +86,8 @@ private:
 };
 
 
-} // namespace project
-} // namespace antler
+} // namespace antler::project
+
 
 inline std::ostream& operator<<(std::ostream& os, const antler::project::version& o) { os << o.raw(); return os; }
 //std::istream& operator>>(std::istream& is, antler::project::object::version& e);

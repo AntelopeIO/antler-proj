@@ -24,8 +24,7 @@ std::ostream& operator<<(std::ostream& os, std::vector<std::string_view> v) {
 }
 
 
-namespace antler {
-namespace project {
+namespace antler::project {
 
 
 namespace { // anonymous
@@ -255,6 +254,4 @@ bool version_constraint::test(const version& ver) const noexcept {
 }
 
 
-
-} // namespace project
-} // namespace antler
+} // namespace antler::project

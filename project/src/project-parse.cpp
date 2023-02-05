@@ -18,10 +18,9 @@
 
 
 
-namespace antler {
-namespace project {
+namespace antler::project {
 
-namespace {
+namespace { // anonymous
 
 /// Load a text file into a string.
 ///
@@ -467,5 +466,4 @@ std::optional<project> project::parse(const std::filesystem::path& path, std::os
 }
 
 
-} // namespace project
-} // namespace antler
+} // namespace antler::project

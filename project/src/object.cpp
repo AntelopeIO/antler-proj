@@ -4,9 +4,8 @@
 
 #include <algorithm> // find_if()
 
-namespace antler {
-namespace project {
 
+namespace antler::project {
 
 //--- constructors/detractor --------------------------------------------------------------------------------------------
 
@@ -117,8 +116,7 @@ void object::upsert_dependency(antler::project::dependency&& dep) noexcept {
 }
 
 
-} // namespace project
-} // namespace antler
+} // namespace antler::project
 
 
 //--- global operators ------------------------------------------------------------------------------------------

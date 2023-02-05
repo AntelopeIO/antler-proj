@@ -6,8 +6,7 @@
 #include <filesystem>
 #include <fstream>
 
-namespace antler {
-namespace project {
+namespace antler::project {
 
 namespace { // anonymous
 
@@ -127,5 +126,4 @@ bool project::populate(pop action_type, std::ostream& error_stream) noexcept {
 }
 
 
-} // namespace project
-} // namespace antler
+} // namespace antler::project

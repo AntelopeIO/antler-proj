@@ -7,8 +7,7 @@
 #include <algorithm>            // find_if()
 #include <key.hpp>
 
-namespace antler {
-namespace project {
+namespace antler::project {
 
 
 //--- constructors/destrructor ------------------------------------------------------------------------------------------
@@ -311,5 +310,4 @@ void project::version(const antler::project::version& ver) noexcept {
 }
 
 
-} // namespace project
-} // namespace antler
+} // namespace antler::project

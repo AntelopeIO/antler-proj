@@ -91,8 +91,7 @@ const c4::csubstr literal(key::word e) {
 
 
 
-namespace antler {
-namespace project {
+namespace antler::project {
 
 void project::print(std::ostream& os) const noexcept {
 
@@ -238,5 +237,4 @@ void project::print(std::ostream& os, pop e) noexcept {
 }
 
 
-} // namespace project
-} // namespace antler
+} // namespace antler::project

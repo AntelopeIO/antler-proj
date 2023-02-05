@@ -7,8 +7,7 @@
 #include <filesystem> // path
 
 
-namespace antler {
-namespace cmake {
+namespace antler::cmake {
 
 /// @return the cmake_minimum string with trailing newline.
 std::string minimum(unsigned major, unsigned minor = 0, unsigned patch = 0) noexcept;
@@ -21,5 +20,4 @@ std::string project(std::string_view proj_name) noexcept;
 /// @return A string including the project name: project("<proj_name>" VERSION <ver>)\n
 std::string project(std::string_view proj_name, const project::semver& ver) noexcept;
 
-} // namespace cmake
-} // namespace antler
+} // namespace antler::cmake

@@ -5,8 +5,7 @@
 #include <antler/string/from.hpp>
 
 
-namespace antler {
-namespace project {
+namespace antler::project {
 
 void print(std::ostream& os, cmp_result e) noexcept {
    switch (e) {
@@ -94,5 +93,4 @@ cmp_result raw_compare(std::string_view lhs, std::string_view rhs) noexcept {
 }
 
 
-} // namespace project
-} // namespace antler
+} // namespace antler::project
