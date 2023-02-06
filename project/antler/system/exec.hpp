@@ -1,5 +1,4 @@
 #pragma once
-#define antler_system_exec_hpp
 
 /// @copyright See `LICENSE` in the root directory of this project.
 
@@ -26,11 +25,10 @@ struct result {
    bool operator!() const { return return_code != 0; }
 };
 
+
 /// Call `system()` with the string cmd. Results are captured and returned.
 /// @param cmd  The command to call.
 /// @return The result struct containing the integer result and captured stdout and stderr streams.
 result exec(std::string_view cmd) noexcept;
 
 } // namespace antler::system
-
-#include <antler/system/detail/exec.ipp>

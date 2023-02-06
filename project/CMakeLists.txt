@@ -13,7 +13,7 @@ target_compile_definitions(${target_name} PRIVATE
   BUILDING_AP_PROJ
 )
 target_link_libraries(${target_name} PUBLIC
-  ryml c4core antler_common
+  ryml c4core
 )
 target_include_directories(${target_name} PRIVATE
   src

@@ -1,16 +1,12 @@
 #pragma once
-#define antler_string_from_hpp
 
 /// Convert from string into some numberic type.
-/// Sourced from libsb.
 /// @copyright See `LICENSE` in the root directory of this project.
-
 
 
 #include <string_view>
 
-namespace antler {
-namespace string {
+namespace antler::string {
 
 /// Convert text to a numeric value. Works for int and unsigned of all widths.
 /// @warn Does NOT work for negative numbers.
@@ -29,9 +25,8 @@ namespace string {
 /// @param rv  This is a return value, it's updated if s was convertable to a T.
 /// @return  Returns true if rv was updated, false otherwise.
 template<typename T>
-bool from(std::string_view s, T& rv);
+bool from(std::string_view s, T& rv) noexcept;
 
-} // namespace string
-} // namespace antler
+} // namespace antler::string
 
 #include <antler/string/detail/from.ipp>

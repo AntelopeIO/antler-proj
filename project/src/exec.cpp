@@ -1,8 +1,6 @@
-#ifndef antler_system_exec_hpp
-#error "bad inclusion"
-#endif
-
 /// @copyright See `LICENSE` in the root directory of this project.
+
+#include <antler/system/exec.hpp>
 
 #include <stdio.h>
 #include <array>
@@ -10,7 +8,7 @@
 
 namespace antler::system {
 
-inline result exec(std::string_view cmd_in) noexcept {
+result exec(std::string_view cmd_in) noexcept {
 
    // We get stdout + stderr.
    std::string cmd(cmd_in);

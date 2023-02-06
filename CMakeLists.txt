@@ -10,11 +10,8 @@ project("ANTLER Project Tools ")
 #   -Wextra, -Werror
 add_subdirectory( depends )
 
-# Add some common stuff.
 include( ./common.cmake REQUIRED )
 
-
-add_subdirectory( common )
 add_subdirectory( project )
 add_subdirectory( aproj )
 #add_subdirectory( aproj-qt )

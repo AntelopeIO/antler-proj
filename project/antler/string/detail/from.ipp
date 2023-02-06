@@ -1,16 +1,11 @@
-#ifndef antler_string_from_hpp
-#error "bad inclusion"
-#endif
-
 /// @copyright See `LICENSE` in the root directory of this project.
 
 
-namespace antler {
-namespace string {
+namespace antler::string {
 
 
 template<typename T>
-inline bool from(std::string_view s, T& n) {
+inline bool from(std::string_view s, T& n) noexcept {
    n = 0;
    for (auto c : s) {
       n *= 10;
@@ -22,9 +17,9 @@ inline bool from(std::string_view s, T& n) {
 }
 
 
-// Specialization for ensure a char comes in as a uint8_t.
+// Specialization to ensure a char comes in as a uint8_t.
 template<>
-inline bool from(std::string_view s, uint8_t& rv) {
+inline bool from(std::string_view s, uint8_t& rv) noexcept {
    unsigned u;
    if (!from(s, u))
       return false;
@@ -33,5 +28,4 @@ inline bool from(std::string_view s, uint8_t& rv) {
 }
 
 
-} // namespace string
-} // namespace antler
+} // namespace antler::string
