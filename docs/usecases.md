@@ -111,9 +111,9 @@ The system generates a YAML file "project.yaml" in format:
        build: "make -j 2"
        from: "https://github.com/larryk85/fast_math"
        version: 0.2.1
-	 depends: 
-		- name: lib2
-	apps:
+       depends: 
+         - name: lib2
+   apps:
 ```
 
 Creates a directory structure:
