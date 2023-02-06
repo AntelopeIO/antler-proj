@@ -1,5 +1,5 @@
 ## Project Management System “antler-proj” ( AKA aproj, the system) 
-###Use cases for CLI
+### Use cases for CLI
 
 ##### General provisions: 
 
@@ -24,7 +24,7 @@ Error handling strategy: logging of the process of work, exit when meet an error
 Localization: Must support local symbols in names of apps, libs, tests, directories and files which the system manipulate with.
 All the names are UTF8 strings which may contain multibyte symbols. Max length of each name is 256 symbols.
 
-###Glossary:
+### Glossary:
 
 `Project` is a directory structure which contains description of the project project.yml file in YAML (https://yaml.org/)  format, Description of applications and needed for their building libraries and other dependencies.
 
@@ -37,7 +37,7 @@ All the names are UTF8 strings which may contain multibyte symbols. Max length o
 `Version`: Each entity described in the project file must have its version. Version is a string of numbers separated with dots. In following format: <number>[.number[.number] ] Examples: "1.0.3", "34", "0.1". "000.0.1". 
 Comparison of two versions is carried out by consecutive comparison of numbers from right to left.  
 
-##Creation of a new project
+## Creation of a new project
 
 Command `"init"` creates a new empty project.
 
@@ -135,7 +135,7 @@ Creates a directory structure:
 
 
 
-##Adding of a new app to the project
+## Adding of a new app to the project
 
 Command `"add"` with key `--app` adds a description of a new application to a project.
 
@@ -181,18 +181,18 @@ The system generates a YAML file "project.yml" in format:
        build: "make -j 2"
        from: "https://github.com/larryk85/fast_math"
        version: 0.2.1
-	 depends: 
-		- name: lib2
+       depends: 
+     - name: lib2
     apps:
       - name: "app1"
         lang: "C++"
-	  version: 1
+        version: 1
         build: "cmake . && make"
         depends:
-           - name: "lib1"
+      - name: "lib1"
       - name: "generic"
         lang: "C++"
-	  version: 1
+        version: 1
         build: "cmake . && make"
 ```
 
@@ -227,7 +227,7 @@ Creates a subtree for a project in ./projects/example/apps
 
 
 
-##Loading of a project  
+## Loading of a project  
 
 description of the internal process of loading information about the project into a project tree for following processing in other algorithms.
 
@@ -272,7 +272,7 @@ Example: `aproj populate ./projects/example`
 
 
 
-##Cleaning of a project
+## Cleaning of a project
 
 Command `"clean"` delete all files created during a building process.
 
@@ -285,7 +285,7 @@ Without additional keys delete all files created during a building process for a
 Example: `aproj clean ./projects/example`
 
 
-##Validation of a project
+## Validation of a project
 
 Command `"validate"` do check of the project to make sure that all data which describes of the project is correct.
 
@@ -299,7 +299,7 @@ Checks if possible to access to all dependencies. I.e. if all described local di
 are exist and if possible to download all remote dependencies.  
 
 
-##Building of a new project
+## Building of a new project
 
 Command `"build"` do building of a given project and all its dependencies.
 
