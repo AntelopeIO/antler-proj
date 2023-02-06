@@ -1,12 +1,12 @@
 /// @copyright See `LICENSE` in the root directory of this project.
 
 #include <antler/project/location.hpp>
-#include <antler/system/exec.hpp>
-#include <antler/string/split.hpp>
 
 #include <filesystem>
-
 #include <iostream>
+#include <boost/algorithm/string.hpp> // boost::split()
+
+#include <antler/system/exec.hpp>
 
 
 namespace antler::project::location {
@@ -50,7 +50,8 @@ bool is_local_file(std::string_view s) {
 
 bool is_org_repo_shorthand(std::string_view s) {
 
-   auto splits = string::split(s, "/");
+   std::vector<std::string_view> splits;
+   boost::split(splits, s, [](const char c) { return c == '/'; });
    if (splits.size() != 2)
       return false;
 

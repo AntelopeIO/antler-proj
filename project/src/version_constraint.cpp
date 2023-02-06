@@ -3,15 +3,15 @@
 #include <antler/project/version.hpp>
 #include <antler/project/version_constraint.hpp>
 #include <antler/string/from.hpp>
-#include <antler/string/split.hpp>
-#include <antler/string/trim.hpp>
 
 #include <iostream>
 #include <limits>
 #include <sstream>
 
+#include <boost/algorithm/string.hpp> // boost::split()
 
-std::ostream& operator<<(std::ostream& os, std::vector<std::string_view> v) {
+
+std::ostream& operator<<(std::ostream& os, const std::vector<std::string_view>& v) {
    os << "[";
    if (!v.empty()) {
       auto i = v.begin();
@@ -37,6 +37,29 @@ const semver max_semver{ max_semver_val, max_semver_val, max_semver_val };
 
 const version min_version{ min_semver };
 const version max_version{ max_semver };
+
+
+inline std::string_view trim(std::string_view s) {
+   // If it's empty, well, we are good as is.
+   if(s.empty())
+      return std::string_view{};
+
+   // Find the first non-space char.
+   auto first = s.data();
+   auto end = s.data()+s.size();
+   while(std::isspace(*first) && first < end)
+      ++first;
+   // But return empty if ALL chars are space.
+   if(first == end)
+      return std::string_view{};
+   // Find the last non-space char.
+   auto last = end-1;
+   while(std::isspace(*last) && last >= first)
+      --last;
+   // Return first, end. (end = last+1)
+   return std::string_view(first, last+1);
+}
+
 
 } // anonymous namespace
 
@@ -80,37 +103,39 @@ bool version_constraint::is_unique() const noexcept {
 
 void version_constraint::load(std::string_view sin, std::ostream& os) {
 
-   // Trim whitespace from both ends.
-   auto s = string::trim(sin);
-
-   // Set the raw value and clear constraints in preparation for further parsing.
-   m_raw = s;
+   // Trim whitespace from both ends and set the raw value. Then clear constraints in preparation for further parsing.
+   m_raw = trim(sin);
    m_constraints.clear();
 
    // But return if s is now empty.
-   if (s.empty())
+   if (m_raw.empty())
       return;
 
    // Start by splitting on '|'
-   for (auto split : string::split(s, "|;")) {
+   std::vector<std::string_view> splits;
+   boost::split(splits, m_raw, boost::is_any_of("|;"));
+   for (auto split : splits) {
       // Now split on ','
-      auto element = string::split(split, ",");
+      std::vector<std::string_view> element;
+      boost::split(element, split, boost::is_any_of(","));
       if (element.size() == 1) {
          // If there's only one constraint, we need to decide if it's an upper bound, a lower bound, or unique.
-         auto trimmed_el = string::trim(element[0]);
-         auto el_list = string::split(trimmed_el, " ");
+         auto trimmed_el = trim(element[0]);
+         std::vector<std::string_view> el_list;
+         boost::split(el_list, trimmed_el, boost::is_any_of(" "));
 
          if (el_list.size() == 1) {
             // One member MUST be a unique.
-            auto ver_str = string::trim(el_list[0]);
+            auto ver_str = trim(el_list[0]);
             m_constraints.emplace_back(constraint{ version(ver_str), version(), bounds_inclusivity::unique });
             continue;
          }
 
          if (el_list.size() == 2) {
             // Two members is a bound.
-            auto op_str = string::trim(el_list[0]);
-            auto ver_str = string::trim(el_list[1]);
+            auto op_str = trim(el_list[0]);
+            auto ver_str = trim(el_list[1]);
+
             if (op_str == "<")
                m_constraints.emplace_back(constraint{ min_version, version(ver_str), bounds_inclusivity::lower }); // inclusive of the min!
             else if (op_str == "<=")
@@ -128,15 +153,16 @@ void version_constraint::load(std::string_view sin, std::ostream& os) {
             continue;
          }
 
-         os << __FILE__ << ":" << __LINE__ << " Failed to decode version_constraint: \"" << sin << "\" Too many or too few elements in: \""
-            << el_list << "\"\n";
+         os << __FILE__ << ":" << __LINE__ << " Failed to decode version_constraint: \"" << sin << "\" Too many or too few elements in: \"" << el_list << "\"\n";
          clear();
          return;
       }
 
       if (element.size() == 2) {
-         auto lower_list = string::split(string::trim(element[0]), " ");
-         auto upper_list = string::split(string::trim(element[1]), " ");
+         std::vector<std::string_view> lower_list;
+         boost::split(lower_list, trim(element[0]), boost::is_any_of(" "));
+         std::vector<std::string_view> upper_list;
+         boost::split(upper_list, trim(element[1]), boost::is_any_of(" "));
 
          if (lower_list.size() != 2 || upper_list.size() != 2) {
             os << __FILE__ << ":" << __LINE__ << " Failed to decode version_constraint: \"" << sin
@@ -145,10 +171,10 @@ void version_constraint::load(std::string_view sin, std::ostream& os) {
             return;
          }
 
-         auto lop = string::trim(lower_list[0]);
-         auto lver = string::trim(lower_list[1]);
-         auto uop = string::trim(upper_list[0]);
-         auto uver = string::trim(upper_list[1]);
+         auto lop = trim(lower_list[0]);
+         auto lver = trim(lower_list[1]);
+         auto uop = trim(upper_list[0]);
+         auto uver = trim(upper_list[1]);
          if (lop == ">") {
             if (uop == "<") {
                m_constraints.emplace_back(constraint{ version(lver), version(uver), bounds_inclusivity::none });

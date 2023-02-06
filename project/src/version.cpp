@@ -2,7 +2,8 @@
 
 #include <antler/project/version.hpp>
 #include <antler/string/from.hpp>
-#include <antler/string/split.hpp>
+
+#include <boost/algorithm/string.hpp> // boost::split()
 
 #include <limits>
 #include <vector>
@@ -159,8 +160,11 @@ version::cmp version::raw_compare(std::string_view l_in, std::string_view r_in) 
    if (l_in == r_in)
       return cmp::eq;
 
-   auto l = string::split(l_in, ".,-+;");
-   auto r = string::split(r_in, ".,-+;");
+   std::vector<std::string_view> l;
+   boost::split(l, l_in, boost::is_any_of(".,-+;"));
+
+   std::vector<std::string_view> r;
+   boost::split(r, r_in, boost::is_any_of(".,-+;"));
 
    for (size_t i = 0; i < std::min(l.size(), r.size()); ++i) {
       if (l[i] == r[i])
@@ -226,6 +230,7 @@ version::cmp version::raw_compare(std::string_view l_in, std::string_view r_in) 
       return cmp::gt;
    return cmp::eq;
 }
+
 
 
 } // namespace antler::project

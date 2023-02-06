@@ -7,8 +7,9 @@
 #include <vector>
 #include <algorithm> // std::sort
 
+#include <boost/algorithm/string.hpp> // boost::split()
+
 #include <antler/project/project.hpp>
-#include <antler/string/split.hpp>
 #include <antler/system/exec.hpp>
 #include <whereami/whereami.hpp>
 
@@ -125,7 +126,7 @@ int main(int argc, char** argv) {
             app_entry ae;
             ae.path = path;
             ae.arg_str = result.output.substr(0, spc);
-            ae.args = antler::string::split<std::string>(ae.arg_str, ",");
+            boost::split(ae.args, ae.arg_str, boost::is_any_of(","));
             ae.brief = result.output.substr(spc + 1);
             while (ae.brief.back() == '\n')
                ae.brief.pop_back();

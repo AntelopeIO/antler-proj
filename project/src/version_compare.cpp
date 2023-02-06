@@ -1,8 +1,9 @@
 /// @copyright See `LICENSE` in the root directory of this project.
 
 #include <antler/project/version_compare.hpp>
-#include <antler/string/split.hpp>
 #include <antler/string/from.hpp>
+
+#include <boost/algorithm/string.hpp> // boost::split()
 
 
 namespace antler::project {
@@ -24,8 +25,11 @@ cmp_result raw_compare(std::string_view lhs, std::string_view rhs) noexcept {
    if (lhs == rhs)
       return cmp_result::eq;
 
-   auto l = string::split(lhs, ".,-;+");
-   auto r = string::split(rhs, ".,-;+");
+   std::vector<std::string_view> l;
+   boost::split(l, lhs, boost::is_any_of(".,-;+"));
+
+   std::vector<std::string_view> r;
+   boost::split(r, rhs, boost::is_any_of(".,-;+"));
 
    for (size_t i = 0; i < std::min(l.size(), r.size()); ++i) {
       if (l[i] == r[i])

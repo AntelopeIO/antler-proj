@@ -70,10 +70,12 @@ std::optional<std::string> load(const std::filesystem::path& path, std::ostream&
 
 
 /// Parse the dependency portion of an antler-pack project file. Error are written to os.
+/// @tparam NODE_T  Depending on ryml version, this should be c4::yml::ConstNodeRef or ryml::NodeRef.
 /// @param node  Reference to the node to be parsed.
 /// @param os  Stream for prinitng errors.
 /// @return optional of dependency type. Dependency is populated on successful parse only.
-std::optional<dependency> parse_depends(const ryml::NodeRef& node, std::ostream& os) {
+template <typename NODE_T>
+std::optional<dependency> parse_depends(const NODE_T& node, std::ostream& os) {
 
    using return_type = std::optional<dependency>;
 
@@ -201,10 +203,12 @@ std::optional<dependency> parse_depends(const ryml::NodeRef& node, std::ostream&
 
 
 /// Parse the object portion of an antler-pack project file. Error are written to os.
+/// @tparam NODE_T  Depending on ryml version, this should be c4::yml::ConstNodeRef or ryml::NodeRef.
 /// @param node  Reference to the node to be parsed.
 /// @param os  Stream for prinitng errors.
 /// @return optional of object type. Dependency is populated on successful parse only.
-std::optional<object> parse_object(const ryml::NodeRef& node, object::type_t type, std::ostream& os) {
+template <typename NODE_T>
+std::optional<object> parse_object(const NODE_T& node, object::type_t type, std::ostream& os) {
 
    using return_type = std::optional<object>;
 

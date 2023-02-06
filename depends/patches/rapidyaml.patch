@@ -6,17 +6,17 @@ index d18407c..5c2f75c 100644
      LANGUAGES CXX)
  include(./compat.cmake)
 
-+set_property(GLOBAL PROPERTY CXX_STANDARD "17")
-+set(CXX_STANDARD "17")
++set_property(GLOBAL PROPERTY CXX_STANDARD "20")
++set(CXX_STANDARD "20")
 +
- c4_project(VERSION 0.4.1 STANDALONE
+ c4_project(VERSION 0.5.0 STANDALONE
      AUTHOR "Joao Paulo Magalhaes <dev@jpmag.me>")
 
 @@ -59,6 +61,7 @@ c4_add_library(ryml
      LIBS c4core
      INCORPORATE c4core
      )
-+set_property(TARGET ryml PROPERTY CXX_STANDARD 17)
++set_property(TARGET ryml PROPERTY CXX_STANDARD 20)
 
  if(RYML_WITH_TAB_TOKENS)
      target_compile_definitions(ryml PUBLIC RYML_WITH_TAB_TOKENS)
