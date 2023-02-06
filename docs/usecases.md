@@ -70,7 +70,7 @@ Creates a directory structure:
     └───project.yaml
 ```
 
-##Adding of a new lib to the project
+## Adding of a new lib to the project
 
 Command `"add"` with key `--lib` adds a description of a new library to a project.
 
