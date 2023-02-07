@@ -6,7 +6,7 @@ antler-proj is a set of libraries and tools to help users successfully build sma
 ## Initial development
 
 The initial development is a Command Line Interface (CLI) that lets
-the users manipulate and build a project using commands like `init`,
+users manipulate and build a project using commands like `init`,
 `add`, `populate`, `rm`, and `build`. These commands are designed for
 either scripting or interactive use.
 
@@ -15,18 +15,18 @@ either scripting or interactive use.
 
 We've decided to use a yaml file to describe the project. Yaml is a
 common storage format and multiple libraries exist to read and write
-this format. Additionally, it's human readable, our project file can
-editted by and advanced user, and text compares (e.g. via github PRs)
+this format. Additionally, it's human readable, and our project file can
+edited by and advanced user, and text compares (e.g. via github PRs)
 make sense.
 
-Nominally, the file is named `project.yaml`, though a more windows
-familiar `.yml` file is supported and the user can directly call out
+Typically, the file is named `project.yaml`, though a more windows
+friendly `.yml` file is supported and the user can directly call out
 any file (e.g. `silly_project_name.txt`) as the project file.
 
 
 ### The CLI tools
 
-For the sake of simplicity, we've made antler-proj follow the example
+For simplicity, we've made antler-proj follow the example
 of other tools like git, apt, svn, etc. We achieve this with a top
 level antler-proj executable that calls individual standalone
 executables for the various commands. For example `aproj init` calls
@@ -68,17 +68,17 @@ There is a general help text which prints when `aproj` runs without a command or
 
 Example: `aproj --help`
 
-Each command has it's own help which prints when the command runs with key `--help`.
+Each command has its own help which prints when the command runs with key `--help`.
 
-Example: `aprog init --help`
+Example: `aproj init --help`
 
-`<command>` is a string without spaces. Key is an option string started from double dash. Parameters of a key, if required, follow the key.
+`<command>` is a string without spaces. The key is an option string that starts with a double dash. The parameters of a key, if required, follow the key.
 
 Example: `aproj init --name project_name`
 
 `<path to the project file>` (string) Path in the local file system where the project files and directories are placed or will be created depending on the command. Note that this may be a a directory or the `project.yaml` file itself.
 
-Error handling strategy: logging of the process of work, exit when meet an error.
+Error handling strategy: logging of the process of work, exiting when an error is encountered.
 
 Localization: Must support local symbols in names of apps, libs, tests, directories and files which the system manipulate with.
 All the names are UTF8 strings which may contain multibyte symbols. Max length of each name is 256 symbols.
@@ -93,7 +93,7 @@ applications, libraries, test commadnds, and other dependencies.
 
 - `Test` is a command, binary, or script for testing various parts of the project.
 
-- `Library` (Lib) is a source code or binary files of a programming language library needed for building an Application. Libraries may be multiple types: 1. GitHub repository (including short oprganization/project name), 2, Local directory, 3. Archive (either remote or local). These libraries may be antler-proj projects themselves or stand alone libraries.
+- `Library` (Lib) is a source code or binary files of a programming language library needed for building an Application. Libraries may be of multiple types: 1. GitHub repository (including short organization/project name), 2. Local directory, 3. Archive (either remote or local). These libraries may be antler-proj projects themselves or stand alone libraries.
 
 - `Version`: Each entity described in the project file must have a
 version. We encourage the author to use [SemVer](https://semver.org/)
@@ -332,7 +332,7 @@ Creates a subtree for a project in ./projects/example/apps
 
 description of the internal process of loading information about the project into a project tree for following processing in other algorithms.
 
-- Before start to execute most of the commands full information about the project from all project.yaml files must be loaded to a tree of dependencies corresponding to their relations.
+- Before executing most commands, full information about the project must be loaded into a tree of dependencies that corresponds to their relationships. This information should be taken from all project.yaml files.
 
 - The tree of the project should be built in memory from the local project files placed in the project directory tree.
 
@@ -343,27 +343,27 @@ description of the internal process of loading information about the project int
   - Check that a graph of dependencies of each application is a tree
   - Check for cycling dependencies
   - Check correctness of all data in descriptions of entities.
-  - Check if required versions of the dependencies fit to the available versions.
+  - Check that required versions of dependencies match available versions.
 - Trees of dependencies of each application should be topologically sorted to get the right order of building.
 - The project is loaded and ready for processing.
 
-In case of any error in the checks print detailed information about the problem to the log and to the console which should be enough to correct the error by the user.
+In the event of an error during these checks, detailed information about the problem will be printed to the log and console, which should be sufficient for the user to correct the error.
 
 
 
 ## Populating of a project
 
-Command `"populate"` do downloading of all dependencies and preparing the project for building.
+Command `"populate"` downloads all dependencies and prepares the project for building.
 
-User run in a command line `aproj` with command `"populate"` and following parameters:
+To run the `"populate"` command, the user must execute the `aproj` command in the command line with the following parameters:
 
-`--name <app name>` if this key is set do downloading only for this project
+`--name <app name>` downloads only for this project if this key is set
 
-`--check` (optional) Do all checks as described in [Loading of a project](#Loading-of-a-project) but instead of downloading of the found updates just prints their list to the console.
+`--check` (optional) perform all checks as described in [Loading of a project](#Loading-of-a-project) but instead of downloading any updates it prints a list of updates to the console.
 
 `--reload` (optional) Remove all downloaded dependencies and download everything again
 
-`--check` and `--reload` can't be used together, the attempt should generates an error.
+`--check` and `--reload` can't be used together, and attempting to do so will result in an error.
 
 Load existing information about the project starting from the root `project.yaml` file as it described in chapter [Loading of a project](#Loading-of-a-project).
 
@@ -375,47 +375,47 @@ Example: `aproj populate ./projects/example`
 
 ## Cleaning of a project
 
-Command `"clean"` delete all files created during a building process.
+Command `"clean"` deletes all files created during a building process.
 
-User run in a command line `aproj` with command `"clean"` and following parameters:
+User runs in the command line `aproj` with the command `"clean"` and the following parameters:
 
-`--name <name of app/lib/test>` Delete all files created during a building process for the only given project.
+`--name <name of app/lib/test>` Deletes all files created during the build process for only the specified project.
 
-Without additional keys delete all files created during a building process for all projects.
+Without additional keys, all files created during the build process for all projects will be deleted.
 
 Example: `aproj clean ./projects/example`
 
 
 ## Validation of a project
 
-Command `"validate"` do check of the project to make sure that all data which describes of the project is correct.
+Command `"validate"` performs a check of the project to ensure that all data that describes the project is correct.
 
-User run in a command line `aproj` with command `"validate"`
+User run in the command line `aproj` with the command `"validate"`
 
 
-Check all project.yaml files described in the project for existing of updates.
+Check all project.yaml files described in the project for updates.
 Download the updated project.yaml files.
 Do all checks as described in [Loading of a project](#Loading-of-a-project)
-Checks if possible to access to all dependencies. I.e. if all described local directories of all local dependencies
-are exist and if possible to download all remote dependencies.
+Checks if it is possible to access all dependencies. I.e. if all described local directories of all local dependencies
+exist and if it is possible to download all remote dependencies.
 
 
 ## Building of a new project
 
-Command `"build"` do building of a given project and all its dependencies.
+Command `"build"` builds the given project and all its dependencies.
 
-User run in a command line `aproj` with command `"build"` and following parameters:
+The user runs the command line `aproj` with the command `"build"` and the following parameters:
 
-`--name <name of app>` if this key is set do building only for this project and its dependencies.
+`--name <name of app>` if this key is set, only the given project and its dependencies will be built.
 `--ignore_errors` if this key is set don't stop building in case of non successful building of any subproject
 
 Without additional keys do building of all applications described in the project.yaml, their dependencies and tests.
 
-For start of the building run a command described in field `"build"` of given project in a root directory of this project.
+To start building run a command described in field `"build"` of given project in a root directory of this project.
 
 Check the return code of the building process. In case of non zero code generate an error and stop if `--ignore_errors` key is not set.
 
-Before start of the building command intercept stdio and stderr of the building process and save them in a log file `"project_name.log"`
+Before starting the build command intercept stdio and stderr of the building process and save them in a log file `"project_name.log"`
 
 
 Example: `aproj build ./projects/example`
