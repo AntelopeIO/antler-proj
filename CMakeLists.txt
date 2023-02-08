@@ -1,6 +1,6 @@
 # @copyright See `LICENSE` in the root directory of this project.
 
-cmake_minimum_required(VERSION 3.12) # ryml minimum is 3.12
+cmake_minimum_required(VERSION 3.11) # If ryml >= 0.5.0 is included via FetchContent or submodule, this minimum is 3.12.
 
 project("ANTLER Project Tools ")
 
