@@ -16,7 +16,7 @@ foreach(file_name IN ITEMS ${src_cpp})
   set(name "test-${name}")
 
   add_executable(${name} ${file_name})
-  set_property(TARGET ${target_name} PROPERTY CXX_STANDARD 20)
+  set_property(TARGET ${name} PROPERTY CXX_STANDARD 20)
   target_link_libraries(${name} antler-project)
   target_include_directories(${name} PRIVATE ./)
   add_test(NAME ${name} COMMAND ${name})
