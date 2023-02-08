@@ -28,7 +28,7 @@ const char* language_literals[]{
 language to_language(std::string_view s) {
 
    // Look for an exact match with the lowercase string.
-#define CASE_OF(E,STR) if( s == STR) return antler::project::language::E;
+#define CASE_OF(E,STR) if( s == (STR)) return antler::project::language::E;
    LANGUAGE_CASE_OF
       ;
 #undef CASE_OF
@@ -70,7 +70,7 @@ std::string to_string(language e) {
 
 std::ostream& operator<<(std::ostream& os, const antler::project::language& e) {
    switch(e) {
-#define CASE_OF(X,Y) case antler::project::language::X: { os << Y;  return os; }
+#define CASE_OF(X,Y) case antler::project::language::X: { os << (Y);  return os; }
       LANGUAGE_CASE_OF;
 #undef CASE_OF
    }

@@ -135,11 +135,7 @@ void object::upsert_dependency(antler::project::dependency&& dep) noexcept {
 
 std::ostream& operator<<(std::ostream& os, const antler::project::object::type_t& e) {
    switch (e) {
-#define CASE_OF(X, Y)                         \
-   case antler::project::object::type_t::X: { \
-      os << Y;                                \
-      return os;                              \
-   }
+#define CASE_OF(X, Y) case antler::project::object::type_t::X: { os << (Y); return os; }
       TYPE_T_CASE_OF;
 #undef CASE_OF
    }
@@ -152,11 +148,7 @@ std::istream& operator>>(std::istream& is, antler::project::object::type_t& e) {
 
    std::string temp;
    if (is >> temp) {
-#define CASE_OF(X, Y)                         \
-   if (temp == Y) {                           \
-      e = antler::project::object::type_t::X; \
-      return is;                              \
-   }
+#define CASE_OF(X, Y) if (temp == (Y)) { e = antler::project::object::type_t::X; return is; }
       TYPE_T_CASE_OF;
 #undef CASE_OF
    }

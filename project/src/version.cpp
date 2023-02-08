@@ -5,9 +5,6 @@
 
 #include <boost/algorithm/string.hpp> // boost::split()
 
-#include <limits>
-#include <vector>
-#include <iostream>
 #include <sstream>
 
 
@@ -182,21 +179,21 @@ version::cmp version::raw_compare(std::string_view l_in, std::string_view r_in) 
 
          std::string_view lremain;
          if (ln == std::string_view::npos) {
-            string::from(l[i], lnum);
+            [[maybe_unused]] auto discard = string::from(l[i], lnum);
             lremain = l[i];
          }
          else {
-            string::from(l[i].substr(0, ln), lnum);
+            [[maybe_unused]] auto discard = string::from(l[i].substr(0, ln), lnum);
             lremain = l[i].substr(ln);
          }
 
          std::string_view rremain;
          if (rn == std::string_view::npos) {
-            string::from(r[i], rnum);
+            [[maybe_unused]] auto discard = string::from(r[i], rnum);
             rremain = r[i];
          }
          else {
-            string::from(r[i].substr(0, rn), rnum);
+            [[maybe_unused]] auto discard = string::from(r[i].substr(0, rn), rnum);
             rremain = r[i].substr(rn);
          }
 

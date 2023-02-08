@@ -2,7 +2,7 @@
 
 /// @copyright See `LICENSE` in the root directory of this project.
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <iostream>
 #include <filesystem>
 #include <cctype>               // std::isxdigit()
@@ -205,7 +205,7 @@ inline void get_name(std::string_view friendly_name, std::string& name, bool all
 /// @param s  The hash string to check.
 /// @param byte_count  Expected size of the hash in bytes.
 /// @return true if s is `byte_count` bytes long and contains only valid hex values.
-inline bool is_valid_hash(std::string_view s, size_t byte_count = 32) noexcept {
+[[nodiscard]] inline bool is_valid_hash(std::string_view s, size_t byte_count = 32) noexcept {
    if (s.size() != byte_count)
       return false;
    for (auto a : s) {

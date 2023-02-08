@@ -38,12 +38,12 @@ enum class word {
 /// Convert a string into a word. `none` is returned for a failure to parse.
 /// @param s  The string to parse.
 /// @return s as a key word, none if s could not be parsed.
-word to_word(std::string_view s);
+[[nodiscard]] word to_word(std::string_view s);
 
 /// Convert e to a string.
 /// @param e  The word to convert to a string.
 /// @return String representation of e.
-std::string to_string(word e);
+[[nodiscard]] std::string to_string(word e);
 
 /// This is a convinience for the yaml encoder/decoder.
 extern const char* literals[];
@@ -54,5 +54,5 @@ extern const char* literals[];
 std::ostream& operator<<(std::ostream& os, const key::word& e);
 
 namespace std {
-inline std::string to_string(key::word e) { return key::to_string(e); };
+[[nodiscard]] inline std::string to_string(key::word e) { return key::to_string(e); };
 } // namespace std

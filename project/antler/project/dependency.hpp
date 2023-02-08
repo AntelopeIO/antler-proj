@@ -38,36 +38,36 @@ public:
 
    /// Get the dependency name.
    /// @return The name of this dependency.
-   std::string_view name() const noexcept;
+   [[nodiscard]] std::string_view name() const noexcept;
    /// Set the dependency name.
    /// @param s  The new name for this dependency.
    void name(std::string_view s) noexcept;
 
    /// Get the location field of this dependency.
    /// @return the from location of this dependency.
-   std::string_view location() const noexcept;
+   [[nodiscard]] std::string_view location() const noexcept;
    /// Set the location field of this dependency.
    /// @param s  The new from location of this dependency.
    void location(std::string_view s) noexcept;
 
    /// Report on the status of this dependencies from field: does it look like an archive?
    /// @return true if location ends in an archive format (e.g. ".tar.gz", ".tgz", etc")
-   bool is_archive() const noexcept;
+   [[nodiscard]] bool is_archive() const noexcept;
 
    /// Report on the status of version information.
    /// @return true if both tag() and rel() would return empty.
-   bool empty_version() const noexcept;
+   [[nodiscard]] bool empty_version() const noexcept;
 
    /// Get the github tag/commit hash.
    /// @return github tag/commit hash.
-   std::string_view tag() const noexcept;
+   [[nodiscard]] std::string_view tag() const noexcept;
    /// Set github tag/commit hash.
    /// @param s  The new github tag/commit hash.
    void tag(std::string_view s) noexcept;
 
    /// Get the github release version.
    /// @return The possibly empty release version.
-   std::string_view release() const noexcept;
+   [[nodiscard]] std::string_view release() const noexcept;
    /// Set the new github release version.
    /// @param s  The new, possibly empty, release version.
    void release(std::string_view s) noexcept;
@@ -76,7 +76,7 @@ public:
    /// @note For commit hash, see tag()
    /// @note only valid for archive and release.
    /// @return The archive or release hash.
-   std::string_view hash() const noexcept;
+   [[nodiscard]] std::string_view hash() const noexcept;
    /// Set the archive or release hash.
    /// @note For commit hash, see tag()
    /// @note only valid for archive and release.
@@ -86,7 +86,7 @@ public:
    /// Return the list of patch files.
    /// @note These should be in a location relative to the `project.yaml` file.
    /// @return  The list of patch files.
-   const patch_list_t& patch_files() const noexcept;
+   [[nodiscard]] const patch_list_t& patch_files() const noexcept;
    /// Add a new file to the patch list.
    /// @note this should be in a location relative to the `project.yaml` file.
    /// @param path  The path to the patch file to add.
@@ -98,14 +98,14 @@ public:
 
    /// Test to see if a location is valid.
    /// @return true if s is an archive, a github repo, or an organization shorthand for a github repo.
-   static bool validate_location(std::string_view s);
+   [[nodiscard]] static bool validate_location(std::string_view s);
    /// Test to see if a combination of values are valid.
    /// @param loc  The from/location field of a dependency. Empty is valid.
    /// @param tag  The tag field of a dependency. Empty is valid.
    /// @param rel  The rel field of a dependency. Empty is valid.
    /// @param hash  The hash field of a dependency. Empty is valid.
    /// @return true indicates the values passed in are a valid combination.
-   static bool validate_location(std::string_view loc, std::string_view tag, std::string_view rel, std::string_view hash,
+   [[nodiscard]] static bool validate_location(std::string_view loc, std::string_view tag, std::string_view rel, std::string_view hash,
          std::ostream& os=std::cerr);
 
 

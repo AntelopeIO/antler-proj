@@ -6,7 +6,6 @@
 
 #include <iostream>
 #include <limits>
-#include <sstream>
 
 #include <boost/algorithm/string.hpp> // boost::split()
 

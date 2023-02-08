@@ -14,7 +14,7 @@
 namespace antler::project {
 
 namespace {
-   auto is_dot = [](const char c) { return c == '.'; };
+   auto is_dot = [](const char c) -> bool { return c == '.'; };
 }
 
 //--- constructors/destrructor ------------------------------------------------------------------------------------------
@@ -130,9 +130,9 @@ cmp_result semver::compare_pb_rule12(std::string_view lhs, std::string_view rhs)
          return cmp_result::gt;
       // Both are numbers, convert and compare.
       int lnum = 0;
-      string::from(l[i], lnum); // ignore return code. If it's a failure, we will just use the zero value.
+      [[maybe_unused]] auto discard1 = string::from(l[i], lnum); // ignore return code. If it's a failure, we will just use the zero value.
       int rnum = 0;
-      string::from(r[i], rnum);
+      [[maybe_unused]] auto discard2 = string::from(r[i], rnum);
       if (lnum == rnum)
          continue;
       if (lnum < rnum)

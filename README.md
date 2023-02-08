@@ -15,7 +15,7 @@ For now, please see the [Intial Design Document](./docs/project_manager.md) for 
 ## Runtime Dependencies
 
 The following tools are required for aproj to work at runtime:
-- CMake v3.11
+- CMake v3.12
 - aproj requires [`gh`](https://cli.github.com/). Note that you may need
 to [authenticate](https://cli.github.com/manual/) before this will
 work.
@@ -25,7 +25,7 @@ work.
 
 Building aproj requires the following dependencies:
 - C++20 compiler (e.g. gcc-10 or clang-13).
-- [CMake](https://cmake.org/overview/) version 3.11 or greater (note the requirement [here](./CMakeLists.txt#L1)).
+- [CMake](https://cmake.org/overview/) version 3.12 or greater (note the requirement [here](./CMakeLists.txt#L1)).
 
 Additionally we recomend using [ninja build](https://ninja-build.org/) for fast builds.
 
@@ -36,7 +36,7 @@ Assuming you have the other dependencies installed, from the project root, the f
 ```bash
 mkdir -p Build \
     && cd Build \
-    && cmake -DCMAKE_BUILD_TYPE=Release \
+    && cmake .. -DCMAKE_BUILD_TYPE=Release \
     && cmake --build .
 ```
 

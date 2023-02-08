@@ -5,14 +5,15 @@ namespace antler::string {
 
 
 template<typename T>
-inline bool from(std::string_view s, T& n) noexcept {
-   n = 0;
+inline bool from(std::string_view s, T& rv) noexcept {
+   T n = 0;
    for (auto c : s) {
       n *= 10;
       if (c < '0' || c > '9')
          return false;
       n += c - '0';
    }
+   rv = n;
    return true;
 }
 

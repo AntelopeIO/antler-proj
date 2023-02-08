@@ -7,7 +7,9 @@
 #pragma GCC diagnostic ignored "-Wold-style-cast"
 
 #include <ryml.hpp>
-#include <c4/std/string.hpp>    // to_substr(std::string)
+#ifndef _RYML_SINGLE_HEADER_AMALGAMATED_HPP_
+#  include <c4/std/string.hpp>    // to_substr(std::string)
+#endif
 
 #pragma GCC diagnostic pop
 
@@ -29,25 +31,23 @@ namespace { // anonymous
 /// @param path  Path to the file.
 /// @param os  ostream to write errors to.
 /// @return An optional string that is populated with the file contents *if* the load was successful; otherwise, it's invalid for any error.
-std::optional<std::string> load(const std::filesystem::path& path, std::ostream& os) {
-
-   using return_type = std::optional<std::string>;
+[[nodiscard]] std::optional<std::string> load(const std::filesystem::path& path, std::ostream& os) {
 
    std::error_code sec;
 
    // Sanity check and determine the file size.
    if (!std::filesystem::exists(path, sec)) {
       os << "Path doesn't exist: " << path << "\n";
-      return return_type();
+      return {};
    }
    if (!std::filesystem::is_regular_file(path, sec)) {
       os << "Path must be regular file: " << path << "\n";
-      return return_type();
+      return {};
    }
    std::uintmax_t sz = std::filesystem::file_size(path, sec);
    if (sec || sz == static_cast<std::uintmax_t>(-1)) {
       os << "Can't determine file size for: " << path << " with error " << sec << "\n";
-      return return_type();
+      return {};
    }
 
    // Add warning for file size > 1 meg
@@ -75,9 +75,7 @@ std::optional<std::string> load(const std::filesystem::path& path, std::ostream&
 /// @param os  Stream for prinitng errors.
 /// @return optional of dependency type. Dependency is populated on successful parse only.
 template <typename NODE_T>
-std::optional<dependency> parse_depends(const NODE_T& node, std::ostream& os) {
-
-   using return_type = std::optional<dependency>;
+[[nodiscard]] std::optional<dependency> parse_depends(const NODE_T& node, std::ostream& os) {
 
    dependency rv;
 
@@ -99,11 +97,11 @@ std::optional<dependency> parse_depends(const NODE_T& node, std::ostream& os) {
             // Sanity check before setting value.
             if (!i.has_val()) {
                os << word << " tag in dependency list with no value.\n";
-               return return_type();
+               return {};
             }
             if (!rv.name().empty()) {
                os << "Duplicate " << word << " values in dependency list: " << i.val() << ", " << rv.name() << "\n";
-               return return_type();
+               return {};
             }
             rv.name(i.val());
          } break;
@@ -112,11 +110,11 @@ std::optional<dependency> parse_depends(const NODE_T& node, std::ostream& os) {
             // Sanity check before setting value.
             if (!i.has_val()) {
                os << word << " tag in dependency list with no value.\n";
-               return return_type();
+               return {};
             }
             if (!rv.tag().empty()) {
                os << "Duplicate " << word << " values in dependency list: " << i.val() << ", " << rv.tag() << "\n";
-               return return_type();
+               return {};
             }
             rv.tag(i.val());
          } break;
@@ -126,11 +124,11 @@ std::optional<dependency> parse_depends(const NODE_T& node, std::ostream& os) {
             // Sanity check before setting value.
             if (!i.has_val()) {
                os << word << " tag in dependency list with no value.\n";
-               return return_type();
+               return {};
             }
             if (!rv.release().empty()) {
                os << "Duplicate " << word << " values in dependency list: " << i.val() << ", " << rv.release() << "\n";
-               return return_type();
+               return {};
             }
             rv.release(i.val());
          } break;
@@ -139,11 +137,11 @@ std::optional<dependency> parse_depends(const NODE_T& node, std::ostream& os) {
             // Sanity check before setting value.
             if (!i.has_val()) {
                os << word << " tag in dependency list with no value.\n";
-               return return_type();
+               return {};
             }
             if (!rv.hash().empty()) {
                os << "Duplicate " << word << " values in dependency list: " << i.val() << ", " << rv.hash() << "\n";
-               return return_type();
+               return {};
             }
             rv.hash(i.val());
          } break;
@@ -152,15 +150,15 @@ std::optional<dependency> parse_depends(const NODE_T& node, std::ostream& os) {
             // Sanity check before setting value.
             if (!i.has_val()) {
                os << word << " tag in dependency list with no value.\n";
-               return return_type();
+               return {};
             }
             if (!rv.location().empty()) {
                os << "Duplicate " << word << " values in dependency list: " << i.val() << ", " << rv.location() << "\n";
-               return return_type();
+               return {};
             }
             if (!dependency::validate_location(i.val())) {
                os << "Invalid location: " << i.val() << "\n";
-               return return_type();
+               return {};
             }
             rv.location(i.val());
          } break;
@@ -188,12 +186,12 @@ std::optional<dependency> parse_depends(const NODE_T& node, std::ostream& os) {
          case key::word::depends:
          case key::word::command: {
             os << "Unexpected tag in dependency list: " << word << "\n";
-            return return_type();
+            return {};
          }
 
          case key::word::none: {
             os << "Unknown tag in dependency list: " << i.key() << "\n";
-            return return_type();
+            return {};
          }
       }
    }
@@ -208,9 +206,7 @@ std::optional<dependency> parse_depends(const NODE_T& node, std::ostream& os) {
 /// @param os  Stream for prinitng errors.
 /// @return optional of object type. Dependency is populated on successful parse only.
 template <typename NODE_T>
-std::optional<object> parse_object(const NODE_T& node, object::type_t type, std::ostream& os) {
-
-   using return_type = std::optional<object>;
+[[nodiscard]] std::optional<object> parse_object(const NODE_T& node, object::type_t type, std::ostream& os) {
 
    object rv(type);
 
@@ -228,11 +224,11 @@ std::optional<object> parse_object(const NODE_T& node, object::type_t type, std:
             // Sanity check before setting value.
             if (!i.has_val()) {
                os << "Name tag in " << type << " list with no value.\n";
-               return return_type();
+               return {};
             }
             if (!rv.name().empty()) {
                os << "Duplicate name values in " << type << " list: " << i.val() << "\n";
-               return return_type();
+               return {};
             }
             rv.name(i.val());
          } break;
@@ -241,21 +237,21 @@ std::optional<object> parse_object(const NODE_T& node, object::type_t type, std:
             // Sanity check before setting value.
             if (!i.has_val()) {
                os << word << " tag in " << type << " list with no value.\n";
-               return return_type();
+               return {};
             }
             auto lang = to_language(i.val());
             if (lang == language::none) {
                os << "Invalid language tag in " << type << " list: " << i.val() << "\n";
-               return return_type();
+               return {};
             }
             if (rv.language() != language::none) {
                os << "Duplicate language values in " << type << " list: " << rv.language() << ", " << lang << "\n";
-               return return_type();
+               return {};
             }
 
             if (type == object::type_t::test) {
                os << type << " objects may not have a language tag.";
-               return return_type();
+               return {};
             }
 
             rv.language(lang);
@@ -265,15 +261,15 @@ std::optional<object> parse_object(const NODE_T& node, object::type_t type, std:
             // Sanity check before setting value.
             if (!i.has_val()) {
                os << word << " tag in " << type << " list with no value.\n";
-               return return_type();
+               return {};
             }
             if (!rv.options().empty()) {
                os << "Duplicate " << word << " values in " << type << " list: " << rv.options() << ", " << i.val() << "\n";
-               return return_type();
+               return {};
             }
             if (type == object::type_t::test) {
                os << type << " objects may not have an options tag.";
-               return return_type();
+               return {};
             }
 
             rv.options(i.val());
@@ -284,15 +280,15 @@ std::optional<object> parse_object(const NODE_T& node, object::type_t type, std:
             // Sanity check before setting value.
             if (!i.has_val()) {
                os << word << " tag in " << type << " list with no value.\n";
-               return return_type();
+               return {};
             }
             if (!rv.command().empty()) {
                os << "Duplicate " << word << " values in " << type << " list: " << rv.command() << ", " << i.val() << "\n";
-               return return_type();
+               return {};
             }
             if (type != object::type_t::test) {
                os << type << " objects may not have a command tag.";
-               return return_type();
+               return {};
             }
 
             rv.command(i.val());
@@ -303,16 +299,16 @@ std::optional<object> parse_object(const NODE_T& node, object::type_t type, std:
             // sanity check
             if (i.has_val() && !i.val().empty()) {
                os << "Unexpected value in " << word << " list: " << i.val() << "\n";
-               return return_type();
+               return {};
             }
             // Depends should be a map. For each element, parse out the dependency and store it.
             for (auto j : i) {
                auto optional_dep = parse_depends(j, os);
                if (!optional_dep)
-                  return return_type();
+                  return {};
                if (rv.dependency_exists(optional_dep.value().name())) {
                   os << "Multiple dependencies with the same name in " << word << " list: " << optional_dep.value().name() << "\n";
-                  return return_type();
+                  return {};
                }
                rv.upsert_dependency(std::move(optional_dep.value()));
             }
@@ -330,12 +326,12 @@ std::optional<object> parse_object(const NODE_T& node, object::type_t type, std:
          case key::word::tests:
          case key::word::version: {
             os << "Unexpected tag in " << type << " list: " << word << "\n";
-            return return_type();
+            return {};
          }
 
          case key::word::none: {
             os << "Unknown tag in " << type << " list: " << i.key() << "\n";
-            return return_type();
+            return {};
          }
       }
    }
@@ -346,14 +342,12 @@ std::optional<object> parse_object(const NODE_T& node, object::type_t type, std:
 
 std::optional<project> project::parse(const std::filesystem::path& path, std::ostream& os) {
 
-   using return_type = std::optional<project>;
-
    // Get file contents and store it in source.
    std::string source;
    {
       auto temp = load(path, os);
       if (!temp)
-         return return_type();
+         return {};
       source = temp.value();
    }
 
@@ -369,7 +363,7 @@ std::optional<project> project::parse(const std::filesystem::path& path, std::os
       // Sanity check.
       if (!i.has_key()) {
          os << "Missing key in root.\n";
-         return return_type{};
+         return {};
       }
 
       // Get the key as one of our enums for a switch.
@@ -380,11 +374,11 @@ std::optional<project> project::parse(const std::filesystem::path& path, std::os
             // Sanity check before setting value.
             if (!i.has_val()) {
                os << "Project tag at root level with no value.\n";
-               return return_type();
+               return {};
             }
             if (!rv.name().empty()) {
                os << "Multiple project tags at root level: " << rv.name() << ", " << i.val() << "\n";
-               return return_type();
+               return {};
             }
             rv.name(i.val());
          } break;
@@ -393,11 +387,11 @@ std::optional<project> project::parse(const std::filesystem::path& path, std::os
             // Sanity check before setting value.
             if (!i.has_val()) {
                os << "Version tag at root level with no value.\n";
-               return return_type();
+               return {};
             }
             if (!rv.version().empty()) {
                os << "Multiple version tags at root level: " << rv.version() << ", " << i.val() << "\n";
-               return return_type();
+               return {};
             }
             rv.version(antler::project::version(i.val()));
          } break;
@@ -408,7 +402,7 @@ std::optional<project> project::parse(const std::filesystem::path& path, std::os
             // sanity check
             if (i.has_val() && !i.val().empty()) {
                os << "Unexpected value in " << word << " list: " << i.val() << "\n";
-               return return_type();
+               return {};
             }
 
             // Apps, libs, and tests are nearly the same. But they have a few small differences in parsing and also end up in
@@ -430,10 +424,10 @@ std::optional<project> project::parse(const std::filesystem::path& path, std::os
                auto optional_obj = parse_object(node, ot, os);
                // sanity check before storing.
                if (!optional_obj)
-                  return return_type();
+                  return {};
                if (rv.object_exists(optional_obj.value().name(), ot)) {
                   os << "Multiple object with the same name in " << word << " list: " << optional_obj.value().name() << "\n";
-                  return return_type();
+                  return {};
                }
                list.emplace_back(optional_obj.value());
             }
@@ -451,12 +445,12 @@ std::optional<project> project::parse(const std::filesystem::path& path, std::os
          case key::word::release:
          case key::word::tag: {
             os << "Unexpected tag at root level: " << word << "\n";
-            return return_type();
+            return {};
          }
 
          case key::word::none: {
             os << "Unknown tag at root level: " << i.key() << "\n";
-            return return_type();
+            return {};
          }
       }
    }
@@ -464,7 +458,7 @@ std::optional<project> project::parse(const std::filesystem::path& path, std::os
 
    // Validate here.
    if (!rv.is_valid(os))
-      return return_type();
+      return {};
 
    return rv;
 }

@@ -25,7 +25,7 @@ namespace antler::string {
 /// @param rv  This is a return value, it's updated if s was convertable to a T.
 /// @return  Returns true if rv was updated, false otherwise.
 template<typename T>
-bool from(std::string_view s, T& rv) noexcept;
+[[nodiscard]] bool from(std::string_view s, T& rv) noexcept;
 
 } // namespace antler::string
 

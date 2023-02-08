@@ -1,9 +1,11 @@
 #pragma once
 
+// This file is copied from CDT, we use it as is without modification.
+
+// NOLINTBEGIN
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wold-style-cast"
 #pragma GCC diagnostic ignored "-Wshadow"
-//#pragma GCC diagnostic ignored "-W"
 
 namespace eosio { namespace cdt {
 enum sys {
@@ -65,3 +67,4 @@ struct whereami {
 }} // ns eosio::cdt
 
 #pragma GCC diagnostic pop
+// NOLINTEND

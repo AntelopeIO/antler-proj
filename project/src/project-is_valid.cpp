@@ -3,7 +3,7 @@
 #include <antler/project/project.hpp>
 
 
-#define TEST_POPULATED(X,Y) if(X.empty()) { os << Y << " is unpopulated.\n"; rv = false; }
+#define TEST_POPULATED(X,Y) if((X).empty()) { os << (Y) << " is unpopulated.\n"; rv = false; }
 
 namespace antler::project {
 

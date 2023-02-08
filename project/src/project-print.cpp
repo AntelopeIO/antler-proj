@@ -7,7 +7,9 @@
 #pragma GCC diagnostic ignored "-Wold-style-cast"
 
 #include <ryml.hpp>
-#include <c4/std/string.hpp> // to_csubstr(std::string)
+#ifndef _RYML_SINGLE_HEADER_AMALGAMATED_HPP_
+#  include <c4/std/string.hpp> // to_csubstr(std::string)
+#endif
 
 #pragma GCC diagnostic pop
 
@@ -19,7 +21,7 @@ namespace { // anonymous
 /// Templates to work around ryml::csubstr data type. Note that csubstr is very similar to std::string_view.
 
 template<typename T>
-const c4::csubstr to_csubstr(T t) {
+[[nodiscard]] inline const c4::csubstr to_csubstr(T t) {
    // The default function should probably not exist. It will ONLY work in liited situations. In other cases, it silently allows
    // ryml to write garbage.
 
@@ -30,13 +32,13 @@ const c4::csubstr to_csubstr(T t) {
 }
 
 template<>
-const c4::csubstr to_csubstr(std::string s) {
+[[nodiscard]] inline const c4::csubstr to_csubstr(std::string s) {
    return c4::to_csubstr(s);
 }
 
 
 template<>
-const c4::csubstr to_csubstr(std::string_view s) {
+[[nodiscard]] inline const c4::csubstr to_csubstr(std::string_view s) {
    return c4::to_csubstr(s);
 }
 
@@ -47,42 +49,42 @@ const c4::csubstr to_csubstr(std::string_view s) {
 
 
 template<>
-const c4::csubstr to_csubstr(const char* c) {
+[[nodiscard]] inline const c4::csubstr to_csubstr(const char* c) {
    return c4::to_csubstr(c);
 }
 
 template<>
-const c4::csubstr to_csubstr(key::word e) {
+[[nodiscard]] inline const c4::csubstr to_csubstr(key::word e) {
    return to_csubstr(key::literals[static_cast<size_t>(e)]);
 }
 
 
 template<>
-const c4::csubstr to_csubstr(antler::project::language e) {
+[[nodiscard]] inline const c4::csubstr to_csubstr(antler::project::language e) {
    return to_csubstr(antler::project::language_literals[static_cast<size_t>(e)]);
 }
 
 template<typename T>
-const c4::csubstr to_csubstr_insert(T t) {
+[[nodiscard]] inline const c4::csubstr to_csubstr_insert(T t) {
    std::stringstream ss;
    ss << t;
    return c4::to_csubstr(ss.str());
 }
 
 template<>
-const c4::csubstr to_csubstr_insert(antler::project::version v) {
+[[nodiscard]] inline const c4::csubstr to_csubstr_insert(antler::project::version v) {
    // This is a hack for now.
    return c4::to_csubstr(v.raw());
 }
 /*template<>
-const c4::csubstr to_csubstr_insert(const antler::project::version& v) {
+  [[nodiscard]] inline const c4::csubstr to_csubstr_insert(const antler::project::version& v) {
    // This is a hack for now.
    return c4::to_csubstr( v.raw() );
 }
 */
 
 /*
-const c4::csubstr literal(key::word e) {
+  [[nodiscard]] inline const c4::csubstr literal(key::word e) {
    return c4::to_csubstr(key::literals[static_cast<size_t>(e)]);
 }
 */

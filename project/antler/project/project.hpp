@@ -3,6 +3,7 @@
 /// @copyright See `LICENSE` in the root directory of this project.
 
 #include <antler/project/object.hpp>
+#include <antler/project/version.hpp>
 #include <filesystem>
 #include <optional>
 
@@ -30,21 +31,21 @@ public:
 
    /// Get the project name.
    /// @return  The name of the project.
-   std::string_view name() const noexcept;
+   [[nodiscard]] std::string_view name() const noexcept;
    /// Set the project name.
    /// @param s  The new name of the project.
    void name(std::string_view s) noexcept;
 
    /// Get the path to the project. This is the actual `project.yaml` file, not the containing directory.
    /// @return  The path to the project file.
-   std::filesystem::path path() const noexcept;
+   [[nodiscard]] std::filesystem::path path() const noexcept;
    /// Set the path to the project. This is the actual `project.yaml` file, not the containing directory.
    /// @param path  The new path to the project file.
    void path(const std::filesystem::path& path) noexcept;
 
    /// Get this project's version info.
    /// @return  The version information.
-   antler::project::version version() const noexcept;
+   [[nodiscard]] antler::project::version version() const noexcept;
    /// Set this project's version info.
    /// @param ver  The new version information.
    void version(const antler::project::version& ver) noexcept;
@@ -53,7 +54,7 @@ public:
    /// @param name  The name of the object(s) to remove.
    /// @param type  The type of the object(s) to remove. If type is any, then all objects with name are removed.
    /// @return True if one or more objects are removed; otherwise, false.
-   bool remove(std::string_view name, object::type_t type) noexcept;
+   [[nodiscard]] bool remove(std::string_view name, object::type_t type) noexcept;
 
    /// update or insert a new object. It's type() is evaluated to determine which list it belongs in. If the object already
    /// exists, an update is performed by removing the old one and adding the new one.
@@ -76,35 +77,35 @@ public:
    /// @param name  The object name to search for.
    /// @param type  If type is other than any, the search is limited to that single type.
    /// @return true if an object with the provided name exists in the indicated list.
-   bool object_exists(std::string_view name, object::type_t type = object::type_t::any) const noexcept;
+   [[nodiscard]] bool object_exists(std::string_view name, object::type_t type = object::type_t::any) const noexcept;
    /// Return the first object with the matching name where search order is apps, libs, tests.
    /// @TODO replace this with a std::vector<antler::project::object>/antler::project::object::list_t to return all the objects
    /// with matching names.
    /// @param name  The name to search for in the object lists.
    /// @param type  If type is other than any, the search is limited to that single type.
    /// @return vector with copies of the objects.
-   std::vector<antler::project::object> object(std::string_view name, object::type_t type = object::type_t::any) const noexcept;
+   [[nodiscard]] std::vector<antler::project::object> object(std::string_view name, object::type_t type = object::type_t::any) const noexcept;
 
    /// @return A const ref to the application list.
-   const antler::project::object::list_t& apps() const noexcept;
+   [[nodiscard]] const antler::project::object::list_t& apps() const noexcept;
    /// @return A const ref to the library list.
-   const antler::project::object::list_t& libs() const noexcept;
+   [[nodiscard]] const antler::project::object::list_t& libs() const noexcept;
    /// @return A const ref to the test list.
-   const antler::project::object::list_t& tests() const noexcept;
+   [[nodiscard]] const antler::project::object::list_t& tests() const noexcept;
    /// @return a list of ALL the
-   antler::project::object::list_t all_objects() const noexcept;
+   [[nodiscard]] antler::project::object::list_t all_objects() const noexcept;
 
    /// Validate the project.
    /// @param error_stream  Stream location for printing warnings and errors.
    /// @return true if the project is valid; otherwise, false.
-   bool is_valid(std::ostream& error_stream = std::cerr);
+   [[nodiscard]] bool is_valid(std::ostream& error_stream = std::cerr);
 
 
    /// Print the yaml object to a stream.
    /// @param os  The ostream to print to.
    void print(std::ostream& os) const noexcept;
    /// @return yaml string representation of this object.
-   std::string to_yaml() const noexcept;
+   [[nodiscard]] std::string to_yaml() const noexcept;
 
    /// Write the file to disk.
    /// @note path() must be set.
@@ -116,7 +117,7 @@ public:
    /// @param action_type  The type of population action to perform.
    /// @param error_stream  The stream to print failure reports to.
    /// @return true for success; false for failure.
-   bool populate(pop action_type, std::ostream& error_stream = std::cerr) noexcept;
+   [[nodiscard]] bool populate(pop action_type, std::ostream& error_stream = std::cerr) noexcept;
 
 
    /// Factory function.
@@ -125,7 +126,7 @@ public:
    /// @param path  The location of the project.yaml file or the path containing it.
    /// @param error_stream  The stream to print failure reports to.
    /// @return std::optional containing a project if parsing succeeded.
-   static std::optional<project> parse(const std::filesystem::path& path, std::ostream& error_stream = std::cerr);
+   [[nodiscard]] static std::optional<project> parse(const std::filesystem::path& path, std::ostream& error_stream = std::cerr);
 
    /// Initialize the directories
    /// @param path  The location of the project.yaml file or the path containing it.
@@ -134,13 +135,13 @@ public:
    ///                        when false, only failures to create will generate a false return.
    /// @param error_stream  The stream to print failure reports to.
    /// @return true for success; false indidates failure.
-   static bool init_dirs(const std::filesystem::path& path, bool expect_empty = true, std::ostream& error_stream = std::cerr) noexcept;
+   [[nodiscard]] static bool init_dirs(const std::filesystem::path& path, bool expect_empty = true, std::ostream& error_stream = std::cerr) noexcept;
 
    /// Search this and directories above for `project.yaml` file.
    /// @note if path extension is `.yaml` no directory search is performed, instead return value indicating existence of path a regular file.
    /// @param path  This is the search path to begin with; if the project file was found, it is updated to the path to that file.
    /// @return true if the project file was found and is a regular file; otherwise, false.
-   static bool update_path(std::filesystem::path& path) noexcept;
+   [[nodiscard]] static bool update_path(std::filesystem::path& path) noexcept;
 
    /// Print the pop enum.
    /// @param os  The output stream to print to.

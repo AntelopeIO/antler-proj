@@ -5,11 +5,9 @@
 #include <string_view>
 #include <filesystem>
 #include <vector>
-#include <algorithm> // std::sort
 
 #include <boost/algorithm/string.hpp> // boost::split()
 
-#include <antler/project/project.hpp>
 #include <antler/system/exec.hpp>
 #include <whereami/whereami.hpp>
 
@@ -112,7 +110,7 @@ int main(int argc, char** argv) {
    exe_name = std::filesystem::path(argv[0]).filename().string();
    // Get the sub commands.
    for (auto const& entry : std::filesystem::directory_iterator{ bin_path }) {
-      const auto path = entry.path();
+      const auto& path = entry.path();
       if (!path.stem().string().starts_with(project_prefix))
          continue;
       // Get the brief description from the subcommand:

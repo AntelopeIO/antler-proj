@@ -24,7 +24,7 @@ public:
    /// @parm ver  A string to create this version with. ver is evaluated to see if it might be a semver.
    version(std::string_view ver);
    /// @param sv  A semver version to create this version with.
-   version(const semver& sv);
+   explicit version(const semver& sv);
    /// Copy constructor.
    /// @parm rhs  Source to copy from
    version(const self& rhs);
@@ -40,22 +40,22 @@ public:
    void clear() noexcept;
 
    /// @return true if this version is empty.
-   bool empty() const noexcept;
+   [[nodiscard]] bool empty() const noexcept;
    /// @return The raw string this version was built from. If created from a semver, the string equivalent.
-   std::string_view raw() const noexcept;
+   [[nodiscard]] std::string_view raw() const noexcept;
 
    /// @return true if this version is a semver.
-   bool is_semver() const noexcept;
+   [[nodiscard]] bool is_semver() const noexcept;
    /// @return The version in semver_t format. If is_semver() would return false, this value is invalid.
-   operator semver() const noexcept;
+   explicit operator semver() const noexcept;
 
    // comparison operators:
-   bool operator==(const self& rhs) const noexcept;
-   bool operator!=(const self& rhs) const noexcept;
-   bool operator<(const self& rhs) const noexcept;
-   bool operator<=(const self& rhs) const noexcept;
-   bool operator>(const self& rhs) const noexcept;
-   bool operator>=(const self& rhs) const noexcept;
+   [[nodiscard]] bool operator==(const self& rhs) const noexcept;
+   [[nodiscard]] bool operator!=(const self& rhs) const noexcept;
+   [[nodiscard]] bool operator<(const self& rhs) const noexcept;
+   [[nodiscard]] bool operator<=(const self& rhs) const noexcept;
+   [[nodiscard]] bool operator>(const self& rhs) const noexcept;
+   [[nodiscard]] bool operator>=(const self& rhs) const noexcept;
 
 private:
    /// internal class for comparisons.
@@ -68,11 +68,11 @@ private:
    /// compare the string value of this to rhs. Attempt to use semver rules.
    /// @param rhs  The version to compare to.
    /// @return the result of the comparison: eq, lt, gt.
-   static cmp raw_compare(std::string_view l_in, std::string_view r_in) noexcept;
+   [[nodiscard]] static cmp raw_compare(std::string_view l_in, std::string_view r_in) noexcept;
    /// Compare this to rhs. Sart by attempting to compare semver values; fall back to raw_compare()
    /// @param rhs  The version to compare to.
    /// @return the result of the comparison: eq, lt, gt.
-   cmp compare(const self& rhs) const noexcept;
+   [[nodiscard]] cmp compare(const self& rhs) const noexcept;
 
    /// Load this version from a string. Attempts to parse and store as semver in the process. Either way, s is stored as m_raw.
    /// @param s  The string to store.

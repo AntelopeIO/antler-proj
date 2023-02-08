@@ -18,7 +18,7 @@ const std::string magic_all{ std::string(magic1) + "\n" + std::string(magic2) + 
 
 /// Test to see if a file has the magic maintenance string.
 /// @return true if the file either does NOT exist OR contains the magic
-bool has_magic(const std::filesystem::path& path, std::ostream& error_stream = std::cerr) {
+[[nodiscard]] bool has_magic(const std::filesystem::path& path, std::ostream& error_stream = std::cerr) {
 
    std::error_code sec;
 
@@ -32,7 +32,7 @@ bool has_magic(const std::filesystem::path& path, std::ostream& error_stream = s
       return false;
    }
 
-   for (std::array<char, 255> buffer; ifs.getline(buffer.data(), buffer.size()); /**/) {
+   for (std::array<char, 255> buffer{}; ifs.getline(buffer.data(), buffer.size()); /**/) {
       // Sanity check size of search string against the buffer.
       static_assert(magic1.size() < buffer.size(), "Buffer is to small to test for magic value.");
       if (magic1 == buffer.data())

@@ -5,7 +5,7 @@
 
 namespace antler::cmake {
 
-std::string add_subdirectory(const std::filesystem::path path) noexcept {
+std::string add_subdirectory(const std::filesystem::path& path) noexcept {
    // return std::format("add_subdirectory( {} )\n", path.string());
    std::ostringstream ss;
    ss << "add_subdirectory( " << path << " )\n";

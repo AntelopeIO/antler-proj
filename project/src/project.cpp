@@ -29,9 +29,9 @@ project::project(const std::filesystem::path& filename) {
 object::list_t project::all_objects() const noexcept {
    auto rv = m_apps;
    rv.reserve(m_apps.size() + m_libs.size() + m_tests.size());
-   for (auto a : m_libs)
+   for (const auto& a : m_libs)
       rv.emplace_back(a);
-   for (auto a : m_tests)
+   for (const auto& a : m_tests)
       rv.emplace_back(a);
    return rv;
 }

@@ -27,17 +27,17 @@ public:
    void clear();
 
    /// @return true if the constraint is a iunque value (e.g. `== 3.0.2` as opposed to `>= 3.0.2` or `== 3.0.2 | == 4.0.)
-   bool is_unique() const noexcept;
+   [[nodiscard]] bool is_unique() const noexcept;
 
    /// @return true if this constraint is empty or invalid.
-   bool empty() const noexcept;
+   [[nodiscard]] bool empty() const noexcept;
    /// @return The raw string this constraint was built from.
-   std::string_view raw() const noexcept;
+   [[nodiscard]] std::string_view raw() const noexcept;
 
    /// @note if empty() would return true, this function will ALWAYS return true.
    /// @param ver  The version to test against this constraint.
    /// @return true if ver met this constraint; false, otherwise.
-   bool test(const version& ver) const noexcept;
+   [[nodiscard]] bool test(const version& ver) const noexcept;
 
    /// Print this constraint to a stream.
    void print(std::ostream& os) const noexcept;

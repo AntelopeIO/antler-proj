@@ -30,7 +30,7 @@ public:
 
    /// Create a n object.
    /// @param ot  The type of this object.
-   object(type_t ot);
+   explicit object(type_t ot);
 
    /// Object constructor for app and lib types.
    /// @param ot  The type of this object. Must be app or lib.
@@ -45,28 +45,28 @@ public:
 
 
    /// @return The type of this object.
-   type_t type() const noexcept;
+   [[nodiscard]] type_t type() const noexcept;
 
    /// @return The project name.
-   std::string_view name() const noexcept;
+   [[nodiscard]] std::string_view name() const noexcept;
    /// Set the object name.
    void name(std::string_view s) noexcept;
 
 
    /// @return Current language.
-   antler::project::language language() const noexcept;
+   [[nodiscard]] antler::project::language language() const noexcept;
    /// Replace any existing language info with the new value.
    /// @param lang  The new language value to store.
    void language(antler::project::language lang) noexcept;
 
    /// @return Current options.
-   std::string_view options() const noexcept;
+   [[nodiscard]] std::string_view options() const noexcept;
    /// Replace any existing options with the new value.
    /// @param options  The new options to store.
    void options(std::string_view options) noexcept;
 
    /// @return  The test command.
-   std::string_view command() const noexcept;
+   [[nodiscard]] std::string_view command() const noexcept;
    /// @param s  The new test command.
    void command(std::string_view s) noexcept;
 
@@ -78,14 +78,14 @@ public:
    /// @return true if the dependency was found and removed; otherwise, false (i.e. dependency does not exist)
    bool remove_dependency(std::string_view name) noexcept;
    /// @return The dependency list.
-   const antler::project::dependency::list_t& dependencies() const noexcept;
+   [[nodiscard]] const antler::project::dependency::list_t& dependencies() const noexcept;
    /// Search the lists to see if a dependency exists.
    /// @param name  The dependency name to search for.
-   bool dependency_exists(std::string_view name) const noexcept;
+   [[nodiscard]] bool dependency_exists(std::string_view name) const noexcept;
    /// Return the dependency with the matching name.
    /// @param name  The name to search for in the dependency list.
    /// @return optional with a copy of the dependency.
-   std::optional<antler::project::dependency> dependency(std::string_view name);
+   [[nodiscard]] std::optional<antler::project::dependency> dependency(std::string_view name);
 
 private:
    type_t m_type = none;                               ///< Object type: app, lib, or test.
