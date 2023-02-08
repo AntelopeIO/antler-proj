@@ -19,7 +19,7 @@ struct result {
    // implementation for bool operator
    typedef void (*unspecified_bool_type)();
    static void unspecified_bool_true() { ; }
-   operator unspecified_bool_type() const { return (return_code != 0 ? 0 : unspecified_bool_true); }
+   explicit operator unspecified_bool_type() const { return (return_code != 0 ? 0 : unspecified_bool_true); }
 
    /// @return true when there is NO error; false for error (oppositie of the bool operator
    bool operator!() const { return return_code != 0; }

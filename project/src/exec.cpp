@@ -25,7 +25,7 @@ result exec(std::string_view cmd_in) noexcept {
       return rv;
    }
 
-   std::array<char, 256> buffer;
+   std::array<char, 256> buffer{};
    while (fgets(buffer.data(), buffer.size(), pipe) != nullptr)
       rv.output += buffer.data();
 

@@ -172,7 +172,7 @@ std::optional<semver> semver::parse(std::string_view s) noexcept {
       // Copy the build substring, test it's valid, and
       rv.m_build = s.substr(pos + 1);
       if (rv.m_build.empty() || !validate_pb_rule10or11(rv.m_build))
-         return std::optional<semver>();
+         return {};
       s = s.substr(0, pos);
    }
    // Now get the pre-release, if any.
@@ -182,7 +182,7 @@ std::optional<semver> semver::parse(std::string_view s) noexcept {
       // Copy the build substring, test it's valid, and
       rv.m_pre = s.substr(pos + 1);
       if (rv.m_pre.empty() || !validate_pb_rule10or11(rv.m_pre))
-         return std::optional<semver>();
+         return {};
       s = s.substr(0, pos);
    }
    else {
@@ -190,7 +190,7 @@ std::optional<semver> semver::parse(std::string_view s) noexcept {
       if (pos != std::string_view::npos) { // found "rc"
          rv.m_pre = s.substr(pos);
          if (rv.m_pre.empty() || !validate_pb_rule10or11(rv.m_pre))
-            return std::optional<semver>();
+            return {};
          s = s.substr(0, pos);
       }
    }
@@ -200,11 +200,11 @@ std::optional<semver> semver::parse(std::string_view s) noexcept {
    std::vector<std::string_view> splits;
    boost::split(splits, s, boost::is_any_of("."));
    if (splits.empty() || (splits.size() > 3))
-      return std::optional<semver>();
+      return {};
    for (size_t i = 0; i < splits.size(); ++i) {
       // From returns false if any value isn't in [0-9].
       if (!string::from(splits[i], rv.m_xyz[i]))
-         return std::optional<semver>();
+         return {};
    }
 
    return rv;
