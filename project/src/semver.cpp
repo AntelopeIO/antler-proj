@@ -13,10 +13,6 @@
 
 namespace antler::project {
 
-namespace {
-   auto is_dot = [](const char c) -> bool { return c == '.'; };
-}
-
 //--- constructors/destrructor ------------------------------------------------------------------------------------------
 
 semver::semver(value_type x, value_type y, value_type z, std::string_view pre_release, std::string_view build) noexcept
@@ -101,10 +97,10 @@ cmp_result semver::compare_pb_rule12(std::string_view lhs, std::string_view rhs)
 
    // Split on '.'
    std::vector<std::string_view> l;
-   boost::split(l, lhs, is_dot);
+   boost::split(l, lhs, boost::is_any_of("."));
 
    std::vector<std::string_view> r;
-   boost::split(r, rhs, is_dot);
+   boost::split(r, rhs, boost::is_any_of("."));
 
    // Compare the splits.
    const size_t comp_count = std::min(l.size(), r.size());
@@ -202,7 +198,7 @@ std::optional<semver> semver::parse(std::string_view s) noexcept {
 
    // Split x.y.z apart, validate it as well.
    std::vector<std::string_view> splits;
-   boost::split(splits, s, is_dot);
+   boost::split(splits, s, boost::is_any_of("."));
    if (splits.empty() || (splits.size() > 3))
       return std::optional<semver>();
    for (size_t i = 0; i < splits.size(); ++i) {
