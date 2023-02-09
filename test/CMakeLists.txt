@@ -13,7 +13,7 @@ foreach(file_name IN ITEMS ${src_cpp})
   endif()
 
   string(REPLACE ".cpp" "" name ${temp})
-  set(name "test-${name}")
+  #set(name "test-${name}")
 
   add_executable(${name} ${file_name})
   set_property(TARGET ${name} PROPERTY CXX_STANDARD 20)
