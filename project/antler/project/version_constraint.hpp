@@ -18,7 +18,7 @@ public:
    version_constraint();
    /// Construct from a string.
    /// @param ver  The string to parse into a constraint.
-   version_constraint(std::string_view ver);
+   explicit version_constraint(std::string_view ver);
 
    /// @param ver  The string to parse into a constraint.
    self& operator=(std::string_view ver);
