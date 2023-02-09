@@ -1,13 +1,23 @@
 # @copyright See `LICENSE` in the root directory of this project.
 
+
+# Boost
+find_package( Boost REQUIRED filesystem CONFIG)
+
 #
 # These files are generally built in a common way, so here are some functions to simplify the process.
 #
 
 function(add_aproj target_name files)
+
+  set(extra_libs "")
+  if(target_name STREQUAL "aproj")
+    set(extra_libs "Boost::filesystem")
+  endif()
+
   add_executable(${target_name} ${files})
   set_property(TARGET ${target_name} PROPERTY CXX_STANDARD 20)
-  target_link_libraries(${target_name} PUBLIC antler-project)
+  target_link_libraries(${target_name} PUBLIC antler-project ${extra_libs})
   target_include_directories(${target_name} PRIVATE . )
   install(FILES $<TARGET_FILE:${target_name}> COMPONENT Runtime DESTINATION .)
 endfunction()

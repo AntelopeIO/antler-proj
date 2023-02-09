@@ -6,10 +6,10 @@
 #include <filesystem>
 #include <vector>
 
-#include <boost/algorithm/string.hpp> // boost::split()
+#include <boost/algorithm/string.hpp>        // boost::split()
+#include <boost/dll/runtime_symbol_info.hpp> // boost::dll::program_location()
 
 #include <antler/system/exec.hpp>
-#include <whereami/whereami.hpp>
 
 
 #include <aproj-prefix.hpp>
@@ -103,8 +103,8 @@ int exec_helper(std::filesystem::path exe, iterator_type begin, iterator_type en
 
 int main(int argc, char** argv) {
 
-   std::filesystem::path bin_path = eosio::cdt::whereami::where();
-   std::filesystem::path project_path = std::filesystem::current_path();
+   const std::filesystem::path bin_path = boost::dll::program_location().parent_path().string();  // This could throw.
+   const std::filesystem::path project_path = std::filesystem::current_path();
 
    // Update globals - these are for the usage() function and in the arg list decoder.
    exe_name = std::filesystem::path(argv[0]).filename().string();
