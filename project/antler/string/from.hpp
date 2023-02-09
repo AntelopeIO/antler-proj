@@ -5,12 +5,14 @@
 
 
 #include <string_view>
+#include <charconv>
+#include <sstream>
 
 namespace antler::string {
 
 /// Convert text to a numeric value. Works for int and unsigned of all widths.
-/// @warn Does NOT work for negative numbers.
-/// @warn The string must contain ONLY valid digits from 0 to 9.
+/// @warn Does NOT work for floating points for older compilers (e.g. gcc-10)
+/// @warn The string must not contain whitespace.
 /// @warn Does not work for hex, octal, or binary numbers.
 /// @example
 ///   uint64_t num;
@@ -20,13 +22,32 @@ namespace antler::string {
 ///   else {
 ///     std::cout << " Received value: " << num << "\n";
 ///   }
-/// @todo Correct for negative `-`, hex `0x`, and binary `0b` numbers. Don't worry about octal.
 /// @param s  The text source to convert.
 /// @param rv  This is a return value, it's updated if s was convertable to a T.
 /// @return  Returns true if rv was updated, false otherwise.
 template<typename T>
-[[nodiscard]] bool from(std::string_view s, T& rv) noexcept;
+[[nodiscard]] inline bool from(std::string_view s, T& rv) noexcept {
+   T n=0;
+   auto result = std::from_chars(s.begin(), s.end(), n);
+   if(result.ptr != s.end())
+      return false;
+   rv = n;
+   return true;
+}
+
+
+// Specialization to ensure a uint8_t is converted correctly.
+template<>
+[[nodiscard]] inline bool from(std::string_view s, uint8_t& rv) noexcept {
+   unsigned u=0;
+   auto result = std::from_chars(s.begin(), s.end(), u);
+   if(result.ptr != s.end())
+      return false;
+   if(uint8_t(u) < u)                    // overflow protection.
+      return false;
+   rv = uint8_t(u);
+   return true;
+}
+
 
 } // namespace antler::string
-
-#include <antler/string/detail/from.ipp>
