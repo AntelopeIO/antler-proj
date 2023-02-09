@@ -7,7 +7,7 @@
 #pragma GCC diagnostic ignored "-Wold-style-cast"
 #pragma GCC diagnostic ignored "-Wshadow"
 
-namespace eosio { namespace cdt {
+namespace eosio::cdt {
 enum sys {
    _win,
    _linux,
@@ -64,7 +64,7 @@ struct whereami {
    }
 };
 
-}} // ns eosio::cdt
+} // ns eosio::cdt
 
 #pragma GCC diagnostic pop
 // NOLINTEND
