@@ -1,3 +1,6 @@
+// This file is copied from CDT, we use it as is without modification.
+
+// NOLINTBEGIN
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -6,7 +9,7 @@
 # define __STDC_FORMAT_MACROS
 #endif
 #include <inttypes.h>
-   
+
 template <uint8_t OS>
 int _getExecutablePath(char* out, int capacity, int* dirname_length, typename std::enable_if<OS == sys::_linux, int>::type = 0) {
   char buffer[PATH_MAX];
@@ -44,7 +47,7 @@ int _getExecutablePath(char* out, int capacity, int* dirname_length, typename st
 
   return length;
 }
-   
+
 template <uint8_t OS>
 int _getModulePath(char* out, int capacity, int* dirname_length, typename std::enable_if<OS == sys::_linux, int>::type = 0) {
   int length = -1;
@@ -115,3 +118,4 @@ int _getModulePath(char* out, int capacity, int* dirname_length, typename std::e
 
   return length;
 }
+// NOLINTEND
