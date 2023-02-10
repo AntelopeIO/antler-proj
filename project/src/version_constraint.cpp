@@ -38,25 +38,19 @@ const version min_version{ min_semver };
 const version max_version{ max_semver };
 
 
+/// Trim whitespace from the front and back of string.
+/// @param s  The string to trim
+/// @return  An empty string or a string that starts with non-whitespace and ends with non-whitespace
 inline std::string_view trim(std::string_view s) {
-   // If it's empty, well, we are good as is.
-   if(s.empty())
-      return std::string_view{};
-
-   // Find the first non-space char.
-   auto first = s.data();
-   auto end = s.data()+s.size();
-   while(std::isspace(*first) && first < end)
-      ++first;
-   // But return empty if ALL chars are space.
-   if(first == end)
-      return std::string_view{};
-   // Find the last non-space char.
-   auto last = end-1;
-   while(std::isspace(*last) && last >= first)
-      --last;
-   // Return first, end. (end = last+1)
-   return std::string_view(first, last+1);
+   // Find an iterator to the firs non-space char; if we went to the end, return an empty string.
+   auto first = std::find_if(s.begin(), s.end(), [](unsigned char ch) {return !std::isspace(ch);});
+   if(first == s.end())
+      return {};
+   // Find the last non space character.
+   auto last = std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) {return !std::isspace(ch);});
+   // Convert the reverse iter last to the forward iterator containing end using base().
+   //    See: https://en.cppreference.com/w/cpp/iterator/reverse_iterator/base
+   return std::string_view{first, last.base()};
 }
 
 
