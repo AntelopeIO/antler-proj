@@ -31,17 +31,6 @@ inline void print_brief(std::string& exe_name_in, std::string_view brief_text) {
 }
 
 
-/// macro to simplify creating the err string for usage.
-/// Example:
-///   RETURN_USAGE( << "Command " << cmd << " resulted in error number: " << enum << ": " << e.what() );
-#define RETURN_USAGE(X)       \
-   {                          \
-      std::stringstream ss;   \
-      ss X;                   \
-      return usage(ss.str()); \
-   }
-
-
 /// Common init function for subcommands.
 /// This function sets up expected values and prints the brief string if it was command to.
 /// @param argc argc

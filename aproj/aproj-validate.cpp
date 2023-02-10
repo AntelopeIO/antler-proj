@@ -57,7 +57,7 @@ int main(int argc, char** argv) {
          continue;
       }
 
-      RETURN_USAGE(<< "argument " << arg << " not valid in this context.");
+      return usage(std::string{"argument "} + std::string(arg) + " is valid in this context.");
    }
 
    // Load the project.

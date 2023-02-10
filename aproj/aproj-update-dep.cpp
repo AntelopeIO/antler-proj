@@ -223,12 +223,12 @@ int main(int argc, char** argv) {
    // Get the object to update.
    auto obj_vec = proj.object(obj_name);
    if (obj_vec.empty())
-      RETURN_USAGE(<< obj_name << " does not exist in project.");
+      return usage(obj_name + " does not exist in project.");
    auto obj = obj_vec[0];
 
    // If we are not in interactive mode, test for the pre-existence of the dependency.
    if (!interactive && obj.dependency_exists(dep_name))
-      RETURN_USAGE(<< dep_name << " already exists for " << obj_name << " in project.");
+      return usage(dep_name + " already exists for " + obj_name + " in project.");
 
    // Validate the location. Redundant for interactive mode, but cheap in human time.
    std::ostringstream ss;

@@ -116,7 +116,7 @@ int main(int argc, char** argv) {
 
 
    if (!is_valid_name(name))
-      RETURN_USAGE(<< "name \"" << name << "\" contains invalid chars. Expecting [0-9a-zA-Z_].");
+      return usage( std::string{"name \""} + name + "\" contains invalid chars. Expecting [0-9a-zA-Z_].");
 
 
    // Do initialization here:
@@ -124,11 +124,11 @@ int main(int argc, char** argv) {
    // Create the root directory.
    std::filesystem::create_directories(project_root, sec);
    if (sec)
-      RETURN_USAGE(<< project_root << " could not be created: " << sec);
+      return usage( std::string{project_root} + " could not be created: " + sec.message());
 
 
    if (!std::filesystem::is_empty(project_root, sec))
-      RETURN_USAGE(<< project_root << " is NOT empty!");
+      return usage( std::string{project_root} + " is NOT empty!");
 
    // Create the directory structure.
    {
@@ -136,7 +136,7 @@ int main(int argc, char** argv) {
       for (const auto& fn : files) {
          std::filesystem::create_directory(project_root / fn, sec);
          if (sec)
-            RETURN_USAGE(<< (project_root / fn) << " could not be created: " << sec);
+            return usage( std::string{project_root / fn} + " could not be created: " + sec.message());
       }
    }
 
