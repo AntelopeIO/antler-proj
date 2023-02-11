@@ -13,14 +13,10 @@
 
 #include <aproj-prefix.hpp>
 
-// Forward declaration.
-int usage(std::string_view);
 
 // Global declarations.
-std::string brief_str;
 std::string exe_name;
-std::string indirect;
-
+std::string brief_str;
 
 /// Convert an exe_name into a subcommand and print. Example aproj-init <brief> become "--init <brief>".
 /// @param exe_name  The executable name to convert to subcommand.
@@ -45,15 +41,12 @@ inline void common_init(int& argc, char** argv, std::string_view brief_in) {
    if (argc > 0) {
       constexpr std::string_view indirect_str{ "--indirect=" };
       if (std::string_view(argv[argc - 1]).starts_with(indirect_str)) {
-         indirect = std::string_view(argv[argc - 1]).substr(indirect_str.size());
-         exe_name = indirect;
+         exe_name = std::string_view(argv[argc - 1]).substr(indirect_str.size());
          --argc;
       }
    }
-   // search for brief and help flags
+   // search for brief flag.
    for (int i = 0; i < argc; ++i) {
-      if (std::string_view(argv[i]) == "--help")
-         std::exit( usage("") );
       if (std::string_view(argv[i]) == "--brief") {
          if (!exe_name.starts_with(project_prefix)) {
             std::cerr << "Can't provide --brief for" << argv[0] << '\n';
