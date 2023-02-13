@@ -24,6 +24,17 @@ Error handling strategy: logging of the process of work, exit when meet an error
 Localization: Must support local symbols in names of apps, libs, tests, directories and files which the system manipulate with.
 All the names are UTF8 strings which may contain multibyte symbols. Max length of each name is 256 symbols.
 
+
+##### Possible descriptions of the path to the remote dependencies ("from:" field)
+
+The location field of dependencies could look like this:
+1. `AntelopeIO/my_dep` - This is a shorthand to github and it's organization/repo
+2. `https://github.com/AntelopeIO/my_dep` - This is the long form of the above.
+3. `https://github.com/AntelopeIO/my_dep/releases/download/v0.5.0/my_dep-0.5.0-src.tgz` - This is a direct link to an archive, it need not be github.
+4. `file:///home/username/my_dep-0.5.0-src.tgz` - A local archive
+5. `file:///home/username/my_dep/` - A local directory tree, the trailing slash is optional.
+
+
 ###Glossary:
 
 `Project` is a directory structure which contains description of the project project.yml file in YAML (https://yaml.org/)  format, Description of applications and needed for their building libraries and other dependencies.
@@ -162,7 +173,7 @@ As result of work an example of the command line :
 
 ``` 
 aproj add ./projects/example --app --name app1 --ver "1" --lang "C++" --build "CMake ." --from "./projects/example/apps/app1" 
-aproj add ./projects/example --app --name generic --template
+aproj add ./projects/example --app --name generic --template template_name
 ```
  
 The system generates a YAML file "project.yml" in format:
@@ -291,6 +302,7 @@ Command `"validate"` do check of the project to make sure that all data which de
 
 User run in a command line `aproj` with command `"validate"`
 
+Example: `aproj validate ./projects/example`
 
 Check all project.yaml files described in the project for existing of updates.
 Download the updated project.yaml files. 
@@ -309,6 +321,8 @@ User run in a command line `aproj` with command `"build"` and following paramete
 `--ignore_errors` if this key is set don't stop building in case of non successful building of any subproject
 
 Without additional keys do building of all applications described in the project.yaml, their dependencies and tests. 
+
+Example: `aproj build ./projects/example`
 
 For start of the building run a command described in field `"build"` of given project in a root directory of this project.
 
