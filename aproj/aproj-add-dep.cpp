@@ -15,13 +15,13 @@ int main(int argc, char** argv) {
    common_init(argc,argv,"Add a dependency.");
 
    std::filesystem::path path;
-   std::string obj_name = "frog";
+   std::string obj_name;
    std::string dep_name;
    std::string dep_loc;
    std::string dep_tag;
    std::string dep_rel;
    std::string dep_hash;
-
+   bool interactive=false;
 
    CLI::App cli(brief_str,exe_name);
 
@@ -37,72 +37,32 @@ int main(int argc, char** argv) {
    //auto branch_opt = cli.add_option("--branch", dep_branch, "The github tag or commit hash; only valid when LOCATION is a github repository.");
    cli.add_option("--rel,--release", dep_rel, "A github release version.")->excludes(tag_opt);
    cli.add_option("--hash", dep_hash, "SHA256 hash; only valid when LOCATION gets an archive (i.e. *.tar.gz or similar).");
+   // Option flag
+   cli.add_flag("--interactive", interactive, "Force interactive mode.");
 
    // Parse
    CLI11_PARSE(cli,argc,argv);
 
    // Get the path to the project.
    if (!antler::project::project::update_path(path))
-      return cli.exit( CLI::Error("name","path either did not exist or no `project.yaml` file could be found.") );
+      return cli.exit( CLI::Error("path","path either did not exist or no `project.yaml` file could be found.") );
 
    // Load the project.
    auto optional_proj = antler::project::project::parse(path);
    if (!optional_proj)
-      return cli.exit( CLI::Error("name", "Failed to load project file.") );
+      return cli.exit( CLI::Error("path", "Failed to load project file.") );
    auto proj = optional_proj.value();
 
-
-
-
-   if (argc >= 3) {
-      obj_name = argv[2];
-      if (!proj.object_exists(obj_name))
-         return cli.exit( CLI::Error("name", "OBJ_NAME does not exist in project.") );
-   }
-
-   if (argc >= 4)
-      dep_name = argv[3];
-
-   if (argc >= 5)
-      dep_loc = argv[4];
-
-   if (argc >= 6) {
-      for (int i = 5; i < argc; ++i) {
-         std::string_view temp = argv[i];
-         std::string_view next;
-         if (i + 1 < argc)
-            next = argv[i + 1];
-         if (temp == "--tag") {
-            if (next.empty())
-               return cli.exit( CLI::Error("name", "--tag requires an argument.") );
-            ++i;
-            dep_tag = next;
-         }
-         if (temp == "--rel") {
-            if (next.empty())
-               return cli.exit( CLI::Error("name", "--tag requires an argument.") );
-            ++i;
-            dep_rel = next;
-         }
-         if (temp == "--hash") {
-            if (next.empty())
-               return cli.exit( CLI::Error("name", "--tag requires an argument.") );
-            ++i;
-            dep_hash = next;
-         }
-      }
-   }
-
-   // Assuming interactive mode.
-   const bool interactive = dep_name.empty();
+   // Assuming interactive mode if dependency name was empty.
+   interactive |= dep_name.empty();
    if (interactive) {
       for (;;) {
          if (!obj_name.empty() && !dep_name.empty() && antler::project::dependency::validate_location(dep_loc, dep_tag, dep_rel, dep_hash)) {
             // Get the object to operate on.
-            auto obj_opt = proj.object(obj_name);
+            auto obj_vec = proj.object(obj_name);
 
             // If it doesn't exist, none of the existing values can be correct, so alert and jump straigt to queries.
-            if (obj_opt.empty())
+            if (obj_vec.empty())
                std::cerr << obj_name << " does not exist in project.\n";
             else {
                std::cout
@@ -116,7 +76,7 @@ int main(int argc, char** argv) {
                   << '\n';
 
                // Get object here and warn user if dep_name already exists.
-               auto obj = obj_opt[0];
+               auto obj = obj_vec[0];
                if (!dep_name.empty() && obj.dependency_exists(dep_name))
                   std::cerr << dep_name << " already exists for " << obj_name << " in project.\n";
 
@@ -158,19 +118,19 @@ int main(int argc, char** argv) {
    // Get the object to update.
    auto obj_vec = proj.object(obj_name);
    if (obj_vec.empty())
-      return cli.exit( CLI::Error("name", obj_name + " does not exist in project.") );
+      return cli.exit( CLI::Error("", obj_name + " does not exist in project.") );
    auto obj = obj_vec[0];
 
    // If we are not in interactive mode, test for the pre-existence of the dependency.
    if (!interactive && obj.dependency_exists(dep_name))
-      return cli.exit( CLI::Error("name",  dep_name + " already exists for " + obj_name + " in project.") );
+      return cli.exit( CLI::Error("",  dep_name + " already exists for " + obj_name + " in project.") );
 
    // Validate the location. Redundant for interactive mode, but cheap in human time.
    std::ostringstream ss;
    if (!antler::project::dependency::validate_location(dep_loc, dep_tag, dep_rel, dep_hash, ss))
-      return cli.exit( CLI::Error("name", ss.str()) );
+      return cli.exit( CLI::Error("", ss.str()) );
 
-   // Create the dependency, store it in the object, and store the object in the roject.
+   // Create the dependency, store it in the object, and store the object in the project.
    antler::project::dependency dep;
    dep.set(dep_name, dep_loc, dep_tag, dep_rel, dep_hash);
    obj.upsert_dependency(std::move(dep));
@@ -178,6 +138,6 @@ int main(int argc, char** argv) {
 
    // Sync the project to storage.
    if (!proj.sync())
-      return cli.exit( CLI::Error("name", "failed to write project file.") );
+      return cli.exit( CLI::Error("", "failed to write project file.") );
    return 0;
 }

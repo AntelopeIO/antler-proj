@@ -3,84 +3,78 @@
 #include <iostream>
 #include <filesystem>
 #include <vector>
+#include <CLI11.hpp>
 
 #include <antler/project/project.hpp>
+
 #include <aproj-common.hpp>
-
-
-/// Print usage information to std::cout and return 0 or, optionally - if err is not-empty() - print to std::cerr and return -1.
-/// @param err  An error string to print. If empty, print to std::cout and return 0; otherwise std::cerr and return -1.
-/// @return 0 if err.empty(); otherwise -1. This value is suitable for using at exit.
-int usage(std::string_view err) {
-
-   std::ostream& os = (err.empty() ? std::cout : std::cerr);
-
-   os << exe_name << ": PATH [PROJECT_NAME [VERSION]]\n"
-      << "  " << brief_str << '\n'
-      << '\n'
-      << " PATH is the root path to create the project in.\n"
-      << " PROJECT_NAME is the the name of the project.\n"
-      << " VERSION is the version to store in the project file.\n"
-      << '\n'
-      << " `project.yaml` is created in PATH if PATH is an empty directory AND the filename matches PROJECT_NAME;\n"
-      << "  otherwise, a directory matching PROJECT_NAME is created at PATH to contain `project.yaml`.\n"
-      << '\n'
-      << " If PROJECT_NAME is absent, the user is prompted.\n"
-      << " If PROJECT_NAME exists, VERSION will default to 0.0.0\n"
-      << '\n';
-
-   if (err.empty())
-      return 0;
-   os << "Error: " << err << '\n';
-   return -1;
-}
 
 
 int main(int argc, char** argv) {
 
    common_init(argc,argv,"Initialize a new projet creating the directory tree and a `project.yaml` file.");
 
-   if (argc < 2)
-      return usage("path is required.");
-   if (argc > 4)
-      return usage("too many options.");
+   std::filesystem::path cli_path;
+   std::string cli_name;
+   antler::project::version ver("0.0.0");
+   bool interactive=false;
 
-   std::error_code sec;
+   const std::string desc=brief_str + "\n"
+      + "`project.yaml` is created in PATH if PATH is an empty directory AND the filename matches PROJECT_NAME;\n"
+      + "otherwise, a directory matching PROJECT_NAME is created at PATH to contain `project.yaml`.\n";
+
+   CLI::App cli(desc,exe_name);
+
+   // Positional arguments:
+   cli.add_option("path", cli_path, "This is the root path to create the project in.")->required();
+   cli.add_option("project_name", cli_name, "The name of the project.");
+   cli.add_option("version", cli_name, "The version to store in the project file.");  // add default info?
+
+   // Option flag
+   cli.add_flag("--interactive", interactive, "Force interactive mode.");
+
+   // Parse
+   CLI11_PARSE(cli,argc,argv);
+
 
    std::string name;
 
    // Sanity check potential project directory.
-   auto in_path = std::filesystem::path(argv[1]);
-   if (!std::filesystem::exists(in_path, sec))
-      name = in_path.filename().string();
+   std::error_code sec;
+   if (!std::filesystem::exists(cli_path, sec))
+      name = cli_path.filename().string();
    else {
       // It might be okay if it exists, but only if it's a directory AND it's empty.
-      if (!std::filesystem::is_directory(in_path, sec))
-         return usage(in_path.string() + " already exists.");
-      if (!std::filesystem::is_empty(in_path, sec)) {
-         if (std::filesystem::exists(in_path / "project.yaml"))
-            return usage("not initializing where a `project.yaml` file already exists.");
-      } else if (!in_path.has_extension())
-         name = in_path.filename().string();
+      if (!std::filesystem::is_directory(cli_path, sec))
+         return cli.exit( CLI::Error("path", cli_path.string() + " already exists.") );
+      if (!std::filesystem::is_empty(cli_path, sec)) {
+         if (std::filesystem::exists(cli_path / "project.yaml"))
+            return cli.exit( CLI::Error("path", "not initializing where a `project.yaml` file already exists.") );
+      }
+      else if (!cli_path.has_extension()) {
+         name = cli_path.filename().string();
+      }
    }
 
-   antler::project::version ver("0.0.0");
+   // Maybe copy name from cli.
+   if(!cli_name.empty())
+      name = cli_name;
 
-   if (argc > 2)
-      name = argv[2];
-   if (argc > 3)
-      ver = argv[3];
-
-   auto project_root = in_path;
-   if (in_path.filename() != name)
+   // Resolve the path to the project root. This may be overwritten in interactive mode.
+   auto project_root = cli_path;
+   if (cli_path.filename() != name)
       project_root /= name;
 
-   if (argc == 2) {
+   // Test for interactive mode.
+   interactive |= cli_name.empty();
+   if (interactive) {
+      // Loop until user is satisfied.
       for (;;) {
-         if (!name.empty()) {
 
-            project_root = in_path;
-            if (in_path.filename() != name)
+         if (!name.empty()) {
+            // Resolve the path to the project root.
+            project_root = cli_path;
+            if (cli_path.filename() != name)
                project_root /= name;
 
             std::cout
@@ -89,21 +83,17 @@ int main(int argc, char** argv) {
                << "Project name: " << name << '\n'
                << "Version:      " << ver << '\n'
                << '\n';
+            if(!ver.is_semver())
+               std::cout << "Warning: Version is NOT a SemVer.\n\n";
 
             if (is_this_correct())
                break;
          }
 
-         for (;;) {
-            std::cout << "Enter project name: [" << name << "]" << std::flush;
-            std::string temp;
-            std::getline(std::cin, temp);
-            if (is_valid_name(temp))
-               name = temp;
-            if (!name.empty())
-               break;
-         }
+         // Project name.
+         get_name("project name",name);
 
+         // Project version.
          {
             std::cout << "Enter project version: [" << ver << "]" << std::flush;
             std::string temp;
@@ -116,7 +106,7 @@ int main(int argc, char** argv) {
 
 
    if (!is_valid_name(name))
-      return usage( std::string{"name \""} + name + "\" contains invalid chars. Expecting [0-9a-zA-Z_].");
+      return cli.exit( CLI::Error("name", std::string{"name \""} + name + "\" contains invalid chars. Expecting [0-9a-zA-Z_].") );
 
 
    // Do initialization here:
@@ -124,11 +114,11 @@ int main(int argc, char** argv) {
    // Create the root directory.
    std::filesystem::create_directories(project_root, sec);
    if (sec)
-      return usage( std::string{project_root} + " could not be created: " + sec.message());
+      return cli.exit( CLI::Error("path", std::string{project_root} + " could not be created: " + sec.message()) );
 
 
    if (!std::filesystem::is_empty(project_root, sec))
-      return usage( std::string{project_root} + " is NOT empty!");
+      return cli.exit( CLI::Error("path", std::string{project_root} + " is NOT empty!") );
 
    // Create the directory structure.
    {
@@ -136,7 +126,7 @@ int main(int argc, char** argv) {
       for (const auto& fn : files) {
          std::filesystem::create_directory(project_root / fn, sec);
          if (sec)
-            return usage( std::string{project_root / fn} + " could not be created: " + sec.message());
+            return cli.exit( CLI::Error("path", std::string{project_root / fn} + " could not be created: " + sec.message()) );
       }
    }
 

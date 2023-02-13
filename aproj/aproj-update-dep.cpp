@@ -3,145 +3,97 @@
 #include <iostream>
 #include <filesystem>
 #include <vector>
+#include <CLI11.hpp>
 
 #include <antler/project/project.hpp>
 
 #include <aproj-common.hpp>
 
 
-/// Print usage information to std::cout and return 0 or, optionally - if err is not-empty() - print to std::cerr and return -1.
-/// @param err  An error string to print. If empty, print to std::cout and return 0; otherwise std::cerr and return -1.
-/// @return 0 if err.empty(); otherwise -1. This value is suitable for using at exit.
-int usage(std::string_view err) {
-
-   std::ostream& os = (err.empty() ? std::cout : std::cerr);
-
-   os << exe_name << ": PATH [OBJECT_NAME DEP_NAME [LOCATION [options]]]\n"
-      << "  " << brief_str << '\n'
-      << '\n'
-      << " PATH is either path to `project.yaml` or the path containing it.\n"
-      << " OBJ_NAME is the the name of the object to receive DEP_NAME.\n"
-      << " DEP_NAME is the the name of this dependency.\n"
-      << " LOCATION is either a path or URL for finding this dependency.\n"
-      << '\n'
-      << " Options:\n"
-      << "  --tag     The github tag or commit hash; only valid when LOCATION is a github repository.\n"
-      << "  --rel     The github version for LOCATION.\n"
-      << "  --hash    SHA256 hash; only valid when LOCATION gets an archive (i.e. *.tar.gz or similar).\n"
-      << "  --help    Print this help and exit.\n"
-      << '\n'
-      << " The `project.yaml` object's dependency DEP_NAME is updated with the values.\n"
-      << '\n'
-      << " If either OBJECT_NAME or DEP_NAME is absent, the user is prompted.\n"
-      << '\n';
-
-   if (err.empty())
-      return 0;
-   os << "Error: " << err << '\n';
-   return -1;
-}
-
-
 int main(int argc, char** argv) {
 
    common_init(argc,argv,"Update a dependency.");
 
-   // Test arg count is valid.
-   if (argc < 2)
-      return usage("path is required.");
-   if (argc > 9)
-      return usage("too many options.");
-
-   // Get the path to the project.
-   std::filesystem::path path = argv[1];
-   if (!antler::project::project::update_path(path))
-      return usage("path either did not exist or no `project.yaml` file could be found.");
-
-   // Load the project.
-   auto optional_proj = antler::project::project::parse(path);
-   if (!optional_proj)
-      return usage("Failed to load project file.");
-   auto proj = optional_proj.value();
-
-   // Get all the objects and their names.
-   const auto all_objs = proj.all_objects();
-
-
+   std::filesystem::path path;
    std::string obj_name;
    std::string dep_name;
    std::string dep_loc;
    std::string dep_tag;
    std::string dep_rel;
    std::string dep_hash;
+   bool interactive=false;
+
+   CLI::App cli(brief_str,exe_name);
+
+   // Positional arguments:
+   cli.add_option("path", path, "This must be the path to `project.yaml` or the path containing it.")->required();
+   cli.add_option("obj_name", obj_name, "The name of the object to receive the dependency `dep_name`.");
+   cli.add_option("dep_name", dep_name, "The name of the dependency to add to `obj_name`.");
+   cli.add_option("location", dep_loc, "Dependency location url, path, or github organization/repo shortcut.");
+
+   // Optional arguments:
+   auto tag_opt = cli.add_option("--tag", dep_tag, "The github tag or commit hash; only valid when LOCATION is a github repository.");
+   //auto commit_opt = cli.add_option("--commit", dep_commit, "The github tag or commit hash; only valid when LOCATION is a github repository.");
+   //auto branch_opt = cli.add_option("--branch", dep_branch, "The github tag or commit hash; only valid when LOCATION is a github repository.");
+   cli.add_option("--rel,--release", dep_rel, "A github release version.")->excludes(tag_opt);
+   cli.add_option("--hash", dep_hash, "SHA256 hash; only valid when LOCATION gets an archive (i.e. *.tar.gz or similar).");
+   // Option flag
+   cli.add_flag("--interactive", interactive, "Force interactive mode.");
+
+   // Parse
+   CLI11_PARSE(cli,argc,argv);
+
+   // Get the path to the project.
+   if (!antler::project::project::update_path(path))
+      return cli.exit( CLI::Error("path","path either did not exist or no `project.yaml` file could be found.") );
+
+   // Load the project.
+   auto optional_proj = antler::project::project::parse(path);
+   if (!optional_proj)
+      return cli.exit( CLI::Error("path", "Failed to load project file.") );
+   auto proj = optional_proj.value();
+
+   // Get all the objects and their names.
+   const auto all_objs = proj.all_objects();
 
 
-   if (argc >= 3) {
-      obj_name = argv[2];
+   // Sanity check object name, if it exists.
+   if (!obj_name.empty()) {
       if (!proj.object_exists(obj_name))
-         return usage("OBJ_NAME does not exist in project.");
+         return cli.exit( CLI::Error("obj_name","OBJ_NAME does not exist in project.") );
    }
 
-   if (argc >= 4)
-      dep_name = argv[3];
 
-   if (argc >= 5)
-      dep_loc = argv[4];
-
-   if (argc >= 6) {
-      for (int i = 5; i < argc; ++i) {
-         std::string_view temp = argv[i];
-         std::string_view next;
-         if (i + 1 < argc)
-            next = argv[i + 1];
-         if (temp == "--tag") {
-            if (next.empty())
-               return usage("--tag requires an argument.");
-            ++i;
-            dep_tag = next;
-         }
-         if (temp == "--rel") {
-            if (next.empty())
-               return usage("--tag requires an argument.");
-            ++i;
-            dep_rel = next;
-         }
-         if (temp == "--hash") {
-            if (next.empty())
-               return usage("--tag requires an argument.");
-            ++i;
-            dep_hash = next;
-         }
-      }
-   }
-
-   // Assuming interactive mode.
-   const bool interactive = dep_name.empty();
+   // Assuming interactive mode if dependency name was empty.
+   interactive |= dep_name.empty();
    if (interactive) {
       bool first_time = true;
 
+      // Loop until user is satisfied.
       for (;;) {
 
-         if (first_time) {
-
-            if (argc == 4) { // We have exactly obj and dep names.
-               // try to get object then try to get dep.
-               auto obj_vec = proj.object(obj_name);
-               if (!obj_vec.empty()) {
-                  auto dep_opt = obj_vec[0].dependency(dep_name);
-                  if (dep_opt) {
-                     auto dep = *dep_opt;
-                     dep_loc = dep.location();
-                     dep_tag = dep.tag();
-                     dep_rel = dep.release();
-                     dep_hash = dep.hash();
-                  }
+         // Set initial values if this is the first time through AND if we have obj and dep name alone.
+         if (first_time && !dep_name.empty() && dep_loc.empty() && dep_tag.empty() && dep_rel.empty() && dep_hash.empty()) {
+            // try to get object then try to get dep.
+            auto obj_vec = proj.object(obj_name);
+            if (!obj_vec.empty()) {
+               // Take the first dep in the list.
+               auto dep_opt = obj_vec[0].dependency(dep_name);
+               if (dep_opt) {
+                  auto dep = *dep_opt;
+                  dep_loc = dep.location();
+                  dep_tag = dep.tag();
+                  dep_rel = dep.release();
+                  dep_hash = dep.hash();
                }
             }
          }
+         first_time = false;
 
          if (obj_name.empty() || dep_name.empty()) {
             dump_obj_deps(all_objs);
-         } else if (!obj_name.empty() && !dep_name.empty() && antler::project::dependency::validate_location(dep_loc, dep_tag, dep_rel, dep_hash)) {
+         }
+         else if(!obj_name.empty() && !dep_name.empty() && antler::project::dependency::validate_location(dep_loc, dep_tag, dep_rel, dep_hash)) {
             // Get the object to operate on.
             auto obj_vec = proj.object(obj_name);
 
@@ -215,27 +167,25 @@ int main(int argc, char** argv) {
          get_name("git tag/commit hash", dep_tag, true);
          get_name("git release version", dep_rel, true);
          get_hash("SHA-256 hash", dep_hash, true);
-
-         first_time = false;
       }
    }
 
    // Get the object to update.
    auto obj_vec = proj.object(obj_name);
    if (obj_vec.empty())
-      return usage(obj_name + " does not exist in project.");
+      return cli.exit( CLI::Error("", obj_name + " does not exist in project.") );
    auto obj = obj_vec[0];
 
    // If we are not in interactive mode, test for the pre-existence of the dependency.
    if (!interactive && obj.dependency_exists(dep_name))
-      return usage(dep_name + " already exists for " + obj_name + " in project.");
+      return cli.exit( CLI::Error("",  dep_name + " already exists for " + obj_name + " in project.") );
 
    // Validate the location. Redundant for interactive mode, but cheap in human time.
    std::ostringstream ss;
    if (!antler::project::dependency::validate_location(dep_loc, dep_tag, dep_rel, dep_hash, ss))
-      return usage(ss.str());
+      return cli.exit( CLI::Error("", ss.str()) );
 
-   // Create the dependency, store it in the object, and store the object in the roject.
+   // Create the dependency, store it in the object, and store the object in the project.
    antler::project::dependency dep;
    dep.set(dep_name, dep_loc, dep_tag, dep_rel, dep_hash);
    obj.upsert_dependency(std::move(dep));
@@ -243,6 +193,6 @@ int main(int argc, char** argv) {
 
    // Sync the project to storage.
    if (!proj.sync())
-      return usage("failed to write project file.");
+      return cli.exit( CLI::Error("", "failed to write project file.") );
    return 0;
 }

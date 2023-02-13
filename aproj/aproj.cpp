@@ -5,6 +5,7 @@
 #include <string_view>
 #include <filesystem>
 #include <vector>
+#include <CLI11.hpp>
 
 #include <boost/algorithm/string.hpp>        // boost::split()
 #include <boost/dll/runtime_symbol_info.hpp> // boost::dll::program_location()
