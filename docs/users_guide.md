@@ -85,6 +85,7 @@ libraries.
 
 
 ## Adding of a new Application
+#### Hello example
 
 In order to add a new application we should call the following command:
 
@@ -107,7 +108,7 @@ apps/
         └── hello.cpp
 ```
 
-with all needed files for building of the project. FIle `hello.cpp` has implementation of a contract with
+with all needed files for building of the project. File `hello.cpp` has implementation of a contract with
 and empty action:
 
 ```c++
@@ -144,6 +145,31 @@ class [[eosio::contract]] hello : public contract {
 };
 ```
 
+Update the Ricardian file and describe there what your contact and it's action do.
+
+Here is how generated Ricardien file looks like:
+```html
+<h1 class="contract">hello</h1>
+---
+spec-version: 0.0.1
+title: my_action
+summary: This action is an example of the action implementation. 
+You should rename this action and add your own code which will do something useful. 
+icon:
+```
+
+Let's update it with correct description of our action:
+
+```html
+<h1 class="contract">hello</h1>
+---
+spec-version: 0.0.1
+title: hi
+summary: This action prints text "Hello, user" to the terminal with name of a user given by the 
+caller in the command line.
+icon:
+```
+
 ## Building of a new Application
 
 It time to build our app.
@@ -175,5 +201,209 @@ Call `dune --deploy ./projects/apps/hello/build/hello/ eosio`
 
 Then let's call the action from the deployed contract.
 
-Call 'dune --send-action eosio hello hi '["bob"] bob@active'
+Call `dune --send-action eosio hello hi '["bob"]' bob@active`
+
+
+## Adding of a new Application
+#### Database example
+
+Now let's make an example described in EOS Tutorial here: https://docs.eosnetwork.com/docs/latest/getting-started/smart-contract-development/data-persistence/
+This is the implementation of an address book which shows how to use persistent data tables for saving data.
+
+The good base for making of this example is template `database` which generates implementation of a 
+simple database with one multi index table. In order to add a new application to the project let's call:
+
+`aproj add ./project --app --name addressbook --template database`
+
+This call creates an application's directory `addressbook` in the project's directory `apps`.
+Now we have the following directory tree in the apps directory:
+ 
+```
+apps/
+└── hello
+    ├── build
+    ├── CMakeLists.txt
+    ├── include
+    │   └── hello.hpp
+    ├── README.txt
+    ├── ricardian
+    │   └── hello.contracts.md
+    └── src
+        ├── CMakeLists.txt
+        └── hello.cpp
+└── addressbook
+    ├── build
+    ├── CMakeLists.txt
+    ├── include
+    │   └── addressbook.hpp
+    ├── README.txt
+    ├── ricardian
+    │   └── addressbook.contracts.md
+    └── src
+        ├── CMakeLists.txt
+        └── addressbook.cpp
+
+```
+
+File `addressbook.cpp` has implementation of a contract with a multi index table and action for adding, 
+changing and removing data:
+
+```c++
+
+#include <eosio/eosio.hpp>
+
+using namespace eosio;
+
+class [[eosio::contract("addressbook")]] addressbook : public eosio::contract {
+
+private:
+  // This is a declaration of data which will contain a table placed in our database 
+  struct [[eosio::table]] data_t {
+    // each table must contain at least one key index field for access to the data
+    // please declare at least one variable which will contain an unique index for each row in the table  
+    unsigned int prim_key; 
+    // Here you may declare any number of any data fields for your table
+    std::vector<unsigned int> data;
+    // each data structure must implement this method for access to the primary key
+    int primary_key() const { return prim_key; }
+  };
+  
+  // declaration of a type of a table which will contain our data
+  using table_t = eosio::multi_index<"my_table"_n, data_t>;
+
+public:
+
+  addressbook(name receiver, name code,  datastream<const char*> ds): contract(receiver, code, ds) {}
+
+  // Action method which adds a new row to the table
+  [[eosio::action]]
+  void insert() {
+    // Declare a counter for generation of unique values
+    static std::atomic<unsigned int> uid { 0 };
+    // Create an instance of a class for work with the table
+    table_t table( get_self(), get_first_receiver().value);
+    // Adding a new row to the table
+    table.emplace(get_self(), [&]( auto& row ) {
+       row.prim_key = ++uid; // unique value for the primary key
+       row.data.push_back(row.prim_key); // add initialization of your data row here.
+    });
+  } 
+
+  // Action method which updates an existing data row with the new data
+  [[eosio::action]]
+  void update(unsigned int prim_key, data_t d) {
+    
+    table_t table( get_self(), get_first_receiver().value);
+    auto iterator = table.find(prim_key);
+    // modify method has undefined behavior if the data is not exists
+    if( iterator != table.end() ) {
+      table.modify(iterator, get_self(), [&]( auto& row ) {
+        row.data = d.data;
+    }
+  }
+
+  // Action method which erases given data row
+  [[eosio::action]]
+  void erase(unsigned int prim_key) {
+
+    table_t table( get_self(), get_first_receiver().value);
+    auto iterator = table.find(prim_key);
+    check(iterator != table.end(), "Record does not exist");
+    table.erase(iterator);
+  }
+};    
+
+```
+
+Its easy to rewrite the template to the code from the tutorial because it shows obvious example 
+of how to work with the tables.
+
+```c++
+#include <eosio/eosio.hpp>
+
+using namespace eosio;
+
+class [[eosio::contract("addressbook")]] addressbook : public eosio::contract {
+private:
+  struct [[eosio::table]] person {
+    name key;
+    std::string first_name;
+    std::string last_name;
+    std::string street;
+    std::string city;
+    std::string state;
+    uint64_t primary_key() const { return key.value; }
+  };
+
+  using address_index = eosio::multi_index<"people"_n, person>;
+
+public:
+
+  addressbook(name receiver, name code,  datastream<const char*> ds): contract(receiver, code, ds) {}
+
+  [[eosio::action]]
+  void upsert(name user, std::string first_name, std::string last_name, std::string street, std::string city, std::string state) {
+    require_auth( user );
+    address_index addresses( get_self(), get_first_receiver().value );
+    auto iterator = addresses.find(user.value);
+    if( iterator == addresses.end() )
+    {
+      addresses.emplace(user, [&]( auto& row ) {
+       row.key = user;
+       row.first_name = first_name;
+       row.last_name = last_name;
+       row.street = street;
+       row.city = city;
+       row.state = state;
+      });
+    }
+    else {
+      addresses.modify(iterator, user, [&]( auto& row ) {
+        row.key = user;
+        row.first_name = first_name;
+        row.last_name = last_name;
+        row.street = street;
+        row.city = city;
+        row.state = state;
+      });
+    }
+  }
+
+  [[eosio::action]]
+  void erase(name user) {
+    require_auth(user);
+
+    address_index addresses( get_self(), get_first_receiver().value);
+
+    auto iterator = addresses.find(user.value);
+    check(iterator != addresses.end(), "Record does not exist");
+    addresses.erase(iterator);
+  }
+};    
+```
+
+## Building of the Addressbook application
+
+Now we have two applications in our project
+
+Call `aproj build ./project`
+
+builds both of the applications.
+
+In order to build only the Addressbook app
+
+Call `aproj build ./project --app --name addressbook` 
+
+The same for cleaning and rebuilding:
+
+`aproj clean ./project --app --name addressbook && aproj build ./project --app --name addressbook`
+
+## Deploying of the Addressbook contract
+
+Call `dune --deploy ./projects/apps/addressbook/build/addressbook/ eosio`
+
+Then let's call the action from the deployed contract.
+
+Call `dune --send-action eosio addressbook upsert '["alice", "alice", "liddell", "123 drink me way", "wonderland", "amsterdam"]' alice@active`
+
 
