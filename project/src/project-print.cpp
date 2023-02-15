@@ -14,7 +14,7 @@
 #pragma GCC diagnostic pop
 
 #include <sstream>
-
+#include <magic_enum.hpp>
 
 namespace { // anonymous
 
@@ -36,28 +36,15 @@ template<>
    return c4::to_csubstr(s);
 }
 
-
 template<>
 [[nodiscard]] inline const c4::csubstr to_csubstr(std::string_view s) {
    return c4::to_csubstr(s);
-}
-
-// template<>
-// const c4::csubstr to_csubstr(const std::string& s) {
-//    return c4::to_csubstr( s );
-//}
-
-
-template<>
-[[nodiscard]] inline const c4::csubstr to_csubstr(const char* c) {
-   return c4::to_csubstr(c);
 }
 
 template<>
 [[nodiscard]] inline const c4::csubstr to_csubstr(key::word e) {
    return to_csubstr(key::literals[static_cast<size_t>(e)]);
 }
-
 
 template<>
 [[nodiscard]] inline const c4::csubstr to_csubstr(antler::project::language e) {
@@ -76,18 +63,7 @@ template<>
    // This is a hack for now.
    return c4::to_csubstr(v.raw());
 }
-/*template<>
-  [[nodiscard]] inline const c4::csubstr to_csubstr_insert(const antler::project::version& v) {
-   // This is a hack for now.
-   return c4::to_csubstr( v.raw() );
-}
-*/
 
-/*
-  [[nodiscard]] inline const c4::csubstr literal(key::word e) {
-   return c4::to_csubstr(key::literals[static_cast<size_t>(e)]);
-}
-*/
 
 } // anonymous namespace
 
@@ -120,7 +96,7 @@ void project::print(std::ostream& os) const noexcept {
    // containing a reference/pointer to the project's lists and a list of the corresponding type. We iterate through each one.
 
    const std::vector<const object::list_t*> obj_lists{ &m_libs, &m_apps, &m_tests };
-   const std::vector<key::word>             list_type{ key::word::libs, key::word::apps, key::word::tests };
+   const std::vector<key::word>             list_type{ key::word::libraries, key::word::apps, key::word::tests };
 
    for (size_t i = 0; i < obj_lists.size(); ++i) {
       const auto& obj_list = *obj_lists[i]; // convenience.
@@ -219,23 +195,8 @@ void project::print(std::ostream& os) const noexcept {
 }
 
 
-
-#define CASEOF_POP_LIST   \
-   CASE_OF(force_replace) \
-   CASE_OF(honor_deltas)  \
-   /* CASEOF_POP_LIST */
-
 void project::print(std::ostream& os, pop e) noexcept {
-
-   // clang-format off
-   switch (e) {
-#define CASE_OF(X) case pop::X: {os << #X; return;}
-      CASEOF_POP_LIST;
-#undef CASE_OF
-   }
-   // clang-format on
-
-   os << "Unknown project::pop (" << unsigned(e) << ")";
+   os << magic_enum::enum_name(e);
 }
 
 

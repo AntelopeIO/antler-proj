@@ -1,48 +1,29 @@
 /// @copyright See `LICENSE` in the root directory of this project.
 
 #include <algorithm>            // std::transform
-
 #include <antler/project/language.hpp>
-
-// Mapping of enum to string, please maintain string as lowercase.
-#define LANGUAGE_CASE_OF                        \
-   CASE_OF(none, "none")                        \
-                                                \
-   CASE_OF(c,    "c")                           \
-   CASE_OF(cpp,  "cpp")                         \
-   CASE_OF(java, "java")                        \
-   /* end LANGUAGE_CASE_OF */
-
 
 
 namespace antler::project {
 
 
-const char* language_literals[]{
-#define CASE_OF(E, STR) STR,
-   LANGUAGE_CASE_OF
-#undef CASE_OF
-};
-
-
 language to_language(std::string_view s) {
 
-   // Look for an exact match with the lowercase string.
-#define CASE_OF(E,STR) if( s == (STR)) return antler::project::language::E;
-   LANGUAGE_CASE_OF
-      ;
-#undef CASE_OF
+   // Try string as is.
+   auto lang = magic_enum::enum_cast<language>(s);
+   if (lang.has_value())
+      return lang.value();
 
-   // Unable to find exact match, downcase the input and try again.
+   // Then try again after downcasing.
    std::string dc{s};
    std::transform(dc.cbegin(), dc.cend(), dc.begin(), [](unsigned char c) { return std::tolower(c); });
-#define CASE_OF(E,STR) if( dc == STR) return antler::project::language::E;
-   LANGUAGE_CASE_OF
-      ;
-#undef CASE_OF
 
-   // We have been unable to find a matching string thus far. Try some aliases before returning none.
-   if (s == "c++")
+   lang = magic_enum::enum_cast<language>(s);
+   if (lang.has_value())
+      return lang.value();
+
+   // Unable to find a matching string thus far, we now try some aliases before returning none.
+   if (dc == "c++")
       return antler::project::language::cpp;
 
    // All options are exhausted, return none.
@@ -51,17 +32,12 @@ language to_language(std::string_view s) {
 
 
 std::string to_string(language e) {
+   return std::string(magic_enum::enum_name(e));
+}
 
-   switch(e) {
-#define CASE_OF(X,Y) case antler::project::language::X: return Y;
-      LANGUAGE_CASE_OF;
-#undef CASE_OF
-   }
 
-   std::string s = "Unknown antler::project::language (";
-   s += std::to_string(unsigned(e));
-   s += ")";
-   return s;
+std::string_view to_string_view(language e) {
+   return magic_enum::enum_name(e);
 }
 
 
@@ -69,12 +45,7 @@ std::string to_string(language e) {
 
 
 std::ostream& operator<<(std::ostream& os, const antler::project::language& e) {
-   switch(e) {
-#define CASE_OF(X,Y) case antler::project::language::X: { os << (Y);  return os; }
-      LANGUAGE_CASE_OF;
-#undef CASE_OF
-   }
-   os << "Unknown antler::project::language (" << unsigned(e) << ")";
+   os << to_string(e);
    return os;
 }
 
@@ -84,8 +55,9 @@ std::istream& operator>>(std::istream& is, antler::project::language& e) {
    std::string temp;
    if (is >> temp)
       e = antler::project::to_language(temp);
-   else
+   else {
       // This might be an exceptional state and so maybe we should throw an exception?
       e = antler::project::language::none;
+   }
    return is;
 }

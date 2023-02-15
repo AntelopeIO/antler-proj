@@ -178,7 +178,7 @@ template <typename NODE_T>
 
 
          case key::word::project:
-         case key::word::libs:
+         case key::word::libraries:
          case key::word::apps:
          case key::word::tests:
          case key::word::lang:
@@ -318,7 +318,7 @@ template <typename NODE_T>
          case key::word::apps:
          case key::word::from:
          case key::word::hash:
-         case key::word::libs:
+         case key::word::libraries:
          case key::word::patch:
          case key::word::project:
          case key::word::release:
@@ -397,7 +397,7 @@ std::optional<project> project::parse(const std::filesystem::path& path, std::os
          } break;
 
          case key::word::apps:
-         case key::word::libs:
+         case key::word::libraries:
          case key::word::tests: {
             // sanity check
             if (i.has_val() && !i.val().empty()) {
@@ -413,7 +413,7 @@ std::optional<project> project::parse(const std::filesystem::path& path, std::os
             // The list type.
             const object::type_t ot =
                (word == key::word::apps ? object::app :
-                     (word == key::word::libs ? object::lib : object::test) );
+                     (word == key::word::libraries ? object::lib : object::test) );
             // A reference to the list we want to populate.
             object::list_t& list =
                (ot == object::app ? rv.m_apps :

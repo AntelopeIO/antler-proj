@@ -3,6 +3,7 @@
 #include <antler/project/object.hpp>
 
 #include <algorithm> // find_if()
+#include <magic_enum.hpp>
 
 
 namespace antler::project {
@@ -122,24 +123,8 @@ void object::upsert_dependency(antler::project::dependency&& dep) noexcept {
 //--- global operators ------------------------------------------------------------------------------------------
 
 
-
-#define TYPE_T_CASE_OF                           \
-   CASE_OF(none, "none")                         \
-   CASE_OF(app,  "app")                          \
-   CASE_OF(lib,  "lib")                          \
-   CASE_OF(test, "test")                         \
-   CASE_OF(any,  "any")                          \
-   /* end TYPE_T_CASE_OF */
-
-
-
 std::ostream& operator<<(std::ostream& os, const antler::project::object::type_t& e) {
-   switch (e) {
-#define CASE_OF(X, Y) case antler::project::object::type_t::X: { os << (Y); return os; }
-      TYPE_T_CASE_OF;
-#undef CASE_OF
-   }
-   os << "Unknown antler::project::object::type_t (" << unsigned(e) << ")";
+   os << magic_enum::enum_name(e);
    return os;
 }
 
@@ -148,10 +133,14 @@ std::istream& operator>>(std::istream& is, antler::project::object::type_t& e) {
 
    std::string temp;
    if (is >> temp) {
-#define CASE_OF(X, Y) if (temp == (Y)) { e = antler::project::object::type_t::X; return is; }
-      TYPE_T_CASE_OF;
-#undef CASE_OF
+      // Try string as is.
+      auto opt = magic_enum::enum_cast<antler::project::object::type_t>(temp);
+      if (opt.has_value()) {
+         e = opt.value();
+         return is;
+      }
    }
+
    // This might be an exceptional state and so maybe we should throw an exception?
    e = antler::project::object::type_t::none;
    return is;

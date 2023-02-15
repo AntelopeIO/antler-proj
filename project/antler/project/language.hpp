@@ -6,6 +6,8 @@
 #include <ostream>
 #include <istream>
 #include <string_view>
+#include <magic_enum.hpp>
+
 
 namespace antler::project {
 
@@ -27,8 +29,15 @@ enum class language {
 /// @return The string repersentation of e.
 [[nodiscard]] std::string to_string(language e);
 
+/// Convert a language enum into a string.
+/// @param e  The enum to print and return.
+/// @return The string repersentation of e.
+[[nodiscard]] std::string_view to_string_view(language e);
+
 /// This is a convinience for the yaml encoder/decoder.
-extern const char* language_literals[];
+/// array<string_view, N>
+constexpr auto language_literals = magic_enum::enum_names<language>();
+
 
 } // namespace antler::project
 

@@ -5,8 +5,11 @@
 #include <string>
 #include <string_view>
 #include <vector>
+#include <ostream>
 
 #include <antler/project/object.hpp>
+
+#include <magic_enum.hpp>
 
 
 namespace key {
@@ -21,7 +24,7 @@ enum class word {
    from,
    hash,                        // Deps: indicates the SHA256 hash for an archive. Valid for github release and archive locations.
    lang,
-   libs,
+   libraries,
    name,
    options,
    patch,
@@ -45,8 +48,14 @@ enum class word {
 /// @return String representation of e.
 [[nodiscard]] std::string to_string(word e);
 
+/// Convert e to a string.
+/// @param e  The word to convert to a string.
+/// @return String representation of e.
+[[nodiscard]] std::string_view to_string_view(word e);
+
 /// This is a convinience for the yaml encoder/decoder.
-extern const char* literals[];
+/// array<string_view, N>
+constexpr auto literals = magic_enum::enum_names<word>();
 
 } // namespace key
 

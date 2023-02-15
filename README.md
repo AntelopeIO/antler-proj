@@ -54,10 +54,8 @@ ninja && ninja test
 
 Directories in the project root:
 - aproj: This contains the various CLI tools, all of which depend on the project library.
-- common: This contains a common library that might be useful elsewhere.
 - project: This is standalone library that contains the majority of implementation that creates and maintains the `project.yaml` file as well as initialize and populate the project's directory tree, among other things.
 - test: This direcory contains a number of unit tests. In future, it's likely to contain system level tests as well.
-- depends: This directory contains the CMake instructions for including libraries.
 
 
 ## License
@@ -65,8 +63,10 @@ Directories in the project root:
 This project is licensed using the MIT License as found
 [here](./LICENSE).
 
-Additionally, apack depends on [Rapid YAML](https://github.com/biojppm/rapidyaml),
-which also uses the `MIT` license.
+Additionally, apack includes and depends on these libraries:
+- [Rapid YAML](https://github.com/biojppm/rapidyaml) - `MIT`.
+- [CLI11](https://github.com/CLIUtils/CLI11) - `BSD-3-Clause`.
+- [MagicEnum](https://github.com/Neargye/magic_enum) - `MIT`.
 
 
 ## Miscellaneous
