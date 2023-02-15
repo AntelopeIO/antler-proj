@@ -57,7 +57,7 @@ int main(int argc, char** argv) {
    int rv = 0;
 
    // Figure out various paths.
-   const std::filesystem::path exe_name = std::filesystem::path(argv[0]).filename().string();
+   exe_name = std::filesystem::path(argv[0]).filename().string();
    const std::filesystem::path bin_path = boost::dll::program_location().parent_path().string();  // This could throw.
 
    // Massage argv.
