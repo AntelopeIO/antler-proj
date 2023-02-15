@@ -1,3 +1,5 @@
+// Modified to add get_subcommand_no_throw() and allow for a dash in add_subcommand() command names.
+
 // CLI11: Version 2.3.2
 // Originally designed by Henry Schreiner
 // https://github.com/CLIUtils/CLI11
@@ -6236,7 +6238,7 @@ class App {
     ///@{
 
     /// Add a subcommand. Inherits INHERITABLE and OptionDefaults, and help flag
-    App *add_subcommand(std::string subcommand_name = "", std::string subcommand_description = "");
+    App *add_subcommand(std::string subcommand_name = "", std::string subcommand_description = "", bool allow_dash=false);
 
     /// Add a previously created app as a subcommand
     App *add_subcommand(CLI::App_p subcom);
@@ -6250,6 +6252,9 @@ class App {
 
     /// Check to see if a subcommand is part of this command (text version)
     CLI11_NODISCARD App *get_subcommand(std::string subcom) const;
+
+    /// Check to see if a subcommand is part of this command (text version)
+    CLI11_NODISCARD App *get_subcommand_no_throw(std::string subcom) const;
 
     /// Get a pointer to subcommand by index
     CLI11_NODISCARD App *get_subcommand(int index = 0) const;
@@ -7248,10 +7253,11 @@ CLI11_INLINE bool App::remove_option(Option *opt) {
     return false;
 }
 
-CLI11_INLINE App *App::add_subcommand(std::string subcommand_name, std::string subcommand_description) {
+CLI11_INLINE App *App::add_subcommand(std::string subcommand_name, std::string subcommand_description, bool allow_dash) {
     if(!subcommand_name.empty() && !detail::valid_name_string(subcommand_name)) {
         if(!detail::valid_first_char(subcommand_name[0])) {
-            throw IncorrectConstruction("Subcommand name starts with invalid character, '!' and '-' are not allowed");
+           if(!(allow_dash && subcommand_name[0] == '-'))
+              throw IncorrectConstruction("Subcommand name starts with invalid character, '!' and '-' are not allowed");
         }
         for(auto c : subcommand_name) {
             if(!detail::valid_later_char(c)) {
@@ -7308,6 +7314,10 @@ CLI11_NODISCARD CLI11_INLINE App *App::get_subcommand(std::string subcom) const 
     if(subc == nullptr)
         throw OptionNotFound(subcom);
     return subc;
+}
+
+CLI11_NODISCARD CLI11_INLINE App *App::get_subcommand_no_throw(std::string subcom) const {
+    return _find_subcommand(subcom, false, false);
 }
 
 CLI11_NODISCARD CLI11_INLINE App *App::get_subcommand(int index) const {
