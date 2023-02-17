@@ -8,22 +8,10 @@
 
 namespace antler::project {
 
-void print(std::ostream& os, cmp_result e) noexcept {
-   switch (e) {
-#define CASE_OF(X) case cmp_result::X: os << #X; return;
-      CASE_OF(eq);
-      CASE_OF(lt);
-      CASE_OF(gt);
-#undef CASE_OF
-   }
-   os << "unknown cmp_result (" << unsigned(e) << ")";
-}
-
-
-cmp_result raw_compare(std::string_view lhs, std::string_view rhs) noexcept {
+std::strong_ordering raw_compare(std::string_view lhs, std::string_view rhs) noexcept {
 
    if (lhs == rhs)
-      return cmp_result::eq;
+      return std::strong_ordering::equivalent;
 
    std::vector<std::string_view> l;
    boost::split(l, lhs, boost::is_any_of(".,-;+"));
@@ -67,33 +55,33 @@ cmp_result raw_compare(std::string_view lhs, std::string_view rhs) noexcept {
 
          if (lnum != rnum) {
             if (lnum < rnum)
-               return cmp_result::lt;
-            return cmp_result::gt;
+               return std::strong_ordering::less;
+            return std::strong_ordering::greater;
          }
 
          auto temp = lremain.compare(rremain);
          if (temp < 0)
-            return cmp_result::lt;
-         return cmp_result::gt;
+            return std::strong_ordering::less;
+         return std::strong_ordering::greater;
       }
 
       if (!string::from(l[i], lnum) || !string::from(r[i], rnum)) {
          // Nope, STILL can't convert to JUST a number. Just do a raw string compare.
          auto temp = l[i].compare(r[i]);
          if (temp < 0)
-            return cmp_result::lt;
-         return cmp_result::gt;
+            return std::strong_ordering::less;
+         return std::strong_ordering::greater;
       }
       if (lnum < rnum)
-         return cmp_result::lt;
-      return cmp_result::gt;
+         return std::strong_ordering::less;
+      return std::strong_ordering::greater;
    }
 
    if (l.size() < r.size())
-      return cmp_result::lt;
+      return std::strong_ordering::less;
    if (l.size() > r.size())
-      return cmp_result::gt;
-   return cmp_result::eq;
+      return std::strong_ordering::greater;
+   return std::strong_ordering::equal;
 }
 
 

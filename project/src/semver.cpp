@@ -25,35 +25,30 @@ semver::semver(value_type x, value_type y, value_type z, std::string_view pre_re
 
 //--- operators ---------------------------------------------------------------------------------------------------------
 
+
+std::strong_ordering semver::operator<=>(const self& rhs) const noexcept {
+   //auto semver::operator<=>(const self& rhs) const noexcept {
+   // Compare x.y.z
+   for (size_t i = 0; i < m_xyz.size(); ++i) {
+      if (auto cmp = m_xyz[i] <=> rhs.m_xyz[i] ; cmp != 0)
+         return cmp;
+   }
+   // x.y.z are the same, so compare pre-release and build.
+   if (auto cmp = compare_p_rule12(m_pre, rhs.m_pre) ; cmp != 0)
+      return cmp;
+
+   return compare_b_rule12(m_build, rhs.m_build);
+}
+
+
 bool semver::operator==(const self& rhs) const noexcept {
-   return compare(rhs) == cmp_result::eq;
+   return operator<=>(rhs) == 0;
 }
 
 
 bool semver::operator!=(const self& rhs) const noexcept {
-   return compare(rhs) != cmp_result::eq;
+   return operator<=>(rhs) != 0;
 }
-
-
-bool semver::operator<(const self& rhs) const noexcept {
-   return compare(rhs) == cmp_result::lt;
-}
-
-
-bool semver::operator<=(const self& rhs) const noexcept {
-   return compare(rhs) != cmp_result::gt;
-}
-
-
-bool semver::operator>(const self& rhs) const noexcept {
-   return compare(rhs) == cmp_result::gt;
-}
-
-
-bool semver::operator>=(const self& rhs) const noexcept {
-   return compare(rhs) != cmp_result::lt;
-}
-
 
 //--- alphabetic --------------------------------------------------------------------------------------------------------
 
@@ -64,31 +59,31 @@ void semver::clear() noexcept {
 }
 
 
-cmp_result semver::compare_b_rule12(std::string_view lhs, std::string_view rhs) noexcept {
+std::strong_ordering semver::compare_b_rule12(std::string_view lhs, std::string_view rhs) noexcept {
 
    // If either is empty, this is a quick comparison.
    if (lhs.empty())
-      return (rhs.empty() ? cmp_result::eq : cmp_result::lt);
+      return (rhs.empty() ? std::strong_ordering::equal : std::strong_ordering::less);
    if (rhs.empty())
-      return cmp_result::gt;
+      return std::strong_ordering::greater;
 
    return compare_pb_rule12(lhs, rhs);
 }
 
 
-cmp_result semver::compare_p_rule12(std::string_view lhs, std::string_view rhs) noexcept {
+std::strong_ordering semver::compare_p_rule12(std::string_view lhs, std::string_view rhs) noexcept {
 
    // If either is empty, this is a quick comparison.
    if (lhs.empty())
-      return (rhs.empty() ? cmp_result::eq : cmp_result::gt);
+      return (rhs.empty() ? std::strong_ordering::equal : std::strong_ordering::greater);
    if (rhs.empty())
-      return cmp_result::lt;
+      return std::strong_ordering::less;
 
    return compare_pb_rule12(lhs, rhs);
 }
 
 
-cmp_result semver::compare_pb_rule12(std::string_view lhs, std::string_view rhs) noexcept {
+std::strong_ordering semver::compare_pb_rule12(std::string_view lhs, std::string_view rhs) noexcept {
 
    // Requirements here:
    //    https://semver.org/spec/v2.0.0-rc.1.html#spec-item-12
@@ -114,51 +109,24 @@ cmp_result semver::compare_pb_rule12(std::string_view lhs, std::string_view rhs)
       if (left != std::string_view::npos) {     // Left is NOT numbers only.
          if (right != std::string_view::npos) { // Also Right is NOT numbers only.
             // Simple string compare works here.
-            if (l[i] < r[i])
-               return cmp_result::lt;
-            return cmp_result::gt;
+            return l[i] <=> r[i];
          }
          // Left has letters, right is numbers. So right is of higer magnitude.
-         return cmp_result::lt;
+         return std::strong_ordering::less;
       }
       // Left is a number, if right is NOT a number, then left has greater magnitude.
       if (right != std::string_view::npos)
-         return cmp_result::gt;
+         return std::strong_ordering::greater;
       // Both are numbers, convert and compare.
       int lnum = 0;
       [[maybe_unused]] auto discard1 = string::from(l[i], lnum); // ignore return code. If it's a failure, we will just use the zero value.
       int rnum = 0;
       [[maybe_unused]] auto discard2 = string::from(r[i], rnum);
-      if (lnum == rnum)
-         continue;
-      if (lnum < rnum)
-         return cmp_result::lt;
-      return cmp_result::gt;
+      if (auto cmp = lnum <=> rnum; cmp != 0)
+         return cmp;
    }
-   // So far, all the splits are equal. Is one of them longer then the other?
-   if (l.size() == r.size())
-      return cmp_result::eq;
-   if (l.size() < r.size())
-      return cmp_result::lt;
-   return cmp_result::gt;
-}
-
-
-cmp_result semver::compare(const self& rhs) const noexcept {
-   // Compare x.y.z
-   for (size_t i = 0; i < m_xyz.size(); ++i) {
-      if (m_xyz[i] == rhs.m_xyz[i])
-         continue;
-      if (m_xyz[i] < rhs.m_xyz[i])
-         return cmp_result::lt;
-      return cmp_result::gt;
-   }
-   // x.y.z are the same, so compare pre-release and build.
-   auto result = compare_p_rule12(m_pre, rhs.m_pre);
-   if (result != cmp_result::eq)
-      return result;
-
-   return compare_b_rule12(m_build, rhs.m_build);
+   // So far, all the splits are equal. Compare the split size.
+   return l.size() <=> r.size();
 }
 
 

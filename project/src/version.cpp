@@ -59,33 +59,20 @@ version& version::operator=(const self& rhs) {
 }
 
 
+std::strong_ordering version::operator<=>(const self& rhs) const noexcept {
+   if (is_semver() && rhs.is_semver())
+      return *m_semver <=> *rhs.m_semver;
+   return raw_compare(m_raw, rhs.m_raw);
+}
+
+
 bool version::operator==(const self& rhs) const noexcept {
-   return compare(rhs) == cmp::eq;
+   return operator<=>(rhs) == 0;
 }
 
 
 bool version::operator!=(const self& rhs) const noexcept {
-   return compare(rhs) != cmp::eq;
-}
-
-
-bool version::operator<(const self& rhs) const noexcept {
-   return compare(rhs) == cmp::lt;
-}
-
-
-bool version::operator<=(const self& rhs) const noexcept {
-   return compare(rhs) != cmp::gt;
-}
-
-
-bool version::operator>(const self& rhs) const noexcept {
-   return compare(rhs) == cmp::gt;
-}
-
-
-bool version::operator>=(const self& rhs) const noexcept {
-   return compare(rhs) != cmp::lt;
+   return operator<=>(rhs) != 0;
 }
 
 
@@ -96,25 +83,12 @@ version::operator semver() const noexcept {
 }
 
 
-
 //--- alphabetic --------------------------------------------------------------------------------------------------------
 
 
 void version::clear() noexcept {
    m_raw.clear();
    m_semver.reset();
-}
-
-
-version::cmp version::compare(const self& rhs) const noexcept {
-   if (is_semver() && rhs.is_semver()) {
-      if (*m_semver == *rhs.m_semver)
-         return cmp::eq;
-      if (*m_semver < *rhs.m_semver)
-         return cmp::lt;
-      return cmp::gt;
-   }
-   return raw_compare(m_raw, rhs.m_raw);
 }
 
 
@@ -153,9 +127,9 @@ std::string_view version::raw() const noexcept {
 }
 
 
-version::cmp version::raw_compare(std::string_view l_in, std::string_view r_in) noexcept {
+std::strong_ordering version::raw_compare(std::string_view l_in, std::string_view r_in) noexcept {
    if (l_in == r_in)
-      return cmp::eq;
+      return std::strong_ordering::equal;
 
    std::vector<std::string_view> l;
    boost::split(l, l_in, boost::is_any_of(".,-+;"));
@@ -167,16 +141,15 @@ version::cmp version::raw_compare(std::string_view l_in, std::string_view r_in) 
       if (l[i] == r[i])
          continue;
 
-      int lnum = 0;
-      int rnum = 0;
-
       // Can we convert the whole thing to a number?
       auto ln = l[i].find_first_not_of("0123456789");
       auto rn = r[i].find_first_not_of("0123456789");
       if (ln != std::string_view::npos || rn != std::string_view::npos) {
+         // Nope, one or both of the strings contain non numeric chars.
 
-         // Nope, so try to compare numbers and letters.
-
+         // Get the number portion into either lnum or rnum int and the trailing non numeric chars into the string lremain or
+         // rremain.
+         int lnum = 0;
          std::string_view lremain;
          if (ln == std::string_view::npos) {
             [[maybe_unused]] auto discard = string::from(l[i], lnum);
@@ -187,6 +160,7 @@ version::cmp version::raw_compare(std::string_view l_in, std::string_view r_in) 
             lremain = l[i].substr(ln);
          }
 
+         int rnum = 0;
          std::string_view rremain;
          if (rn == std::string_view::npos) {
             [[maybe_unused]] auto discard = string::from(r[i], rnum);
@@ -197,35 +171,26 @@ version::cmp version::raw_compare(std::string_view l_in, std::string_view r_in) 
             rremain = r[i].substr(rn);
          }
 
-         if (lnum != rnum) {
-            if (lnum < rnum)
-               return cmp::lt;
-            return cmp::gt;
-         }
+         // If the numbers differ, return the difference between them.
+         if (auto cmp = lnum <=> rnum; cmp != 0)
+            return cmp;
 
-         auto temp = lremain.compare(rremain);
-         if (temp < 0)
-            return cmp::lt;
-         return cmp::gt;
+         // Otherwise, return the difference in the remaining values.
+         return lremain <=> rremain;
       }
 
-      if (!string::from(l[i], lnum) || !string::from(r[i], rnum)) {
-         // Nope, STILL can't convert to JUST a number. Just do a raw string compare.
-         auto temp = l[i].compare(r[i]);
-         if (temp < 0)
-            return cmp::lt;
-         return cmp::gt;
+      // Convert into ints and compare (or do a simple string compare).
+      if (int lnum = 0, rnum = 0; string::from(l[i], lnum) && string::from(r[i], rnum)) {
+         return lnum <=> rnum;
       }
-      if (lnum < rnum)
-         return cmp::lt;
-      return cmp::gt;
+
+      // Nope, STILL can't convert to JUST a number. Just do a raw string compare.
+      return l[i] <=> r[i];
    }
 
-   if (l.size() < r.size())
-      return cmp::lt;
-   if (l.size() > r.size())
-      return cmp::gt;
-   return cmp::eq;
+   // Thus far, all the splits are equal, so just compare the number of splits.
+   // Example: `a.b.c <=> a.b.c.d` finds the first 3 splits equal, so we just compare the split count: `3 <=> 4`.
+   return l.size() <=> r.size();
 }
 
 

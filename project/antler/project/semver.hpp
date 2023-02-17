@@ -29,36 +29,20 @@ public:
 
    /// comparison operator
    /// @param rhs  The right hand side semver to compare against.
+   /// @return Follows standard rules.
+   //[[nodiscard]] std::strong_ordering operator<=>(const self& rhs) const;
+   [[nodiscard]] std::strong_ordering operator<=>(const self& rhs) const noexcept;
+   /// comparison operator
+   /// @param rhs  The right hand side semver to compare against.
    /// @return true if this object and rhs are equivalent.
    [[nodiscard]] bool operator==(const self& rhs) const noexcept;
    /// comparison operator
    /// @param rhs  The right hand side semver to compare against.
    /// @return true if this object and rhs are different (aka NOT equivalent).
    [[nodiscard]] bool operator!=(const self& rhs) const noexcept;
-   /// comparison operator
-   /// @param rhs  The right hand side semver to compare against.
-   /// @return true if this object is less than rhs.
-   [[nodiscard]] bool operator<(const self& rhs) const noexcept;
-   /// comparison operator
-   /// @param rhs  The right hand side semver to compare against.
-   /// @return true if this object is less than or equal to rhs.
-   [[nodiscard]] bool operator<=(const self& rhs) const noexcept;
-   /// comparison operator
-   /// @param rhs  The right hand side semver to compare against.
-   /// @return true if this object is greater than rhs.
-   [[nodiscard]] bool operator>(const self& rhs) const noexcept;
-   /// comparison operator
-   /// @param rhs  The right hand side semver to compare against.
-   /// @return true if this object is greater than or equal to rhs.
-   [[nodiscard]] bool operator>=(const self& rhs) const noexcept;
 
    /// Clear the version.
    void clear() noexcept;
-
-   /// Compare this semver with rhs and return the result.
-   /// @param rhs  The right hand side semver to compare against.
-   /// @return The result of the comparison: one of cmp_result::{eq, lt, gt}.
-   [[nodiscard]] cmp_result compare(const self& rhs) const noexcept;
 
    /// Print the semver to a string.
    /// @return The semver as a string.
@@ -77,14 +61,14 @@ public:
 private:
    /// compare prerelease according to rule 12. lhs and rhs must both be the pre-release portion of the version and
    /// @TODO Initial development erroneously used 2.0.0-rc.1; this function needs to be reevaluated for correctness and renamed.
-   [[nodiscard]] static cmp_result compare_p_rule12(std::string_view lhs, std::string_view rhs) noexcept;
+   [[nodiscard]] static std::strong_ordering compare_p_rule12(std::string_view lhs, std::string_view rhs) noexcept;
    /// compare build according to rule 12. lhs and rhs must both be the build portion of the version.
    /// @TODO Initial development erroneously used 2.0.0-rc.1; this function needs to be reevaluated for correctness and renamed.
-   [[nodiscard]] static cmp_result compare_b_rule12(std::string_view lhs, std::string_view rhs) noexcept;
+   [[nodiscard]] static std::strong_ordering compare_b_rule12(std::string_view lhs, std::string_view rhs) noexcept;
    /// @return a comparison of lhs and rhs according to semver rule 12. lhs and rhs must both be EITHER pre-release or build and
    /// both must be populated.
    /// @TODO Initial development erroneously used 2.0.0-rc.1; this function needs to be reevaluated for correctness and renamed.
-   [[nodiscard]] static cmp_result compare_pb_rule12(std::string_view lhs, std::string_view rhs) noexcept;
+   [[nodiscard]] static std::strong_ordering compare_pb_rule12(std::string_view lhs, std::string_view rhs) noexcept;
    /// @return true indivcates valid pre-release or build string; false otherwise.
    /// @TODO Initial development erroneously used 2.0.0-rc.1; this function needs to be reevaluated for correctness and renamed.
    [[nodiscard]] static bool validate_pb_rule10or11(std::string_view s) noexcept;

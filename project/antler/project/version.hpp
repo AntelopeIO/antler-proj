@@ -9,7 +9,7 @@
 #include <optional>
 #include <array>
 #include <memory>
-
+#include <compare>
 
 
 namespace antler::project {
@@ -36,6 +36,15 @@ public:
    /// @parm rhs  Source to copy from
    version& operator=(const self& rhs);
 
+   /// comparison operator
+   /// @param rhs  The right hand side semver to compare against.
+   /// @return Follows standard rules.
+   //[[nodiscard]] std::strong_ordering operator<=>(const self& rhs) const;
+   [[nodiscard]] std::strong_ordering operator<=>(const self& rhs) const noexcept;
+   // comparison operators:
+   [[nodiscard]] bool operator==(const self& rhs) const noexcept;
+   [[nodiscard]] bool operator!=(const self& rhs) const noexcept;
+
    /// Clear any values.
    void clear() noexcept;
 
@@ -49,30 +58,11 @@ public:
    /// @return The version in semver_t format. If is_semver() would return false, this value is invalid.
    explicit operator semver() const noexcept;
 
-   // comparison operators:
-   [[nodiscard]] bool operator==(const self& rhs) const noexcept;
-   [[nodiscard]] bool operator!=(const self& rhs) const noexcept;
-   [[nodiscard]] bool operator<(const self& rhs) const noexcept;
-   [[nodiscard]] bool operator<=(const self& rhs) const noexcept;
-   [[nodiscard]] bool operator>(const self& rhs) const noexcept;
-   [[nodiscard]] bool operator>=(const self& rhs) const noexcept;
-
 private:
-   /// internal class for comparisons.
-   enum class cmp {
-      eq,
-      lt,
-      gt,
-   };
-
    /// compare the string value of this to rhs. Attempt to use semver rules.
    /// @param rhs  The version to compare to.
    /// @return the result of the comparison: eq, lt, gt.
-   [[nodiscard]] static cmp raw_compare(std::string_view l_in, std::string_view r_in) noexcept;
-   /// Compare this to rhs. Sart by attempting to compare semver values; fall back to raw_compare()
-   /// @param rhs  The version to compare to.
-   /// @return the result of the comparison: eq, lt, gt.
-   [[nodiscard]] cmp compare(const self& rhs) const noexcept;
+   [[nodiscard]] static std::strong_ordering raw_compare(std::string_view l_in, std::string_view r_in) noexcept;
 
    /// Load this version from a string. Attempts to parse and store as semver in the process. Either way, s is stored as m_raw.
    /// @param s  The string to store.
