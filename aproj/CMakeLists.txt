@@ -12,7 +12,7 @@ function(add_aproj target_name files)
 
   set(extra_libs "")
   if(target_name STREQUAL "aproj")
-    set(extra_libs "Boost::filesystem")
+    set(extra_libs "Boost::filesystem" "dl")
   endif()
 
   add_executable(${target_name} ${files})
