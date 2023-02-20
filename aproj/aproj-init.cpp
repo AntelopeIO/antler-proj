@@ -19,6 +19,10 @@ int main(int argc, char** argv) {
    antler::project::version ver("0.0.0");
    bool interactive=false;
 
+
+   // CLI setup
+
+   // Description needs a bit more infor than brief string contains.
    const std::string desc=brief_str + "\n"
       + "`project.yaml` is created in PATH if PATH is an empty directory AND the filename matches PROJECT_NAME;\n"
       + "otherwise, a directory matching PROJECT_NAME is created at PATH to contain `project.yaml`.\n";
@@ -37,6 +41,9 @@ int main(int argc, char** argv) {
    CLI11_PARSE(cli,argc,argv);
 
 
+   // Begin doing the work. (This may move into `antler::project::project` at a later date.)
+
+   // `name` will contain the project name. It needs to be separate from cli_name because we might use both in the logic below.
    std::string name;
 
    // Sanity check potential project directory.
@@ -67,45 +74,35 @@ int main(int argc, char** argv) {
 
    // Test for interactive mode.
    interactive |= cli_name.empty();
-   if (interactive) {
+   while (interactive) {
       // Loop until user is satisfied.
-      for (;;) {
+      if (!name.empty()) {
+         // Resolve the path to the project root.
+         project_root = cli_path;
+         if (cli_path.filename() != name)
+            project_root /= name;
 
-         if (!name.empty()) {
-            // Resolve the path to the project root.
-            project_root = cli_path;
-            if (cli_path.filename() != name)
-               project_root /= name;
+         std::cout
+            << '\n'
+            << "Path:         " << project_root << '\n'
+            << "Project name: " << name << '\n'
+            << "Version:      " << ver << '\n'
+            << '\n';
+         if(!ver.is_semver())
+            std::cout << "Warning: Version is NOT a SemVer.\n\n";
 
-            std::cout
-               << '\n'
-               << "Path:         " << project_root << '\n'
-               << "Project name: " << name << '\n'
-               << "Version:      " << ver << '\n'
-               << '\n';
-            if(!ver.is_semver())
-               std::cout << "Warning: Version is NOT a SemVer.\n\n";
-
-            if (is_this_correct())
-               break;
-         }
-
-         // Project name.
-         get_name("project name",name);
-
-         // Project version.
-         {
-            std::cout << "Enter project version: [" << ver << "]" << std::flush;
-            std::string temp;
-            std::getline(std::cin, temp);
-            if (!temp.empty())
-               ver = temp;
-         }
+         if (is_this_correct())
+            break;
       }
+
+      get_name("project name",name);
+      get_version("project version", ver);
    }
 
 
-   if (!is_valid_name(name))
+   // Sanity check.
+
+   if (!validate_name(name))
       return cli.exit( CLI::Error("name", std::string{"name \""} + name + "\" contains invalid chars. Expecting [0-9a-zA-Z_].") );
 
 

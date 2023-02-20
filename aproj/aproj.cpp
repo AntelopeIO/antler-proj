@@ -132,7 +132,7 @@ int main(int argc, char** argv) {
       }
    }
 
-   // Parse the args. This will result in the calls
+   // Parse the args. This will result in calling the subcommand executables.
    CLI11_PARSE(cli,argc,argv);
 
    return rv;

@@ -15,23 +15,23 @@ int main(int argc, char** argv) {
 
    std::filesystem::path path;
 
+
+   // CLI setup
+
    CLI::App cli(brief_str,exe_name);
 
    // Positional arguments:
    cli.add_option("path", path, "This must be the path to `project.yaml` or the path containing it.")->required();
 
-      // Parse
+   // Parse
    CLI11_PARSE(cli,argc,argv);
 
-   // Get the path to the project.
-   if (!antler::project::project::update_path(path))
-      return cli.exit( CLI::Error("path","path either did not exist or no `project.yaml` file could be found.") );
 
-   // Load the project.
-   auto optional_proj = antler::project::project::parse(path);
-   if (!optional_proj)
-      return cli.exit( CLI::Error("path","Failed to load project file.") );
-   auto proj = optional_proj.value();
+   // Load project or exit.
+   auto proj = load_project_or_exit(cli,path);
+
+
+   // do the work.
 
    auto pop_type = antler::project::project::pop::honor_deltas;
 

@@ -23,6 +23,8 @@ int main(int argc, char** argv) {
    std::string cmd;
    bool interactive;
 
+   // Set up CLI.
+
    CLI::App cli(brief_str,exe_name);
 
    // Positional arguments:
@@ -36,58 +38,50 @@ int main(int argc, char** argv) {
    // Parse
    CLI11_PARSE(cli,argc,argv);
 
-   // Get the path to the project.
-   if (!antler::project::project::update_path(path))
-      return cli.exit( CLI::Error("path","path either did not exist or no `project.yaml` file could be found.") );
 
-   // Load the project.
-   auto optional_proj = antler::project::project::parse(path);
-   if (!optional_proj)
-      return cli.exit( CLI::Error("path", "Failed to load project file.") );
-   auto proj = optional_proj.value();
+   // Load the project or exit.
+   auto proj = load_project_or_exit(cli,path);
 
-   // Sanity checking
+
+   // Evaluate interactive mode.
+   interactive |= cmd.empty();
+   while (interactive) {
+      // Loop until the user says values are correct.
+      // If name is populated, we can show the info so far. If it's not populated, then skip straight to the queries.
+      if (!name.empty()) {
+
+         // Print values.
+         std::cout
+            << '\n'
+            << "test name: " << name << '\n'
+            << "command:   " << cmd << '\n'
+            << '\n';
+
+         // Check to see if name is a TEST duplicate.
+         if (proj.object_exists(name, antler::project::object::type_t::test)) {
+            // Enform user of the duplicate.
+            std::cerr << "Test " << name << " already exists in project. Can't add.\n\n";
+         } else {
+            // Check to see if name is otherwise a duplicate, warn if so.
+            if (proj.object_exists(name))
+               std::cerr << "WARNING: " << name << " already exists in project as app and/or lib.\n\n";
+            // Ask if the printed values are correct, if so break out of this loop.
+            if (is_this_correct())
+               break;
+         }
+      }
+
+      // Querry for test name.
+      get_name("test name", name);
+      // Querry for test command.
+      get_string("test command", cmd, true);
+   }
+
+
+   // Sanity check and apply.
    if (!name.empty() && proj.object_exists(name, antler::project::object::type_t::test)) {
       return cli.exit( CLI::Error("name", "test_name already exists in project.") );
    }
-
-   interactive |= cmd.empty();
-
-   if (interactive) {
-      // Loop until the user says values are correct.
-      for (;;) {
-         // If name is populated, we can show the info so far. If it's not populated, then skip straight to the queries.
-         if (!name.empty()) {
-
-            // Print values.
-            std::cout
-               << '\n'
-               << "test name: " << name << '\n'
-               << "command:   " << cmd << '\n'
-               << '\n';
-
-            // Check to see if name is a TEST duplicate.
-            if (proj.object_exists(name, antler::project::object::type_t::test)) {
-               // Enform user of the duplicate.
-               std::cerr << "Test " << name << " already exists in project. Can't add.\n\n";
-            } else {
-               // Check to see if name is otherwise a duplicate, warn if so.
-               if (proj.object_exists(name))
-                  std::cerr << "WARNING: " << name << " already exists in project as app and/or lib.\n\n";
-               // Ask if the printed values are correct, if so break out of this loop.
-               if (is_this_correct())
-                  break;
-            }
-         }
-
-         // Querry for test name.
-         get_name("test name", name);
-
-         // Querry for test command.
-         get_string("test command", cmd, true);
-      }
-   }
-
 
    auto obj = antler::project::object(name, cmd);
    proj.upsert_test(std::move(obj));

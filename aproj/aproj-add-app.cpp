@@ -38,77 +38,49 @@ int main(int argc, char** argv) {
    // Parse
    CLI11_PARSE(cli,argc,argv);
 
-   // Get the path to the project.
-   if (!antler::project::project::update_path(path))
-      return cli.exit( CLI::Error("path","path either did not exist or no `project.yaml` file could be found.") );
 
-   // Load the project.
-   auto optional_proj = antler::project::project::parse(path);
-   if (!optional_proj)
-      return cli.exit( CLI::Error("path", "Failed to load project file.") );
-   auto proj = optional_proj.value();
+   // Load the project or exit.
+   auto proj = load_project_or_exit(cli, path);
 
-   // Sanity checking
-   if (!name.empty() && proj.object_exists(name, antler::project::object::type_t::app)) {
-      return cli.exit( CLI::Error("name", "app_name already exists in project.") );
-   }
 
+   // Interactive mode?
    interactive |= (lang == antler::project::language::none);
-
-   if (interactive) {
+   while (interactive) {
       // Loop until the user says values are correct.
-      for (;;) {
-         // Only query for correct if all the info is updated.
-         if (!name.empty() && lang != antler::project::language::none) {
+      // Only query for correct if all the info is updated.
+      if (!name.empty() && lang != antler::project::language::none) {
 
-            std::cout
-               << '\n'
-               << "app name: " << name << '\n'
-               << "language: " << lang << '\n'
-               << "options:  " << opts << '\n'
-               << '\n';
+         std::cout
+            << '\n'
+            << "app name: " << name << '\n'
+            << "language: " << lang << '\n'
+            << "options:  " << opts << '\n'
+            << '\n';
 
-            if (proj.object_exists(name, antler::project::object::type_t::app)) {
-               std::cerr << "Application " << name << " already exists in project. Can't add.\n\n";
-            } else {
-               if (proj.object_exists(name))
-                  std::cerr << "WARNING: " << name << " already exists in project as lib and/or test.\n\n";
-
-               if (is_this_correct())
-                  break;
-            }
+         if (proj.object_exists(name, antler::project::object::type_t::app)) {
+            std::cerr << "Application " << name << " already exists in project. Can't add.\n\n";
          }
+         else {
+            if (proj.object_exists(name))
+               std::cerr << "WARNING: " << name << " already exists in project as lib and/or test.\n\n";
 
-         get_name("application name", name);
-
-         for (;;) {
-            std::cout << "Enter project language: [" << lang << "]" << std::flush;
-            std::string temp;
-            std::getline(std::cin, temp);
-            if (temp.empty() && lang != antler::project::language::none)
+            if (is_this_correct())
                break;
-            antler::project::language l2 = antler::project::to_language(temp);
-            if (l2 != antler::project::language::none) {
-               lang = l2;
-               break;
-            }
-         }
-
-         {
-            std::cout << "Enter application options (space to clear): [" << opts << "]" << std::flush;
-            std::string temp;
-            std::getline(std::cin, temp);
-            if (temp == " ")
-               opts.clear();
-            else if (!temp.empty())
-               opts = temp;
          }
       }
+
+      get_name("application name", name);
+      get_language("project language", lang);
+      get_string("application options", opts, true);
    }
 
 
+   // Sanity check and apply.
+   if (!name.empty() && proj.object_exists(name, antler::project::object::type_t::app))
+      return cli.exit( CLI::Error("name", "app_name already exists in project.") );
    if (lang == antler::project::language::none)
       return cli.exit( CLI::Error("name", "invalid language.") );
+
    auto obj = antler::project::object(antler::project::object::app, name, lang, opts);
    proj.upsert_app(std::move(obj));
    proj.sync();

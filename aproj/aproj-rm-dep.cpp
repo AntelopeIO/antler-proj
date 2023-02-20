@@ -74,29 +74,6 @@ int main(int argc, char** argv) {
 
    common_init(argc,argv,"Remove a dependency.");
 
-
-   /*
-   os << exe_name << ": PATH [DEP_NAME] [OPTIONS]\n"
-      << "  " << brief_str << '\n'
-      << '\n'
-      << "Remove dependency from project applications, libraries, and tests.\n"
-      << '\n'
-      << " PATH is either path to `project.yaml` or the path containing it.\n"
-      << " DEP_NAME is the the name of the dependency to remove.\n"
-      << '\n'
-      << " Options:\n"
-      << "  --all            Remove the dep from all objects (implies --app, --lib, test). Default option.\n"
-      << "  --app            Remove the dep from application objects.\n"
-      << "  --lib            Remove the dep from library objects.\n"
-      << "  --test           Remove the dep from test objects.\n"
-      << "  --name=OBJ_NAME  Remove the dep from object OBJ_NAME.\n"
-      << '\n'
-      << " The `project.yaml` object is updated to add a new dependency.\n"
-      << '\n'
-      << " If DEP_NAME is absent, the user is prompted.\n"
-      << '\n';
-   */
-
    std::filesystem::path path;
    std::string dep_name;
    std::string obj_name;
@@ -105,6 +82,9 @@ int main(int argc, char** argv) {
    bool rm_lib = false;
    bool rm_test = false;
    bool interactive=false;
+
+
+   // Setup CLI.
 
    CLI::App cli(brief_str,exe_name);
 
@@ -126,15 +106,9 @@ int main(int argc, char** argv) {
    CLI11_PARSE(cli,argc,argv);
 
 
-   // Get the path to the project.
-   if (!antler::project::project::update_path(path))
-      return cli.exit( CLI::Error("path","path either did not exist or no `project.yaml` file could be found.") );
+   // load project or exit.
+   auto proj = load_project_or_exit(cli,path);
 
-   // Load the project.
-   auto optional_proj = antler::project::project::parse(path);
-   if (!optional_proj)
-      return cli.exit( CLI::Error("path", "Failed to load project file.") );
-   auto proj = optional_proj.value();
 
    // Get all the objects and their names.
    const auto all_objs = proj.all_objects();
@@ -184,11 +158,13 @@ int main(int argc, char** argv) {
       for (;;) {
 
          if (temp0.empty()) {
+            // This block shows the user the available objects and provides a warning/error if this is the first pass.
             dump_obj_deps(all_objs, rm_app, rm_lib, rm_test);
             if (!first_time)
                std::cerr << "No objects with dependency " << dep_name << "\n\n";
          }
          else {
+            // This block provides the current values and queries the user regarding correctness.
             std::cout
                << '\n'
                << "Dependency name: " << dep_name << '\n';
@@ -209,17 +185,17 @@ int main(int argc, char** argv) {
          first_time = false;
 
          // dependency name
-         for (;;) {
-            get_name("dependency name", dep_name);
-            if (std::find(all_dep_names.begin(), all_dep_names.end(), dep_name) == all_dep_names.end()) {
+         {
+            auto validator = [&all_dep_names](std::string_view s) -> bool {
+               if (validate_name(s) && std::find(all_dep_names.begin(), all_dep_names.end(), s) != all_dep_names.end())
+                  return true;
                std::cerr << "Valid dependencies: \n";
                for (auto a : all_dep_names)
                   std::cout << "  " << a << '\n';
-               continue;
-            }
-            break;
+               return false;
+            };
+            get_valid_string("dependency name", dep_name, validator);
          }
-
          // object name
          get_name("object name", obj_name, true);
 
