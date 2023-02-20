@@ -3,7 +3,7 @@
 set( target_name antler-project )
 
 # Boost
-find_package( Boost REQUIRED CONFIG)
+find_package( Boost REQUIRED )
 
 # I know. But it's appropriate to glob for now.
 file(GLOB_RECURSE src_cpp ./src/*.cpp)
