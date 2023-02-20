@@ -24,6 +24,9 @@ int main(int argc, char** argv) {
    std::string opts;
    bool interactive=false;
 
+
+   // CLI set up.
+
    CLI::App cli(brief_str,exe_name);
 
    // Positional arguments:

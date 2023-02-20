@@ -42,8 +42,9 @@ int main(int argc, char** argv) {
    CLI11_PARSE(cli,argc,argv);
 
 
-   // Get the path to the project or exit.
-   auto proj = load_project_or_exit(cli,path);
+   // Load the project or exit.
+   auto proj = load_project_or_exit(cli, path);
+
 
    // Interactive mode?
    interactive |= (lang == antler::project::language::none);
