@@ -402,8 +402,320 @@ The same for cleaning and rebuilding:
 
 Call `dune --deploy ./projects/apps/addressbook/build/addressbook/ eosio`
 
+## Using of the Addressbook contract
+
 Then let's call the action from the deployed contract.
 
-Call `dune --send-action eosio addressbook upsert '["alice", "alice", "liddell", "123 drink me way", "wonderland", "amsterdam"]' alice@active`
+Call: `dune --send-action eosio addressbook upsert '["alice", "alice", "liddell", "123 drink me way", "wonderland", "amsterdam"]' alice@active`
 
+## Tic-Tac-Toe Application
+
+This is another example from EOS Tutorial described here: 
+https://docs.eosnetwork.com/docs/latest/tutorials/tic-tac-toe-game-smart-contract-single-node/
+This example shows how to work with the same data table from several accounts, therefore the only difference with the
+previous example of the Addressbook is adding of accounts of the game players. It means that we can use for
+start of this project the same template and put our implementation of the contract. 
+ 
+So, in order to add a new application to the  project let's call:
+
+`aproj add ./project --app --name tic-tac-toe --template database`
+
+This call creates an application's directory `tic-tac-toe` in the project's directory `apps`. 
+Now we have the following directory tree in the apps directory:
+
+```
+apps/
+└── hello
+    ...
+└── addressbook
+    ...
+└── tic-tac-toe
+    ├── build
+    ├── CMakeLists.txt
+    ├── include
+    │   └── tic-tac-toe.hpp
+    ├── README.txt
+    ├── ricardian
+    │   └── tic-tac-toe.contracts.md
+    └── src
+        ├── CMakeLists.txt
+        └── tic-tac-toe.cpp
+```
+
+Add an implementation of the contract to file `tic-tac-toe.hpp`
+
+```c++
+#include <eosio/eosio.hpp>
+
+
+// Use the [[eosio::contract(contract_name)]] attribute. Inherit from the base contract class. 
+class[[eosio::contract("tictactoe")]] tictactoe : public contract {
+public:
+    
+    // Introduce base class members. 
+    using contract::contract;
+    
+    // Use the base class constructor.
+    tictactoe(name receiver, name code, datastream<const char *> ds) : contract(receiver, code, ds) {}
+
+    // Declaration of actions of the contract
+    [[eosio::action]]
+    void create(const name &challenger, name &host);
+    
+    [[eosio::action]]
+    void restart(const name &challenger, const name &host, const name &by);
+
+    [[eosio::action]]
+    void close(const name &challenger, const name &host);
+    
+    [[eosio::action]]   
+    void move(const name &challenger, const name &host, const name &by, const uint16_t &row, const uint16_t &column);
+};
+
+// Declare game data structure.
+struct [[eosio::table]] game {
+    static constexpr uint16_t boardWidth = 3;
+    static constexpr uint16_t boardHeight = boardWidth;
+    
+    game() : board(boardWidth * boardHeight, 0){}
+
+    name challenger, host, turn; // = account name of host, challenger and turn to store whose turn it is.
+    name winner = none; // = none/ draw/ name of host/ name of challenger
+
+    std::vector<uint8_t> board;
+
+    // Initialize the board with empty cell
+    void initializeBoard() {
+        board.assign(boardWidth * boardHeight, 0);
+    }
+
+    // Reset game
+    void resetGame() {
+        initializeBoard();
+        turn = host;
+        winner = "none"_n;
+    }
+
+    // primary key accessor
+    auto primary_key() const { return challenger.value; }
+
+    // EOSLIB_SERIALIZE macro defining how the abi serializes / deserializes  
+    EOSLIB_SERIALIZE( game, (challenger)(host)(turn)(winner)(board))
+};
+
+// Define the game data structure using the multi-index table template.
+typedef eosio::multi_index<"games"_n, game> games;
+
+```
+
+And to file `tic-tac-toe.cpp`
+
+```c++
+#include "tic-tac-toe.hpp"
+
+using namespace eosio;
+
+void tictactoe::create(const name &challenger, name &host) {
+    require_auth(host);
+    check(challenger != host, "Challenger should not be the same as the host.");
+
+    // Check if game already exists
+    games existingHostGames(get_self(), host.value);
+    auto itr = existingHostGames.find(challenger.value);
+    check(itr == existingHostGames.end(), "Game already exists.");
+
+    existingHostGames.emplace(host, [&](auto &g) {
+        g.challenger = challenger;
+        g.host = host;
+        g.turn = host;
+    });
+}
+
+void tictactoe::restart(const name &challenger, const name &host, const name &by){
+    check(has_auth(by), "Only " + by.to_string() + "can restart the game.");
+
+    // Check if game exists
+    games existingHostGames(get_self(), host.value);
+    auto itr = existingHostGames.find(challenger.value);
+    check(itr != existingHostGames.end(), "Game does not exist.");
+
+    // Check if this game belongs to the action sender
+    check(by == itr->host || by == itr->challenger, "This is not your game.");
+
+    // Reset game
+    existingHostGames.modify(itr, itr->host, [](auto &g) {
+        g.resetGame();
+    });
+}
+
+void tictactoe::close(const name &challenger, const name &host){
+    check(has_auth(host), "Only the host can close the game.");
+
+    require_auth(host);
+
+    // Check if game exists
+    games existingHostGames(get_self(), host.value);
+    auto itr = existingHostGames.find(challenger.value);
+    check(itr != existingHostGames.end(), "Game does not exist.");
+
+    // Remove game
+    existingHostGames.erase(itr);
+}
+
+bool tictactoe::isEmptyCell(const uint8_t &cell) {
+    return cell == 0;
+}
+
+bool tictactoe::isValidMove(const uint16_t &row, const uint16_t &column, const std::vector<uint8_t> &board){
+    uint32_t movementLocation = row * game::boardWidth + column;
+    bool isValid = movementLocation < board.size() && isEmptyCell(board[movementLocation]);
+    return isValid;
+}
+
+name tictactoe::getWinner(const game &currentGame) {
+    auto &board = currentGame.board;
+
+    bool isBoardFull = true;
+
+    // Use bitwise AND operator to determine the consecutive values of each column, row and diagonal
+    // Since 3 == 0b11, 2 == 0b10, 1 = 0b01, 0 = 0b00
+    std::vector<uint32_t> consecutiveColumn(game::boardWidth, 3);
+    std::vector<uint32_t> consecutiveRow(game::boardHeight, 3);
+    uint32_t consecutiveDiagonalBackslash = 3;
+    uint32_t consecutiveDiagonalSlash = 3;
+
+    for (uint32_t i = 0; i < board.size(); i++)
+    {
+        isBoardFull &= isEmptyCell(board[i]);
+        uint16_t row = uint16_t(i / game::boardWidth);
+        uint16_t column = uint16_t(i % game::boardWidth);
+
+        // Calculate consecutive row and column value
+        consecutiveRow[column] = consecutiveRow[column] & board[i];
+        consecutiveColumn[row] = consecutiveColumn[row] & board[i];
+        // Calculate consecutive diagonal \ value
+        if (row == column)
+        {
+            consecutiveDiagonalBackslash = consecutiveDiagonalBackslash & board[i];
+        }
+        // Calculate consecutive diagonal / value
+        if (row + column == game::boardWidth - 1)
+        {
+            consecutiveDiagonalSlash = consecutiveDiagonalSlash & board[i];
+        }
+    }
+
+    // Inspect the value of all consecutive row, column, and diagonal and determine winner
+    std::vector<uint32_t> aggregate = {consecutiveDiagonalBackslash, consecutiveDiagonalSlash};
+    aggregate.insert(aggregate.end(), consecutiveColumn.begin(), consecutiveColumn.end());
+    aggregate.insert(aggregate.end(), consecutiveRow.begin(), consecutiveRow.end());
+
+    for (auto value : aggregate)
+    {
+        if (value == 1)
+        {
+            return currentGame.host;
+        }
+        else if (value == 2)
+        {
+            return currentGame.challenger;
+        }
+    }
+    // Draw if the board is full, otherwise the winner is not determined yet
+    return isBoardFull ? draw : none;
+}
+
+void tictactoe::move(const name &challenger, const name &host, const name &by, const uint16_t &row, const uint16_t &column){
+    check(has_auth(by), "The next move should be made by " + by.to_string());
+
+    // Check if game exists
+    games existingHostGames(get_self(), host.value);
+    auto itr = existingHostGames.find(challenger.value);
+    check(itr != existingHostGames.end(), "Game does not exist.");
+
+    // Check if this game hasn't ended yet
+    check(itr->winner == none, "The game has ended.");
+    
+    // Check if this game belongs to the action sender
+    check(by == itr->host || by == itr->challenger, "This is not your game.");
+    // Check if this is the  action sender's turn
+    check(by == itr->turn, "it's not your turn yet!");
+
+    // Check if user makes a valid movement
+    check(isValidMove(row, column, itr->board), "Not a valid movement.");
+
+    // Fill the cell, 1 for host, 2 for challenger
+    const uint8_t cellValue = itr->turn == itr->host ? 1 : 2;
+    const auto turn = itr->turn == itr->host ? itr->challenger : itr->host;
+    existingHostGames.modify(itr, itr->host, [&](auto &g) {
+        g.board[row * game::boardWidth + column] = cellValue;
+        g.turn = turn;
+        g.winner = getWinner(g);
+    });
+}
+```
+
+Describe actions of the contract in `tic-tac-toe.contracts.md` file:
+
+```html
+<h1 class="contract">create</h1>
+---
+spec-version: 0.0.1
+title: create
+summary: This action launches a new game and creates a new game board array. The host may use this command.
+icon:
+
+<h1 class="contract">restart</h1>
+---
+spec-version: 0.0.1
+title: restart
+summary: This action clears data from an existing game board array. The host or the challenger may use this command.
+icon:
+
+<h1 class="contract">close</h1>
+---
+spec-version: 0.0.1
+title: close
+summary: This action deletes and removes existing game data and frees up any storage the game uses. No game data persists. The host may use this command.
+icon:
+
+
+<h1 class="contract">move</h1>
+---
+spec-version: 0.0.1
+title: move
+summary: This action sets a marker on the gameboard and updates the game board array. The host or the challenger may use this command.
+icon:
+```
+#### Build Tic-Tac-Toe application
+
+Call `aproj build ./project --app --name tic-tac-toe` 
+
+#### Deploying of the Tic-Tac-Toe contract
+
+Call `dune --deploy ./projects/apps/tic-tac-toe/build/tic-tac-toe/ tictactoe@active`
+
+#### Play Tic-Tac-Toe game
+
+#### Create a Game
+
+`dune --send-action eosio tictactoe create '{"challenger":"challenger", "host":"host"}' host@active`
+
+#### Making Game Moves
+
+`dune --send-action eosio tictactoe move '{"challenger":"challenger", "host":"host", "by":"host", "row":0, "column":1}' host@active`
+
+#### Check Game Status
+
+`dune --get-table host tictactoe games`
+
+This call prints current state of the table `games`
+
+#### Restart the Game
+
+`dune --send-action eosio tictactoe restart '{"challenger":"challenger", "host":"host", "by":"host"}' host@active`
+
+##### Close the Game
+
+`dune --send-action eosio tictactoe close '{"challenger":"challenger", "host":"host"}' host@active`
 
