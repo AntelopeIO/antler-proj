@@ -48,7 +48,7 @@ int main(int argc, char** argv) {
 
    // Interactive mode?
    interactive |= (lang == antler::project::language::none);
-   while (interactive) {
+   for (const auto loop=interactive; loop;) {
       // Loop until the user says values are correct.
       // Only query for correct if all the info is updated.
       if (!name.empty() && lang != antler::project::language::none) {

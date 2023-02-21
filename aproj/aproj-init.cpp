@@ -74,7 +74,7 @@ int main(int argc, char** argv) {
 
    // Test for interactive mode.
    interactive |= cli_name.empty();
-   while (interactive) {
+   for (const auto loop=interactive; loop;) {
       // Loop until user is satisfied.
       if (!name.empty()) {
          // Resolve the path to the project root.

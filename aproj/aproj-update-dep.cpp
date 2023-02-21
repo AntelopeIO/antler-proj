@@ -57,7 +57,7 @@ int main(int argc, char** argv) {
    // Assuming interactive mode if dependency name was empty.
    interactive |= dep_name.empty();
    bool first_time = true;
-   while (interactive) {  // Interactive should be constant from here, this loop is exited via break.
+   for (const auto loop=interactive; loop;) {  // Interactive should be constant from here, this loop is exited via break.
 
       // Loop until user is satisfied.
       // Set initial values if this is the first time through AND if we have obj and dep name alone.

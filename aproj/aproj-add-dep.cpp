@@ -53,7 +53,7 @@ int main(int argc, char** argv) {
 
    // Done with CLI, evaluate interactive mode.  Assuming interactive mode if dependency name was empty.
    interactive |= dep_name.empty();       // interactive mode should be const from this point forward.
-   while (interactive) {
+   for (const auto loop=interactive; loop;) {
 
       if (!obj_name.empty() && !dep_name.empty() && antler::project::dependency::validate_location(dep_loc, dep_tag, dep_rel, dep_hash)) {
          // Get the object to operate on.

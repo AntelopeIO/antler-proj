@@ -45,7 +45,7 @@ int main(int argc, char** argv) {
 
    // Evaluate interactive mode.
    interactive |= cmd.empty();
-   while (interactive) {
+   for (const auto loop=interactive; loop;) {
       // Loop until the user says values are correct.
       // If name is populated, we can show the info so far. If it's not populated, then skip straight to the queries.
       if (!name.empty()) {
