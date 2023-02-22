@@ -2,6 +2,29 @@
 
 ##### For antler-proj Project Management System (AKA aproj) CLI
 
+### Table of contents
+
+[Prerequisites](#Prerequisites)
+
+[Understanding of templates](#Understanding-of-templates)
+
+[Hello World example](#Hello-World!)
+
+[Adding of a new application](#Adding-of-a-new-Application)
+
+[Building of a new application](#Building-of-a-new-Application)
+
+[Deploying of a contract](#Deploying-of-a-contract)
+
+[Using of a contract](#Using-of-a-contract)
+
+[Addressbook example](#Addressbook-example)
+
+[Tic-Tac-Toe example](#Tic-Tac-Toe-Application)
+
+[Creation of a custom template](#Creating-of-a-custom-template)
+
+
 In this guide we will learn how to use aproj to simplify and speedup of development of the contract projects. 
 If you want to learn abilities of aporj, it's commands, how it works and how it designed please read this document https://github.com/AntelopeIO/antler-proj/blob/main/docs/usecases.md
 
@@ -34,7 +57,7 @@ And here we have binaries of the smart contracts ready for deploying into the bl
 
 Lets say we have successfully installed EOS tools and the test network is already bootstrapped and ready for deploying of the user's contacts.
 
-## Understanding of the templates
+## Understanding of templates
 
 Aproj has a library of templates. They allows to make a stub of any kind of application and use it as a good base for a new project where the frequently used code is already implemented. You won't need to copy it from one project to another and manually edit names of files, classes and variables which are different in different projects.
 
@@ -113,6 +136,7 @@ and empty action:
 
 ```c++
 #include <eosio/eosio.hpp>
+#include "hello.hpp"
 
 using namespace eosio;
 
@@ -131,6 +155,7 @@ We may rename the action and add the printing of a message like in the example f
                                                                                                   
 ```c++
 #include <eosio/eosio.hpp>
+#include "hello.hpp"
 
 using namespace eosio;
 
@@ -147,7 +172,7 @@ class [[eosio::contract]] hello : public contract {
 
 Update the Ricardian file and describe there what your contact and it's action do.
 
-Here is how generated Ricardien file looks like:
+Here is how generated Ricardian file looks like:
 ```html
 <h1 class="contract">hello</h1>
 ---
@@ -199,13 +224,14 @@ It is easy to do with `DUNE`
 
 Call `dune --deploy ./projects/apps/hello/build/hello/ eosio`
 
+## Using of a contract
+
 Then let's call the action from the deployed contract.
 
 Call `dune --send-action eosio hello hi '["bob"]' bob@active`
 
-
-## Adding of a new Application
-#### Database example
+## Addressbook example
+#### Adding of a new Application
 
 Now let's make an example described in EOS Tutorial here: https://docs.eosnetwork.com/docs/latest/getting-started/smart-contract-development/data-persistence/
 This is the implementation of an address book which shows how to use persistent data tables for saving data.
@@ -718,4 +744,76 @@ This call prints current state of the table `games`
 ##### Close the Game
 
 `dune --send-action eosio tictactoe close '{"challenger":"challenger", "host":"host"}' host@active`
+
+## Creating of a custom template
+
+Template is a directory structure which contains all files needed for a project. 
+The only difference with a project directory structure is that all names inside of the files
+that dependent on name and type of the project are changed to macros. 
+
+When Antler-proj creates a new project from a template it copy the directory structure of 
+a chosen template to the project directory, rename files which contain the template name to the project name
+and run a macro processor for each of the template file. As you see it is easy to convert to a template
+any of your project.
+
+Let's see at the simplest template `"basic"`. All templates are placed in `~/.config/aproj/templates` directory
+
+Let's go there and find a directory with name `"basic"`. It has following structure:
+
+```
+templates/
+└── basic
+    ├── build
+    ├── CMakeLists.txt
+    ├── include
+    │   └── basic.hpp
+    ├── README.txt
+    ├── ricardian
+    │   └── basic.contracts.md
+    └── src
+        ├── CMakeLists.txt
+        └── basic.cpp
+```
+
+Look inside `basic.cpp` file:
+
+```c++
+#include <eosio/eosio.hpp>
+#include "PROJECT_NAME.hpp"
+
+using namespace eosio;
+
+class [[eosio::contract]] PROJECT_NAME : public contract {
+  public:
+      using contract::contract;
+
+      [[eosio::action]]
+      void my_action() {
+        // Write implementation of your action here 
+      }
+};
+```
+
+Here PROJECT_NAME is a macro which will be changed to an actual name of a project which user declare when 
+calls:
+ 
+`aproj add ./project --app --name hello --template basic`
+
+A project can't have the same name as a template. If the user calls:
+
+`aproj add ./project --app --name basic --template basic`
+
+He gets an error message:
+
+> "Name of your project is the same as a name of a template. Please choose another name."
+
+In process of creation of a new project after the call:
+ 
+`aproj add ./project --app --name hello --template basic`
+
+aproj will call a macro processor like:
+
+`cpp -DPROJECT_NAME=hello $(TEMPLATES_DIR)/basic.cpp -o $(PROJECT_DIR)/apps/hello/src/hello.cpp` 
+
+Other files use the same approach to generalize the project structure in a template.
 
