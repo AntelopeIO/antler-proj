@@ -5,7 +5,6 @@
 #include <string_view>
 #include <filesystem>
 #include <vector>
-#include <CLI11.hpp>
 
 #include <boost/algorithm/string.hpp>        // boost::split()
 #include <boost/dll/runtime_symbol_info.hpp> // boost::dll::program_location()
@@ -18,31 +17,84 @@
 
 namespace { // anonymous
 
+// The executable name as derived from argv[0] for display in --help command.
 std::string exe_name;
-const std::string original_tag="<original tag>";
+
+/// Structure to store contents of subcommands/flags
+struct app_entry {
+   std::vector<std::string> args; ///< flags to select this subcomand (e.g. {"-q", "--quiet"}).
+   std::filesystem::path path;    ///< path to the executable subcommand.
+   std::string arg_str;           ///< String representation of args (e.g. "-q, --quiet").
+   std::string brief;             ///< Brief description adequate for displaying what the subcommand does.
+};
+// Storage for subcommands.
+std::vector<app_entry> apps;
+
+
+/// Print usage information to std::cout and return 0 or, optionally - if err is not-empty() - print to std::cerr and return -1.
+/// @param err  An error string to print. If empty, print to std::cout and return 0; otherwise std::cerr and return -1.
+/// @return 0 if err.empty(); otherwise -1. This value is suitable for using at exit.
+int usage(std::string_view err = "") {
+
+   constexpr std::string_view help_arg{ "--help" };
+
+   // Determine how wide the flags "column" should be.
+   size_t width = help_arg.size();
+   for (const auto& a : apps) {
+      width = std::max(width, a.arg_str.size());
+   }
+   width += 3;
+
+   // Sort the subcommands based on flag value.
+   std::sort(apps.begin(), apps.end(), [](const app_entry& l, const app_entry& r) { return l.arg_str < r.arg_str; });
+
+   // Determine target ostream.
+   std::ostream& os = (err.empty() ? std::cout : std::cerr);
+
+   os << exe_name << ": COMMAND [options]\n"
+      << "\n"
+      << " Commands:\n";
+
+   // Print the flags followed by brief for each subcommand.
+   for (const auto& a : apps) {
+      // Make sure to pad for a nice column.
+      std::string pad(width - a.arg_str.size(), ' ');
+      os << "  " << a.arg_str << pad << a.brief << '\n';
+   }
+
+   // add --help arg:
+   {
+      std::string pad(width - help_arg.size(), ' ');
+      os << "  " << help_arg << pad << "Show this help and exit.\n";
+   }
+
+   os << '\n'
+      << " Options vary by command and may be viewed with <command> --help.\n";
+
+   // Return success(0) or print the error and return failure(-1).
+   if (err.empty())
+      return 0;
+   os << "Error: " << err << "\n";
+   return -1;
+}
+
 
 /// Helper function to limit boilerplate cut and paste when calling subcommands.
 /// This function calls a subcommand and passes a string for use in the subcommands `usage()` function.
 /// @param exe  The path for the subcommand.
+/// @param begin  Iterator to the beginning of a list of arguments that will be passed.
+/// @param end  Iterator to the end of a list of arguments that will be passed.
 /// @param cmd  The flag/command used to indicate which exe to call.
-/// @param args  The arguments to pass
 /// @return The result of calling exe with the given arguments.
-[[nodiscard]] int exec_helper(std::filesystem::path exe, std::string cmd, std::vector<std::string>& args) {
+template<typename iterator_type>
+int exec_helper(std::filesystem::path exe, iterator_type begin, iterator_type end, std::string_view cmd) {
 
-   // If we overwrote the tag, we need to get it back. It will be the 1st (zero-ith) item in args.
-   if(!args.empty() && args[0].starts_with(original_tag)) {
-      // Copy the original arg into cmd and erase it from the vector.
-      cmd=args[0].substr(original_tag.size());
-      args.erase(args.begin());
-   }
-
-   // Create a string of the arguments.
    std::stringstream ss;
    ss << exe;
    // Pass all the arguments.
-   for (const auto& a : args)
-      ss << " " << a;
-   // Subcommands need to know how they were called. We pass this as the indirect argument. Build it here.
+   for (auto i = begin; i < end; ++i)
+      ss << " " << *i;
+   // Add the string for use in the subcomand's usage() function.
    ss << " --indirect=\"" << exe_name << ' ' << cmd << '"';
 
    // Call the subcommand.
@@ -54,86 +106,78 @@ const std::string original_tag="<original tag>";
 
 int main(int argc, char** argv) {
 
-   int rv = 0;
-
-   // Figure out various paths.
-   exe_name = std::filesystem::path(argv[0]).filename().string();
    const std::filesystem::path bin_path = boost::dll::program_location().parent_path().string();  // This could throw.
+   const std::filesystem::path project_path = std::filesystem::current_path();
 
-   // Massage argv.
-   //   Because we want to allow for "aproj add app <options>" to equal "aproj --add-app <options>" we need to rewrite argv. In
-   //   order to do this we need a way to store the new strings. We are going to do that here.
-   std::vector<std::string> string_store;  // Holds strings for us, but musn't be resized!
-   string_store.reserve(argc);             // Reserve to ensure resize is avoided.
-   // Iterate over the args. Sample conversion {"add", "app"} into {"--add-app", "<original tag>add app"}.
-   for(int i=1; i < (argc-1); ++i) {
-      std::string orig_arg = argv[i];
-      if(orig_arg == "add" || orig_arg == "rm") {
-         // Convert `argv[i] argv[i+1]` into `--argv[i]-argv[i+1]` and store at argv[i].
-         string_store.emplace_back(std::string("--") + orig_arg + "-" + argv[i+1]);
-         argv[i] = string_store.back().data();
-         // Store original args in argv[i+1] with a unique tag: "<original tag> argv[i] argv[i+1]".
-         string_store.emplace_back(original_tag + orig_arg + " " + argv[i+1]);
-         argv[i+1] = string_store.back().data();
-         ++i; // Skip over argv[i+1]. This is an optimization.
-      }
-   }
-
-
-   // This is a workaround for dynamically building the CLI parser. Options expect a vector, so we need a place to store
-   // them. Since we will take the address of the vector in a lambda, we musn't allow the vector to be resized.
-   std::vector<std::vector<std::string>> parsed_options; // Musn't be resized!
-   parsed_options.reserve(argc);                         // Reserve to ensure resize is avoided.
-
-
-   // Using CLI11 for command line parsing.
-   CLI::App cli("antler-proj",exe_name);
-
-   // Get all the collocated sub commands. Search only in this executable's directory.
+   // Update globals - these are for the usage() function and in the arg list decoder.
+   exe_name = std::filesystem::path(argv[0]).filename().string();
+   // Get the sub commands.
    for (auto const& entry : std::filesystem::directory_iterator{ bin_path }) {
-      // If the path does not start with our prefix, then skip it.
       const auto& path = entry.path();
       if (!path.stem().string().starts_with(project_prefix))
          continue;
-      // Call the command (with `--brief`) to capture its brief help info.
+      // Get the brief description from the subcommand:
       auto result = antler::system::exec(path.string() + " --brief");
-      if (!result) {            // Warn if an executable isn't reporting brief info.
-         std::cerr << "Warning: Failed to get brief help for " << path << '\n';
-      }
-      else {
-         // Parse out the command flag and its brief description. The separtion is a single space.
+      if (!result) {
+         std::cerr << "failed for " << path << '\n';
+      } else {
          auto spc = result.output.find_first_of(' ');
          if (spc != std::string::npos) {
-            try {
-               // Brief description must be "<cmd> <brief text>" cmd must be a valid CLI11::App::add_subcomand() command string.
-               // Note: add_subcommand() is patched to allow the command to begin with `-`.
-               std::string cmd = result.output.substr(0, spc);
-               auto brief = result.output.substr(spc + 1);
-               auto sc = cli.add_subcommand(cmd,brief,true);
-               // Store a vector for collecting the option strings.
-               parsed_options.emplace_back(std::vector<std::string>{});
-               auto& v = parsed_options.back();
-               // Add the "options" option with vector storage and "options" description.
-               sc->add_option("options", v, "options");
-               // Set the callback. It takes the executable path of the subcommand, the cmd itself, the options vector, and the return value.
-               sc->final_callback(
-                                  [path,cmd,&v,&rv](){
-                                     int temp = exec_helper(path, cmd, v);
-                                     if (temp != 0)
-                                        rv = temp;
-                                  }
-                                  );
-            }
-            catch(std::runtime_error& e) {
-               // Report an error if there was a problem adding the subcommand.
-               std::cerr << "Error: Cant add " << path << " with brief \"" << result.output << "\", error: " << e.what() << '\n';
-            }
+            // Build an app entry from the path and results of capturing the brief output.
+            app_entry ae;
+            ae.path = path;
+            ae.arg_str = result.output.substr(0, spc);
+            boost::split(ae.args, ae.arg_str, boost::is_any_of(","));
+            ae.brief = result.output.substr(spc + 1);
+            while (ae.brief.back() == '\n')
+               ae.brief.pop_back();
+            apps.push_back(ae);
          }
       }
    }
 
-   // Parse the args. This will result in calling the subcommand executables.
-   CLI11_PARSE(cli,argc,argv);
+   if (argc < 2)
+      return usage();
 
-   return rv;
+   std::vector<std::string_view> args;
+   for (int i = 1; i < argc; ++i)
+      args.push_back(argv[i]);
+
+   // The following would be improved if CLI11 would allow arbitrary flags.
+
+   for (auto i = args.begin(); i != args.end(); ++i) {
+
+      if (*i == "help" || *i == "--help")
+         return usage();
+
+      // look for "--<subcommand>"
+      for (const auto& a : apps) {
+         for (const auto& test_arg : a.args) {
+            if (*i == test_arg || (std::string{ "--" } + std::string(*i) == test_arg))
+               return exec_helper(a.path, ++i, args.end(), *i);
+         }
+      }
+
+      // Behave more like git, apt, ninja and other tools for 'add' command.
+      if (*i == "add") {
+         if (++i == args.end())
+            return usage("`add` requires sub command (e.g. `add lib`).");
+         std::string cmd{ "--add-" };
+         cmd += *i;
+
+         std::string real_cmd{ "add " };
+         real_cmd += *i;
+
+         for (const auto& a : apps) {
+            for (const auto& test_arg : a.args) {
+               if (cmd == test_arg)
+                  return exec_helper(a.path, ++i, args.end(), real_cmd);
+            }
+         }
+      }
+
+      return usage(std::string("Bad argument: ") + std::string(*i));
+   }
+
+   return usage("No command supplied.");
 }
