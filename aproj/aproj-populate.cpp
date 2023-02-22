@@ -11,14 +11,13 @@
 
 int main(int argc, char** argv) {
 
-   common_init(argc,argv,"Populate the project with Build files and dependencies.");
-
    std::filesystem::path path;
 
 
    // CLI setup
 
-   CLI::App cli(brief_str,exe_name);
+   CLI::App cli{};
+   common_init(cli, argv[0], "Populate the project with Build files and dependencies.");
 
    // Positional arguments:
    cli.add_option("path", path, "This must be the path to `project.yaml` or the path containing it.")->required();

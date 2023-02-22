@@ -12,8 +12,6 @@
 
 int main(int argc, char** argv) {
 
-   common_init(argc,argv,"Initialize a new projet creating the directory tree and a `project.yaml` file.");
-
    std::filesystem::path cli_path;
    std::string cli_name;
    antler::project::version ver("0.0.0");
@@ -22,12 +20,16 @@ int main(int argc, char** argv) {
 
    // CLI setup
 
-   // Description needs a bit more infor than brief string contains.
+   // Description needs a bit more info than our standard brief string contains; still, we cannot break brief_str.
+   const std::string brief_str = "Initialize a new projet creating the directory tree and a `project.yaml` file.";
+
+   CLI::App cli{};
+   common_init(cli, argv[0], brief_str);
+
    const std::string desc=brief_str + "\n"
       + "`project.yaml` is created in PATH if PATH is an empty directory AND the filename matches PROJECT_NAME;\n"
       + "otherwise, a directory matching PROJECT_NAME is created at PATH to contain `project.yaml`.\n";
-
-   CLI::App cli(desc,exe_name);
+   cli.description(desc);
 
    // Positional arguments:
    cli.add_option("path", cli_path, "This is the root path to create the project in.")->required();

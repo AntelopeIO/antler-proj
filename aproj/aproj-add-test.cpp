@@ -16,8 +16,6 @@
 
 int main(int argc, char** argv) {
 
-   common_init(argc,argv,"Add a test entry.");
-
    std::filesystem::path path;
    std::string name;
    std::string cmd;
@@ -25,7 +23,8 @@ int main(int argc, char** argv) {
 
    // Set up CLI.
 
-   CLI::App cli(brief_str,exe_name);
+   CLI::App cli{};
+   common_init(cli, argv[0], "Add a test entry.");
 
    // Positional arguments:
    cli.add_option("path", path, "This must be the path to `project.yaml` or the path containing it.")->required();

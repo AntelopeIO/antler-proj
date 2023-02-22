@@ -10,15 +10,14 @@
 
 int main(int argc, char** argv) {
 
-   common_init(argc,argv,"Attempt to load a project.yaml file. This is the default command.");
-
    std::filesystem::path path;
    bool quiet = false;
 
 
    // Setup CLI.
 
-   CLI::App cli(brief_str,exe_name);
+   CLI::App cli{};
+   common_init(cli, argv[0], "Attempt to load a project.yaml file. This is the default command.");
 
    // Positional arguments:
    cli.add_option("path", path, "This must be the path to `project.yaml` or the path containing it.")->required();

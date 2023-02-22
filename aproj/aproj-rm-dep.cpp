@@ -72,8 +72,6 @@ antler::project::object::list_t populate_update_list(
 
 int main(int argc, char** argv) {
 
-   common_init(argc,argv,"Remove a dependency.");
-
    std::filesystem::path path;
    std::string dep_name;
    std::string obj_name;
@@ -86,7 +84,8 @@ int main(int argc, char** argv) {
 
    // Setup CLI.
 
-   CLI::App cli(brief_str,exe_name);
+   CLI::App cli{};
+   common_init(cli, argv[0], "Remove a dependency.");
 
    // Positional arguments:
    cli.add_option("path", path, "This must be the path to `project.yaml` or the path containing it.")->required();

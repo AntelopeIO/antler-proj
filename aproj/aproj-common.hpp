@@ -8,22 +8,20 @@
 #include <cctype>               // std::isxdigit()
 #include <cstdlib>              // std::exit()
 
+#include <CLI11.hpp>
+
 #include <antler/project/dependency.hpp>
 #include <antler/project/object.hpp>
 
 #include <aproj-prefix.hpp>
 
 
-// Global declarations.
-std::string exe_name;
-std::string brief_str;
-
 
 /// Load project or exit function.
 /// @param cli  The CLI app to call exit from if things go poorly.
 /// @param path  Path to the project root or project file.
 /// @return The loaded project.
-antler::project::project load_project_or_exit(CLI::App& cli, std::filesystem::path& path) {
+antler::project::project load_project_or_exit(CLI::App& cli, std::filesystem::path& path) noexcept {
 
    // Get the path to the project.
    if (!antler::project::project::update_path(path))
@@ -37,55 +35,55 @@ antler::project::project load_project_or_exit(CLI::App& cli, std::filesystem::pa
 }
 
 
+/// Common init function for subcommands.
+/// This function sets up expected values and prints the brief string if it was command to.
+/// @param argv0  argv[0] for this executable.
+/// @param brief_in v alue to store as brief string.
+/// @throw std::runtime_error is thrown if cli already has `--indirect` or `--brief` flags.
+inline void common_init(CLI::App& cli, std::string_view argv0, const std::string& brief_in) {
 
-/// Convert an exe_name into a subcommand and print. Example aproj-init <brief> become "--init <brief>".
-/// @param exe_name  The executable name to convert to subcommand.
-/// @param brief  The brief description of the subcommand.
-inline void print_brief(std::string& exe_name_in, std::string_view brief_text) {
-   exe_name_in.erase(0, project_prefix.size());
-   std::cout << "--" << exe_name_in << ' ' << brief_text << '\n';
+   // set brief string
+   std::string brief_str = brief_in;
+   // set exe name for usage
+   std::string exe_name = std::filesystem::path(argv0).filename().string();
+
+   cli.description(brief_in);
+   cli.name(exe_name);
+
+   // Add hidden flags.
+
+   // Indirect option
+   auto indirect_option = cli.add_option_function<std::string>("--indirect", [&cli](const std::string& s) { cli.name(s); } );
+   indirect_option->group(""); // Hide from help.
+
+   // Brief flag. This flag dumps brief output for `aproj` to consume for it's help.
+   auto brief_flag = cli.add_flag_callback("--brief", [exe_name,brief_str](){
+      // Test to see if exe can be convert to a subcommand, report an error if not.
+      if (!exe_name.starts_with(project_prefix)) {
+         std::cerr << "Can't provide --brief for" << exe_name << '\n';
+         std::exit( -1 );
+      }
+      // Convert exe to subcommand.
+      auto exe_as_subcmd = exe_name;
+      exe_as_subcmd.erase(0, project_prefix.size());
+      std::cout << "--" << exe_as_subcmd << ' ' << brief_str << '\n';
+      std::exit(0);
+   });
+   brief_flag->group(""); // Hide from help.
+
 }
 
 
-/// Common init function for subcommands.
-/// This function sets up expected values and prints the brief string if it was command to.
-/// @param argc argc
-/// @param argv argv
-/// @param brief_in value to store as brief string.
-inline void common_init(int& argc, char** argv, std::string_view brief_in) {
-   // set brief string
-   brief_str = brief_in;
-   // set exe name for usage
-   exe_name = std::filesystem::path(argv[0]).filename().string();
-   // search for indirect string
-   if (argc > 0) {
-      constexpr std::string_view indirect_str{ "--indirect=" };
-      if (std::string_view(argv[argc - 1]).starts_with(indirect_str)) {
-         exe_name = std::string_view(argv[argc - 1]).substr(indirect_str.size());
-         --argc;
-      }
-   }
-   // search for brief flag.
-   for (int i = 0; i < argc; ++i) {
-      if (std::string_view(argv[i]) == "--brief") {
-         if (!exe_name.starts_with(project_prefix)) {
-            std::cerr << "Can't provide --brief for" << argv[0] << '\n';
-            std::exit( -1 );
-         }
-         print_brief(exe_name, brief_str);
-         std::exit(0);
-      }
-   }
-} // COMMON_INIT
-
-
 /// Print object dependencies to a stream.
+/// @tparam T  The list type. Nominally this is std::vector<antler::project::object>, but could be boost::container::devector<>.
 /// @param obj_list  The list of objects to interate over.
 /// @param app  Set to true to print dependencies from objects of type app, otherwise they are skipped.
 /// @param lib  Set to true to print dependencies from objects of type lib, otherwise they are skipped.
 /// @param tst  Set to true to print dependencies from objects of type tst, otherwise they are skipped.
 template<typename T>
 inline void dump_obj_deps(const T& obj_list, bool app, bool lib, bool tst, std::ostream& os = std::cout) {
+
+   // Print the types we are reporting.
    os << "Displaying dependencies from entries of type:";
    if (app)
       os << " app";
@@ -95,32 +93,32 @@ inline void dump_obj_deps(const T& obj_list, bool app, bool lib, bool tst, std::
       os << " test";
    os << "\n";
 
+   // Then iterate over the elements
    for (const auto& a : obj_list) {
+      // Get each object's dependencies.
       const auto& list = a.dependencies();
+      // Go to the next object if either the list is empty or the object type is not one intended for printing.
       if (list.empty())
          continue;
       switch (a.type()) {
          case antler::project::object::type_t::app:
-            if (!app) {
+            if (!app)
                continue;
-            }
             break;
          case antler::project::object::type_t::lib:
-            if (!lib) {
+            if (!lib)
                continue;
-            }
             break;
          case antler::project::object::type_t::test:
-            if (!tst) {
+            if (!tst)
                continue;
-            }
             break;
          case antler::project::object::type_t::none:
          case antler::project::object::type_t::any:
             std::cerr << "Unexpected type: " << a.type() << " in object: " << a.name() << "\n";
             continue;
       }
-
+      // Print the deps.
       auto i = list.begin();
       os << "  " << a.name() << " [" << a.type() << "]: " << i->name();
       for (++i; i != list.end(); ++i)
@@ -131,6 +129,7 @@ inline void dump_obj_deps(const T& obj_list, bool app, bool lib, bool tst, std::
 
 
 /// Print object dependencies to a stream.
+/// @tparam T  The list type. Nominally this is std::vector<antler::project::object>, but could be boost::container::devector<>.
 /// @param obj_list  The list of objects to interate over.
 template<typename T>
 inline void dump_obj_deps(const T& obj_list, std::ostream& os = std::cout) {
@@ -138,10 +137,10 @@ inline void dump_obj_deps(const T& obj_list, std::ostream& os = std::cout) {
 }
 
 
-/// Ask the user if this is correct.
+/// Ask the user "Is this is correct?" and report the result.
 /// @param msg  The message to print.
 /// @return  The result of the query: true indicates yes, correct; false indicates no, incorrect.
-inline bool is_this_correct(std::string_view msg = "Is this correct?") noexcept {
+[[nodiscard]] inline bool is_this_correct(std::string_view msg = "Is this correct?") noexcept {
    std::string yn = "x"; // yes or no?
    while (yn != "y" && yn != "n") {
       std::cout << msg << " [Y/n]" << std::flush;
@@ -155,11 +154,10 @@ inline bool is_this_correct(std::string_view msg = "Is this correct?") noexcept 
 }
 
 
-
 /// Test to see if an object (app/lib/test) name is valid.
 /// @param s  An object name.
 /// @return true indicates s was valid; false otherwise.
-inline bool validate_name(std::string_view s) noexcept {
+[[nodiscard]] inline bool validate_name(std::string_view s) noexcept {
    if (s.empty())
       return false;
    for (auto a : s) {

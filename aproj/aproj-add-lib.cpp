@@ -16,8 +16,6 @@
 
 int main(int argc, char** argv) {
 
-   common_init(argc,argv,"Add a library entry to the project.");
-
    std::filesystem::path path;
    std::string name;
    antler::project::language lang = antler::project::language::none;
@@ -27,7 +25,8 @@ int main(int argc, char** argv) {
 
    // CLI set up.
 
-   CLI::App cli(brief_str,exe_name);
+   CLI::App cli{};
+   common_init(cli, argv[0], "Add a library entry to the project.");
 
    // Positional arguments:
    cli.add_option("path", path, "This must be the path to `project.yaml` or the path containing it.")->required();
