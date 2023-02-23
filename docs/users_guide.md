@@ -8,7 +8,7 @@
 
 [Understanding of templates](#Understanding-of-templates)
 
-[Hello World example](#Hello-World!)
+[Hello World example](#Hello-World-example)
 
 [Adding of a new application](#Adding-of-a-new-Application)
 
@@ -71,7 +71,7 @@ The library of templates is organized very simple. It is a set of directories. E
 
 Later in this guide we will learn this processes more details and create a new template from an existing template.
 
-## Hello World!
+## Hello World example
 
 Let's see how to create and manage a project in aproj on the example of smart contract Hello World, described in EOS Tutorial here https://docs.eosnetwork.com/docs/latest/getting-started/smart-contract-development/hello-world/
 
