@@ -10,7 +10,7 @@
 
 [Hello World example](#Hello-World-example)
 
-[Adding of a new application](#Adding-of-a-new-Application)
+[Adding of a new application](#Adding-of-a-new-application)
 
 [Building of a new application](#Building-of-a-new-Application)
 
@@ -20,7 +20,7 @@
 
 [Addressbook example](#Addressbook-example)
 
-[Tic-Tac-Toe example](#Tic-Tac-Toe-Application)
+[Tic-Tac-Toe example](#Tic-Tac-Toe-example)
 
 [Creation of a custom template](#Creating-of-a-custom-template)
 
@@ -107,7 +107,9 @@ directories where will be created applications, programming libraries and test f
 libraries.
 
 
-## Adding of a new Application
+## Adding of a new application
+
+
 #### Hello example
 
 In order to add a new application we should call the following command:
@@ -434,7 +436,8 @@ Then let's call the action from the deployed contract.
 
 Call: `dune --send-action eosio addressbook upsert '["alice", "alice", "liddell", "123 drink me way", "wonderland", "amsterdam"]' alice@active`
 
-## Tic-Tac-Toe Application
+
+## Tic Tac Toe example
 
 This is another example from EOS Tutorial described here: 
 https://docs.eosnetwork.com/docs/latest/tutorials/tic-tac-toe-game-smart-contract-single-node/
