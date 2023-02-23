@@ -10,13 +10,13 @@
 
 [Hello World example](#Hello-World-example)
 
-[Adding of a new application](#Adding-of-a-new-application)
+- [Adding of a new application](#Adding-of-a-new-application)
 
-[Building of a new application](#Building-of-a-new-Application)
+- [Building of a new application](#Building-of-a-new-application)
 
-[Deploying of a contract](#Deploying-of-a-contract)
+- [Deploying of a contract](#Deploying-of-a-contract)
 
-[Using of a contract](#Using-of-a-contract)
+- [Using of a contract](#Using-of-a-contract)
 
 [Addressbook example](#Addressbook-example)
 
@@ -197,7 +197,7 @@ caller in the command line.
 icon:
 ```
 
-## Building of a new Application
+## Building of a new application
 
 It time to build our app.
 
@@ -217,7 +217,6 @@ or
 `aproj clean ./project --app --name hello && aproj build ./project --app --name hello`
 
 for the application `hello` only
-
 
 ## Deploying of a contract
 
