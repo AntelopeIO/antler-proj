@@ -1,6 +1,6 @@
 # User's guide
 
-##### For antler-proj Project Management System (AKA aproj) CLI
+#### For antler-proj Project Management System (AKA aproj) CLI
 
 ### Table of contents
 
