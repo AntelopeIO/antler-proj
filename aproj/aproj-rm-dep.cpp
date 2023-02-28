@@ -10,22 +10,7 @@
 
 #include <aproj-common.hpp>
 
-
-template<typename T>
-std::string to_string(T list) {
-   auto pos = list.begin();
-   auto end = list.end();
-   std::ostringstream ss;
-   ss << "{ ";
-   if (pos != end) {
-      ss << *pos;
-      for (++pos; pos != end; ++pos)
-         ss << ", " << *pos;
-   }
-   ss << " }";
-   return ss.str();
-}
-
+namespace {
 
 antler::project::object::list_t populate_update_list(
    const antler::project::object::list_t& src, ///< The list of objects.
@@ -68,6 +53,8 @@ antler::project::object::list_t populate_update_list(
 
    return rv;
 }
+
+} // anonymous namespace
 
 
 int main(int argc, char** argv) {
