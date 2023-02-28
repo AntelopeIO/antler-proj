@@ -74,7 +74,9 @@ int main(int argc, char** argv) {
 
 
    // Sanity check and apply.
-   if (!name.empty() && proj.object_exists(name, antler::project::object::type_t::app))
+   if (name.empty())
+      return cli.exit( CLI::Error("name", "app_name is invalid.") );
+   if (proj.object_exists(name, antler::project::object::type_t::app))
       return cli.exit( CLI::Error("name", "app_name already exists in project.") );
    if (lang == antler::project::language::none)
       return cli.exit( CLI::Error("name", "invalid language.") );

@@ -78,7 +78,9 @@ int main(int argc, char** argv) {
 
 
    // Sanity check and apply.
-   if (!name.empty() && proj.object_exists(name, antler::project::object::type_t::test)) {
+   if (name.empty())
+      return cli.exit( CLI::Error("name", "test_name is invalid.") );
+   if (proj.object_exists(name, antler::project::object::type_t::test)) {
       return cli.exit( CLI::Error("name", "test_name already exists in project.") );
    }
 
