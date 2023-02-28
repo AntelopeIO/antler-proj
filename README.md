@@ -20,9 +20,6 @@ The following tools are required for aproj to work at runtime:
 to [authenticate](https://cli.github.com/manual/) before this will
 work.
 
-### Ubuntu 20
-
-Compiling
 
 ## Build Dependencies
 
