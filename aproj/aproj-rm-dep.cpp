@@ -139,9 +139,12 @@ int main(int argc, char** argv) {
    else {
       // Get input from the user.
       bool first_time = true;
-      antler::project::object::list_t temp0 = populate_update_list(all_objs, dep_name, obj_name, rm_app, rm_lib, rm_test);
+      antler::project::object::list_t temp0;
       // Loop until the user is happy with the update.
       for (;;) {
+
+         // Update the temporary removal list.
+         temp0 = populate_update_list(all_objs, dep_name, obj_name, rm_app, rm_lib, rm_test);
 
          if (temp0.empty()) {
             // This block shows the user the available objects and provides a warning/error if this is the first pass.
@@ -184,9 +187,6 @@ int main(int argc, char** argv) {
          }
          // object name
          get_name("object name", obj_name, true);
-
-         // Update the temporary removal list.
-         temp0 = populate_update_list(all_objs, dep_name, obj_name, rm_app, rm_lib, rm_test);
       }
    }
 
