@@ -19,7 +19,7 @@ function(add_aproj target_name files)
   set_property(TARGET ${target_name} PROPERTY CXX_STANDARD 20)
   target_link_libraries(${target_name} PUBLIC antler-project ${extra_libs})
   target_include_directories(${target_name} PRIVATE . )
-  target_include_directories(${target_name} SYSTEM PRIVATE ../3p_include )
+  target_include_directories(${target_name} SYSTEM PRIVATE ../external/include )
   install(FILES $<TARGET_FILE:${target_name}> COMPONENT Runtime DESTINATION .)
 endfunction()
 

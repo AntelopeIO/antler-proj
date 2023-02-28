@@ -19,7 +19,7 @@ target_include_directories(${target_name} PRIVATE
   src
 )
 target_include_directories(${target_name} SYSTEM PRIVATE
-  ../3p_include
+  ../external/include
 )
 target_include_directories(${target_name} PUBLIC
   .
