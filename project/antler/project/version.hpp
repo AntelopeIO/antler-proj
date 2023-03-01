@@ -80,4 +80,3 @@ private:
 
 
 inline std::ostream& operator<<(std::ostream& os, const antler::project::version& o) { os << o.raw(); return os; }
-//std::istream& operator>>(std::istream& is, antler::project::object::version& e);
