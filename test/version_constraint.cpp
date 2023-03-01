@@ -55,24 +55,6 @@ void test_version() {
 }
 
 
-
-/*
-struct constraint_entry {
-   version v;
-   contstraint c;
-   bool e;                      // expectation: constraint wor
-   //expectation e;
-};
-
-
-
-std::vector<std::string> versions {
-   { "1.0rc1", ">=1.0.0", false
-
-
-*/
-
-
 int main(int, char**) {
 
    test_version();
