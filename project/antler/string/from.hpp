@@ -29,7 +29,7 @@ template<typename T>
 [[nodiscard]] inline bool from(std::string_view s, T& rv) noexcept {
    T n=0;
    auto result = std::from_chars(s.begin(), s.end(), n);
-   if(result.ptr != s.end())
+   if(result.ptr != s.end() || unsigned(result.ec) )
       return false;
    rv = n;
    return true;
