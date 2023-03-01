@@ -16,8 +16,6 @@ std::string_view to_string_view(word e) {
 }
 
 
-// template<typename STRING_TYPE>
-// word to_word(STRING_TYPE s) {
 word to_word(std::string_view s) {
    // Try string as is.
    auto opt = magic_enum::enum_cast<word>(s);
