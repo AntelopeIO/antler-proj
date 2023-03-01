@@ -12,16 +12,6 @@ namespace antler::project {
 
 //--- constructors/destrructor ------------------------------------------------------------------------------------------
 
-/*
-project::project(const char* filename) {
-   parse(filename);
-}
-
-
-project::project(const std::filesystem::path& filename) {
-   parse(filename);
-}
-*/
 
 //--- alphabetic --------------------------------------------------------------------------------------------------------
 
@@ -191,7 +181,7 @@ bool project::sync(std::ostream& es) noexcept {
 
       // Open the file.
 
-      std::ofstream out(m_path / project::manifest_name);
+      std::ofstream out(m_path);
       if (!out.is_open()) {
          es << "Problem opening " << m_path << "\n";
          return false;

@@ -2,8 +2,11 @@
 
 set( target_name antler-project )
 
+include(FindPkgConfig)
+
 # Boost
 find_package( Boost REQUIRED )
+pkg_check_modules( CURL libcurl REQUIRED )
 
 # I know. But it's appropriate to glob for now.
 file(GLOB_RECURSE src_cpp ./src/*.cpp)
@@ -27,6 +30,10 @@ target_include_directories(${target_name} SYSTEM PRIVATE
 target_include_directories(${target_name} PUBLIC
   .
   ${CMAKE_CURRENT_BINARY_DIR}
+  ${CURL_INCLUDE_DIRS}
+)
+target_link_libraries(${target_name} PUBLIC
+  ${CURL_LIBRARIES}
 )
 
 # Install commands

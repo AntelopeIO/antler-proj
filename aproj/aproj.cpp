@@ -6,6 +6,7 @@
 #include <filesystem>
 #include <vector>
 #include <optional>
+#include <tuple>
 
 #include <CLI11.hpp>
 
@@ -17,7 +18,31 @@
 
 #include <aproj-prefix.hpp>
 
+#include "add_to.hpp"
 #include "init.hpp"
+
+template <typename... Ts>
+struct run_on {
+   run_on(CLI::App& app)
+      : tup(Ts{app}...) {
+      }
+
+   template <std::size_t I=0>
+   constexpr inline int exec() {
+      if constexpr (I == sizeof...(Ts)) {
+         return -1;
+      } else {
+         auto& v = std::get<I>(tup);
+         if (*v.subcommand) {
+            return v.exec();
+         } else {
+            return exec<I+1>();
+         }
+      }
+
+   }
+   std::tuple<Ts...> tup;
+};
 
 int main(int argc, char** argv) {
    // using this as we will alias antler-proj to cdt-proj for the 
@@ -25,15 +50,23 @@ int main(int argc, char** argv) {
    const auto app_name = std::filesystem::path(argv[0]).filename().string();
    CLI::App app{app_name};
 
-   init_project init = {app};
+
+   //run_on<init_project, add_to_project> runner{app};
+
+   add_to_project add_to = {app};
 
    CLI11_PARSE(app, argc, argv);
 
-   if (init.subcommand) {
-      return init.exec();
-   }
+   if (*add_to.subcommand) return add_to.exec();
+   //return runner.exec();
 
-   std::cout << "Param " << init.path << std::endl;
+   //if (*init.subcommand) {
+   //   return init.exec();
+   //} else if (*add_to.subcommand) {
+   //   return add_to.exec();
+   //}
+
+   //std::cout << "Param " << init.path << std::endl;
    return 0;
 }
 

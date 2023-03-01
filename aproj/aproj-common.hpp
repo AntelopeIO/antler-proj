@@ -191,7 +191,8 @@ inline void dump_obj_deps(const T& obj_list, std::ostream& os = std::cout) {
 /// @param str  Reference to the value to set. Comes in as default value.
 /// @param validator  A function to validate str with.
 /// @param allow_empty  Set to true to allow the user to clear the value.
-inline void get_valid_string(std::string_view friendly_name, std::string& str, std::function<bool(std::string_view)> validator, bool allow_empty = false) noexcept {
+template <typename F>
+inline void get_valid_string(std::string_view friendly_name, std::string& str, F&& validator, bool allow_empty = false) noexcept {
    // Loop until return.
    for (;;) {
       // Start with the text to display to the user.

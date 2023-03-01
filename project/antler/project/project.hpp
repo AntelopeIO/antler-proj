@@ -29,6 +29,7 @@ public:
 
    // constructors
    project() = default;
+   project(const std::filesystem::path&);
    project(std::string_view path, std::string_view name, std::string_view version_raw) :
       m_path(path), m_name(name), m_ver(version_raw) {}
 

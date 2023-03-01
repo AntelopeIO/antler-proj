@@ -1,8 +1,10 @@
 # @copyright See `LICENSE` in the root directory of this project.
 
+include(FindPkgConfig)
 
 # Boost
 find_package( Boost REQUIRED filesystem CONFIG)
+pkg_check_modules(CURL libcurl REQUIRED)
 
 #
 # These files are generally built in a common way, so here are some functions to simplify the process.
@@ -17,9 +19,10 @@ function(add_aproj target_name files)
 
   add_executable(${target_name} ${files})
   set_property(TARGET ${target_name} PROPERTY CXX_STANDARD 20)
-  target_link_libraries(${target_name} PUBLIC antler-project ${extra_libs})
+  target_link_libraries(${target_name} PUBLIC antler-project ${extra_libs} ${CURL_LIBRARIES})
   target_include_directories(${target_name} PRIVATE . )
   target_include_directories(${target_name} SYSTEM PRIVATE ../3p_include )
+  target_include_directories(${target_name} PRIVATE ${CURL_INCLUDE_DIRS})
   install(FILES $<TARGET_FILE:${target_name}> COMPONENT Runtime DESTINATION .)
 endfunction()
 
