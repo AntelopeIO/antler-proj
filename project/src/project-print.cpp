@@ -18,35 +18,19 @@
 
 namespace { // anonymous
 
-/// Templates to work around ryml::csubstr data type. Note that csubstr is very similar to std::string_view.
-
-template<typename T>
-[[nodiscard]] inline const c4::csubstr to_csubstr(T t) {
-   // The default function should probably not exist. It will ONLY work in liited situations. In other cases, it silently allows
-   // ryml to write garbage.
-
-   t.force_this_template_function_to_generate_an_error(); // "disable" calls to this function.
-   std::stringstream ss;
-   ss << t;
-   return c4::to_csubstr(ss.str());
-}
-
-template<>
+/// Functions to work around ryml::csubstr data type. Note that csubstr is very similar to std::string_view.
 [[nodiscard]] inline const c4::csubstr to_csubstr(std::string s) {
    return c4::to_csubstr(s);
 }
 
-template<>
 [[nodiscard]] inline const c4::csubstr to_csubstr(std::string_view s) {
    return c4::to_csubstr(s);
 }
 
-template<>
 [[nodiscard]] inline const c4::csubstr to_csubstr(key::word e) {
    return to_csubstr(key::literals[static_cast<size_t>(e)]);
 }
 
-template<>
 [[nodiscard]] inline const c4::csubstr to_csubstr(antler::project::language e) {
    return to_csubstr(antler::project::language_literals[static_cast<size_t>(e)]);
 }
