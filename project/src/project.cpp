@@ -13,16 +13,7 @@ namespace antler::project {
 //--- constructors/destrructor ------------------------------------------------------------------------------------------
 
 project::project() = default;
-/*
-project::project(const char* filename) {
-   parse(filename);
-}
 
-
-project::project(const std::filesystem::path& filename) {
-   parse(filename);
-}
-*/
 
 //--- alphabetic --------------------------------------------------------------------------------------------------------
 
