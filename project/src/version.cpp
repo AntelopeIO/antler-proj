@@ -14,9 +14,6 @@ namespace antler::project {
 
 //--- constructors/destruct ------------------------------------------------------------------------------------------
 
-version::version() = default;
-
-
 version::version(std::string_view ver) {
    load(ver);
 }
@@ -59,22 +56,11 @@ version& version::operator=(const self& rhs) {
 }
 
 
-std::strong_ordering version::operator<=>(const self& rhs) const noexcept {
+int64_t version::compare(const version& rhs) const noexcept {
    if (is_semver() && rhs.is_semver())
-      return *m_semver <=> *rhs.m_semver;
+      return m_semver->compare(*rhs.m_semver);
    return raw_compare(m_raw, rhs.m_raw);
 }
-
-
-bool version::operator==(const self& rhs) const noexcept {
-   return operator<=>(rhs) == 0;
-}
-
-
-bool version::operator!=(const self& rhs) const noexcept {
-   return operator<=>(rhs) != 0;
-}
-
 
 version::operator semver() const noexcept {
    if (m_semver)
@@ -127,14 +113,14 @@ std::string_view version::raw() const noexcept {
 }
 
 
-std::strong_ordering version::raw_compare(std::string_view l_in, std::string_view r_in) noexcept {
+int64_t version::raw_compare(std::string_view l_in, std::string_view r_in) noexcept {
    if (l_in == r_in)
-      return std::strong_ordering::equal;
+      return 0; 
 
-   std::vector<std::string_view> l;
+   std::vector<std::string> l;
    boost::split(l, l_in, boost::is_any_of(".,-+;"));
 
-   std::vector<std::string_view> r;
+   std::vector<std::string> r;
    boost::split(r, r_in, boost::is_any_of(".,-+;"));
 
    for (size_t i = 0; i < std::min(l.size(), r.size()); ++i) {
@@ -172,25 +158,27 @@ std::strong_ordering version::raw_compare(std::string_view l_in, std::string_vie
          }
 
          // If the numbers differ, return the difference between them.
-         if (auto cmp = lnum <=> rnum; cmp != 0)
-            return cmp;
+         if (lnum < rnum)
+            return -1;
+         else if (lnum > rnum)
+            return 1;
 
          // Otherwise, return the difference in the remaining values.
-         return lremain <=> rremain;
+         return lremain.compare(rremain); 
       }
 
       // Convert into ints and compare (or do a simple string compare).
       if (int lnum = 0, rnum = 0; string::from(l[i], lnum) && string::from(r[i], rnum)) {
-         return lnum <=> rnum;
+         return lnum < rnum ? -1 : lnum > rnum ? 1 : 0;
       }
 
       // Nope, STILL can't convert to JUST a number. Just do a raw string compare.
-      return l[i] <=> r[i];
+      return l[i].compare(r[i]);
    }
 
    // Thus far, all the splits are equal, so just compare the number of splits.
    // Example: `a.b.c <=> a.b.c.d` finds the first 3 splits equal, so we just compare the split count: `3 <=> 4`.
-   return l.size() <=> r.size();
+   return l.size() < r.size() ? -1 : l.size() > r.size() ? 1 : 0;
 }
 
 

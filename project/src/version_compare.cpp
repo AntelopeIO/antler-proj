@@ -8,15 +8,15 @@
 
 namespace antler::project {
 
-std::strong_ordering raw_compare(std::string_view lhs, std::string_view rhs) noexcept {
+int64_t raw_compare(std::string_view lhs, std::string_view rhs) noexcept {
 
    if (lhs == rhs)
-      return std::strong_ordering::equivalent;
+      return 0; 
 
-   std::vector<std::string_view> l;
+   std::vector<std::string> l;
    boost::split(l, lhs, boost::is_any_of(".,-;+"));
 
-   std::vector<std::string_view> r;
+   std::vector<std::string> r;
    boost::split(r, rhs, boost::is_any_of(".,-;+"));
 
    for (size_t i = 0; i < std::min(l.size(), r.size()); ++i) {
@@ -55,33 +55,33 @@ std::strong_ordering raw_compare(std::string_view lhs, std::string_view rhs) noe
 
          if (lnum != rnum) {
             if (lnum < rnum)
-               return std::strong_ordering::less;
-            return std::strong_ordering::greater;
+               return -1;
+            return 1;
          }
 
          auto temp = lremain.compare(rremain);
          if (temp < 0)
-            return std::strong_ordering::less;
-         return std::strong_ordering::greater;
+            return -1;
+         return 1;
       }
 
       if (!string::from(l[i], lnum) || !string::from(r[i], rnum)) {
          // Nope, STILL can't convert to JUST a number. Just do a raw string compare.
          auto temp = l[i].compare(r[i]);
          if (temp < 0)
-            return std::strong_ordering::less;
-         return std::strong_ordering::greater;
+            return -1;
+         return 1;
       }
       if (lnum < rnum)
-         return std::strong_ordering::less;
-      return std::strong_ordering::greater;
+         return -1;
+      return 1;
    }
 
    if (l.size() < r.size())
-      return std::strong_ordering::less;
+      return -1; 
    if (l.size() > r.size())
-      return std::strong_ordering::greater;
-   return std::strong_ordering::equal;
+      return 1;
+   return 0;
 }
 
 

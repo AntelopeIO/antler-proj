@@ -11,36 +11,51 @@
 
 namespace antler::project::location {
 
+// TODO replace later with string_view.ends_with() and string_view.starts_with()
+static inline bool ends_with(std::string_view src, std::string_view comp) {
+   const std::size_t sz = comp.size();
+   if (src.size() < sz)
+      return false;
+   
+   return memcmp(&src[0] + src.size()-sz, &comp[0], sz) == 0;
+}
+
+static inline bool starts_with(std::string_view src, std::string_view comp) {
+   const std::size_t sz = comp.size();
+   if (src.size() < sz)
+      return false;
+   
+   return memcmp(&src[0], &comp[0], sz) == 0;
+}
+
 bool is_archive(std::string_view s) {
 
-   return
-      s.ends_with(".tar.gz")
-      || s.ends_with(".tgz")
-      || s.ends_with(".tar.bz2")
-      || s.ends_with(".tar.xz")
-      || s.ends_with(".tar.zst")
-      ;
+   return ends_with(s, ".tar.gz")  ||
+          ends_with(s, ".tgz")     ||
+          ends_with(s, ".tar.bz2") ||
+          ends_with(s, ".tar.xz")  ||
+          ends_with(s, ".tar.zst");
 }
 
 
 bool is_github_archive(std::string_view s) {
 
-   return s.starts_with("https://github.com") && is_archive(s);
+   return starts_with(s, "https://github.com") && is_archive(s);
 }
 
 
 bool is_github_repo(std::string_view s) {
 
-   return s.starts_with("https://github.com") && !is_archive(s);
+   return starts_with(s, "https://github.com") && !is_archive(s);
 }
 
 
 bool is_local_file(std::string_view s) {
 
-   if (s.starts_with("https://github.com"))
+   if (starts_with(s, "https://github.com"))
       return false;
 
-   if (s.starts_with("file://"))
+   if (starts_with(s, "file://"))
       s = s.substr(7);
 
    std::error_code sec;
@@ -50,7 +65,7 @@ bool is_local_file(std::string_view s) {
 
 bool is_org_repo_shorthand(std::string_view s) {
 
-   std::vector<std::string_view> splits;
+   std::vector<std::string> splits;
    boost::split(splits, s, [](const char c) { return c == '/'; });
    if (splits.size() != 2)
       return false;

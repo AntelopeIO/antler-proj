@@ -27,19 +27,24 @@ public:
    /// @param build  The build value.
    semver(value_type major = 0, value_type minor = 0, value_type patch = 0, std::string_view pre_release = "", std::string_view build = "") noexcept;
 
+   [[nodiscard]] int64_t compare(const semver& rhs) const noexcept;
+
    /// comparison operator
    /// @param rhs  The right hand side semver to compare against.
    /// @return Follows standard rules.
-   //[[nodiscard]] std::strong_ordering operator<=>(const self& rhs) const;
-   [[nodiscard]] std::strong_ordering operator<=>(const self& rhs) const noexcept;
+   [[nodiscard]] inline bool operator<(const semver& rhs) const noexcept { return compare(rhs) == -1; }
+   [[nodiscard]] inline bool operator<=(const semver& rhs) const noexcept { return compare(rhs) != 1; }
+   [[nodiscard]] inline bool operator>(const semver& rhs) const noexcept { return compare(rhs) == 1; }
+   [[nodiscard]] inline bool operator>=(const semver& rhs) const noexcept { return compare(rhs) != -1; }
+
    /// comparison operator
    /// @param rhs  The right hand side semver to compare against.
    /// @return true if this object and rhs are equivalent.
-   [[nodiscard]] bool operator==(const self& rhs) const noexcept;
+   [[nodiscard]] inline bool operator==(const semver& rhs) const noexcept { return compare(rhs) == 0;}
    /// comparison operator
    /// @param rhs  The right hand side semver to compare against.
    /// @return true if this object and rhs are different (aka NOT equivalent).
-   [[nodiscard]] bool operator!=(const self& rhs) const noexcept;
+   [[nodiscard]] inline bool operator!=(const semver& rhs) const noexcept { return compare(rhs) != 0; }
 
    /// Clear the version.
    void clear() noexcept;
@@ -61,14 +66,14 @@ public:
 private:
    /// compare prerelease according to rule 12. lhs and rhs must both be the pre-release portion of the version and
    /// @TODO Initial development erroneously used 2.0.0-rc.1; this function needs to be reevaluated for correctness and renamed.
-   [[nodiscard]] static std::strong_ordering compare_p_rule12(std::string_view lhs, std::string_view rhs) noexcept;
+   [[nodiscard]] static int64_t compare_p_rule12(std::string_view lhs, std::string_view rhs) noexcept;
    /// compare build according to rule 12. lhs and rhs must both be the build portion of the version.
    /// @TODO Initial development erroneously used 2.0.0-rc.1; this function needs to be reevaluated for correctness and renamed.
-   [[nodiscard]] static std::strong_ordering compare_b_rule12(std::string_view lhs, std::string_view rhs) noexcept;
+   [[nodiscard]] static int64_t compare_b_rule12(std::string_view lhs, std::string_view rhs) noexcept;
    /// @return a comparison of lhs and rhs according to semver rule 12. lhs and rhs must both be EITHER pre-release or build and
    /// both must be populated.
    /// @TODO Initial development erroneously used 2.0.0-rc.1; this function needs to be reevaluated for correctness and renamed.
-   [[nodiscard]] static std::strong_ordering compare_pb_rule12(std::string_view lhs, std::string_view rhs) noexcept;
+   [[nodiscard]] static int64_t compare_pb_rule12(std::string_view lhs, std::string_view rhs) noexcept;
    /// @return true indivcates valid pre-release or build string; false otherwise.
    /// @TODO Initial development erroneously used 2.0.0-rc.1; this function needs to be reevaluated for correctness and renamed.
    [[nodiscard]] static bool validate_pb_rule10or11(std::string_view s) noexcept;

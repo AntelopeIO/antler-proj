@@ -9,7 +9,6 @@
 #include <optional>
 #include <array>
 #include <memory>
-#include <compare>
 
 
 namespace antler::project {
@@ -20,7 +19,7 @@ public:
    using self = version;        ///< Alias for self type.
 
    /// Default constructor.
-   version();
+   version() = default;
    /// @parm ver  A string to create this version with. ver is evaluated to see if it might be a semver.
    version(std::string_view ver);
    /// @param sv  A semver version to create this version with.
@@ -40,10 +39,16 @@ public:
    /// @param rhs  The right hand side semver to compare against.
    /// @return Follows standard rules.
    //[[nodiscard]] std::strong_ordering operator<=>(const self& rhs) const;
-   [[nodiscard]] std::strong_ordering operator<=>(const self& rhs) const noexcept;
+   [[nodiscard]] inline bool operator<(const self& rhs) const noexcept { return compare(rhs) == -1; }
+   [[nodiscard]] inline bool operator<=(const self& rhs) const noexcept{ return compare(rhs) != 1; }
+   [[nodiscard]] inline bool operator>(const self& rhs) const noexcept { return compare(rhs) == 1; }
+   [[nodiscard]] inline bool operator>=(const self& rhs) const noexcept { return compare(rhs) != -1; }
+
    // comparison operators:
-   [[nodiscard]] bool operator==(const self& rhs) const noexcept;
-   [[nodiscard]] bool operator!=(const self& rhs) const noexcept;
+   [[nodiscard]] inline bool operator==(const self& rhs) const noexcept { return compare(rhs) == 0; }
+   [[nodiscard]] inline bool operator!=(const self& rhs) const noexcept { return compare(rhs) != 0; }
+
+   [[nodiscard]] int64_t compare(const self& rhs) const noexcept;
 
    /// Clear any values.
    void clear() noexcept;
@@ -62,7 +67,7 @@ private:
    /// compare the string value of this to rhs. Attempt to use semver rules.
    /// @param rhs  The version to compare to.
    /// @return the result of the comparison: eq, lt, gt.
-   [[nodiscard]] static std::strong_ordering raw_compare(std::string_view l_in, std::string_view r_in) noexcept;
+   [[nodiscard]] static int64_t raw_compare(std::string_view l_in, std::string_view r_in) noexcept;
 
    /// Load this version from a string. Attempts to parse and store as semver in the process. Either way, s is stored as m_raw.
    /// @param s  The string to store.

@@ -25,29 +25,18 @@ semver::semver(value_type x, value_type y, value_type z, std::string_view pre_re
 
 //--- operators ---------------------------------------------------------------------------------------------------------
 
-
-std::strong_ordering semver::operator<=>(const self& rhs) const noexcept {
-   //auto semver::operator<=>(const self& rhs) const noexcept {
-   // Compare x.y.z
-   for (size_t i = 0; i < m_xyz.size(); ++i) {
-      if (auto cmp = m_xyz[i] <=> rhs.m_xyz[i] ; cmp != 0)
-         return cmp;
+int64_t semver::compare(const semver& rhs) const noexcept {
+   for (size_t i = 0; i < m_xyz.size(); ++i ) {
+      if (m_xyz[i] < rhs.m_xyz[i])
+         return -1;
+      else if (m_xyz[i] > rhs.m_xyz[i])
+         return 1;
    }
-   // x.y.z are the same, so compare pre-release and build.
-   if (auto cmp = compare_p_rule12(m_pre, rhs.m_pre) ; cmp != 0)
+
+   if (auto cmp = compare_p_rule12(m_pre, rhs.m_pre); cmp !=0 )
       return cmp;
-
+   
    return compare_b_rule12(m_build, rhs.m_build);
-}
-
-
-bool semver::operator==(const self& rhs) const noexcept {
-   return operator<=>(rhs) == 0;
-}
-
-
-bool semver::operator!=(const self& rhs) const noexcept {
-   return operator<=>(rhs) != 0;
 }
 
 //--- alphabetic --------------------------------------------------------------------------------------------------------
@@ -59,31 +48,31 @@ void semver::clear() noexcept {
 }
 
 
-std::strong_ordering semver::compare_b_rule12(std::string_view lhs, std::string_view rhs) noexcept {
+int64_t semver::compare_b_rule12(std::string_view lhs, std::string_view rhs) noexcept {
 
    // If either is empty, this is a quick comparison.
    if (lhs.empty())
-      return (rhs.empty() ? std::strong_ordering::equal : std::strong_ordering::less);
+      return (rhs.empty() ? 0 : -1);
    if (rhs.empty())
-      return std::strong_ordering::greater;
+      return 1;
 
    return compare_pb_rule12(lhs, rhs);
 }
 
 
-std::strong_ordering semver::compare_p_rule12(std::string_view lhs, std::string_view rhs) noexcept {
+int64_t semver::compare_p_rule12(std::string_view lhs, std::string_view rhs) noexcept {
 
    // If either is empty, this is a quick comparison.
    if (lhs.empty())
-      return (rhs.empty() ? std::strong_ordering::equal : std::strong_ordering::greater);
+      return (rhs.empty() ? 0 : 1);
    if (rhs.empty())
-      return std::strong_ordering::less;
+      return -1;
 
    return compare_pb_rule12(lhs, rhs);
 }
 
 
-std::strong_ordering semver::compare_pb_rule12(std::string_view lhs, std::string_view rhs) noexcept {
+int64_t semver::compare_pb_rule12(std::string_view lhs, std::string_view rhs) noexcept {
 
    // Requirements here:
    //    https://semver.org/spec/v2.0.0-rc.1.html#spec-item-12
@@ -91,10 +80,14 @@ std::strong_ordering semver::compare_pb_rule12(std::string_view lhs, std::string
    //    https://github.com/semver/semver/blob/v2.0.0/semver.md
 
    // Split on '.'
-   std::vector<std::string_view> l;
+   // std::vector<std::string> is a limitation of boost,
+   // TODO in next release of CDT/ANTLER change this back to std::vector<std::string_view> with a sufficient version of boost
+   std::vector<std::string> l;
    boost::split(l, lhs, boost::is_any_of("."));
 
-   std::vector<std::string_view> r;
+   // std::vector<std::string> is a limitation of boost,
+   // TODO in next release of CDT/ANTLER change this back to std::vector<std::string_view> with a sufficient version of boost
+   std::vector<std::string> r;
    boost::split(r, rhs, boost::is_any_of("."));
 
    // Compare the splits.
@@ -109,24 +102,26 @@ std::strong_ordering semver::compare_pb_rule12(std::string_view lhs, std::string
       if (left != std::string_view::npos) {     // Left is NOT numbers only.
          if (right != std::string_view::npos) { // Also Right is NOT numbers only.
             // Simple string compare works here.
-            return l[i] <=> r[i];
+            return l[i] < r[i] ? -1 : l[i] > r[i] ? 1 : 0;
          }
          // Left has letters, right is numbers. So right is of higer magnitude.
-         return std::strong_ordering::less;
+         return -1;
       }
       // Left is a number, if right is NOT a number, then left has greater magnitude.
       if (right != std::string_view::npos)
-         return std::strong_ordering::greater;
+         return 1;
       // Both are numbers, convert and compare.
       int lnum = 0;
       [[maybe_unused]] auto discard1 = string::from(l[i], lnum); // ignore return code. If it's a failure, we will just use the zero value.
       int rnum = 0;
       [[maybe_unused]] auto discard2 = string::from(r[i], rnum);
-      if (auto cmp = lnum <=> rnum; cmp != 0)
-         return cmp;
+      if ( lnum < rnum )
+         return -1;
+      else if ( lnum > rnum )
+         return 1;
    }
    // So far, all the splits are equal. Compare the split size.
-   return l.size() <=> r.size();
+   return l.size() < r.size() ? -1 : l.size() > r.size() ? 1 : 0;
 }
 
 
@@ -165,7 +160,7 @@ std::optional<semver> semver::parse(std::string_view s) noexcept {
 
 
    // Split x.y.z apart, validate it as well.
-   std::vector<std::string_view> splits;
+   std::vector<std::string> splits;
    boost::split(splits, s, boost::is_any_of("."));
    if (splits.empty() || (splits.size() > 3))
       return {};

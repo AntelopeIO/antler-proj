@@ -50,7 +50,7 @@ inline std::string_view trim(std::string_view s) {
    auto last = std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) {return !std::isspace(ch);});
    // Convert the reverse iter last to the forward iterator containing end using base().
    //    See: https://en.cppreference.com/w/cpp/iterator/reverse_iterator/base
-   return std::string_view{first, last.base()};
+   return std::string_view{first, s.size() - 1 - (last - s.rbegin())};
 }
 
 
@@ -105,16 +105,16 @@ void version_constraint::load(std::string_view sin, std::ostream& os) {
       return;
 
    // Start by splitting on '|'
-   std::vector<std::string_view> splits;
+   std::vector<std::string> splits;
    boost::split(splits, m_raw, boost::is_any_of("|;"));
    for (auto split : splits) {
       // Now split on ','
-      std::vector<std::string_view> element;
+      std::vector<std::string> element;
       boost::split(element, split, boost::is_any_of(","));
       if (element.size() == 1) {
          // If there's only one constraint, we need to decide if it's an upper bound, a lower bound, or unique.
          auto trimmed_el = trim(element[0]);
-         std::vector<std::string_view> el_list;
+         std::vector<std::string> el_list;
          boost::split(el_list, trimmed_el, boost::is_any_of(" "));
 
          if (el_list.size() == 1) {
@@ -138,7 +138,11 @@ void version_constraint::load(std::string_view sin, std::ostream& os) {
             else if (op_str == ">=")
                m_constraints.emplace_back(constraint{ version(ver_str), max_version, bounds_inclusivity::both });
             else {
-               os << __FILE__ << ":" << __LINE__ << " Failed to decode version_constraint: \"" << sin << "\" Bad op: \"" << el_list << "\"\n";
+               os << __FILE__ << ":" << __LINE__ << " Failed to decode version_constraint: \"" << sin << "\" Bad op: \"";
+               for (const auto& el : el_list) {
+                  os << el;
+               }
+               os << std::endl;
                clear();
                return;
             }
@@ -146,20 +150,28 @@ void version_constraint::load(std::string_view sin, std::ostream& os) {
             continue;
          }
 
-         os << __FILE__ << ":" << __LINE__ << " Failed to decode version_constraint: \"" << sin << "\" Too many or too few elements in: \"" << el_list << "\"\n";
+         os << __FILE__ << ":" << __LINE__ << " Failed to decode version_constraint: \"" << sin << "\" Too many or too few elements in: \"";
+         for (const auto& el : el_list) {
+            os << el;
+         }
+         os << std::endl;
          clear();
          return;
       }
 
       if (element.size() == 2) {
-         std::vector<std::string_view> lower_list;
+         std::vector<std::string> lower_list;
          boost::split(lower_list, trim(element[0]), boost::is_any_of(" "));
-         std::vector<std::string_view> upper_list;
+         std::vector<std::string> upper_list;
          boost::split(upper_list, trim(element[1]), boost::is_any_of(" "));
 
          if (lower_list.size() != 2 || upper_list.size() != 2) {
             os << __FILE__ << ":" << __LINE__ << " Failed to decode version_constraint: \"" << sin
-               << "\" Too many or too few elements in: \"" << element << "\"\n";
+               << "\" Too many or too few elements in: \"";
+            for (const auto& e : element) {
+               os << e;
+            }
+            os << std::endl;
             clear();
             return;
          }
@@ -178,8 +190,11 @@ void version_constraint::load(std::string_view sin, std::ostream& os) {
                continue;
             }
 
-            os << __FILE__ << ":" << __LINE__ << " Failed to decode version_constraint: \"" << sin << "\" Bad upper limit operator in: \""
-               << element << "\"\n";
+            os << __FILE__ << ":" << __LINE__ << " Failed to decode version_constraint: \"" << sin << "\" Bad upper limit operator in: \"";
+            for (const auto& e : element) {
+               os << e;
+            }
+            os << std::endl;
             clear();
             return;
          }
@@ -194,20 +209,30 @@ void version_constraint::load(std::string_view sin, std::ostream& os) {
                continue;
             }
 
-            os << __FILE__ << ":" << __LINE__ << " Failed to decode version_constraint: \"" << sin << "\" Bad upper limit operator in: \""
-               << element << "\"\n";
+            os << __FILE__ << ":" << __LINE__ << " Failed to decode version_constraint: \"" << sin << "\" Bad upper limit operator in: \"";
+            for (const auto& e : element) {
+               os << e;
+            }
+            os << std::endl;
             clear();
             return;
          }
 
-         os << __FILE__ << ":" << __LINE__ << " Failed to decode version_constraint: \"" << sin << "\" Bad lower limit operator in: \""
-            << element << "\"\n";
+         os << __FILE__ << ":" << __LINE__ << " Failed to decode version_constraint: \"" << sin << "\" Bad lower limit operator in: \"";
+         for (const auto& e : element) {
+            os << e;
+         }
+         os << std::endl;
          clear();
          return;
       }
 
-      os << __FILE__ << ":" << __LINE__ << " Failed to decode version_constraint: \"" << sin << "\" Too many elements in: \"" << element
-         << "\"\n";
+      os << __FILE__ << ":" << __LINE__ << " Failed to decode version_constraint: \"" << sin << "\" Too many elements in: \"";
+   
+      for (const auto& e : element) {
+         os << e;
+      }
+      os << std::endl;
       clear();
       return;
    }

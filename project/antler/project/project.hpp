@@ -25,9 +25,12 @@ public:
 public:
    // parse a project from a project.yml
 
+   constexpr static inline std::string_view manifest_name = "project.yml";
+
    // constructors
-   project();
-   //project(const std::filesystem::path& filename);
+   project() = default;
+   project(std::string_view path, std::string_view name, std::string_view version_raw) :
+      m_path(path), m_name(name), m_ver(version_raw) {}
 
    /// Get the project name.
    /// @return  The name of the project.
