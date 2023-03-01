@@ -37,12 +37,11 @@ public:
    /// @param name  The Name of the object.
    /// @param lang  The language type of this object.
    /// @param opts  Compile time options for this object. May be empty.
-   object(type_t ot, std::string_view name, antler::project::language lang, std::string_view opts);
+   object(type_t ot, std::string_view name, const std::string& lang, std::string_view opts);
    /// Object constructor for test type.
    /// @param name  The Name of the object.
    /// @param command  The command to run for this test.
    object(std::string_view name, std::string_view command);
-
 
    /// @return The type of this object.
    [[nodiscard]] type_t type() const noexcept;
@@ -54,10 +53,10 @@ public:
 
 
    /// @return Current language.
-   [[nodiscard]] antler::project::language language() const noexcept;
+   [[nodiscard]] std::string_view language() const noexcept;
    /// Replace any existing language info with the new value.
    /// @param lang  The new language value to store.
-   void language(antler::project::language lang) noexcept;
+   void language(std::string_view lang) noexcept;
 
    /// @return Current options.
    [[nodiscard]] std::string_view options() const noexcept;
@@ -89,15 +88,15 @@ public:
 
 private:
    type_t m_type = none;                               ///< Object type: app, lib, or test.
-   std::string m_name;                                 ///< Object name.
+   std::string m_name = "";                            ///< Object name.
    antler::project::dependency::list_t m_dependencies; ///< list of dependencies.
 
    // app, lib:
-   antler::project::language m_language = language::none; ///< Language type, only valid for app or lib.
-   std::string m_options;                                 ///< Compile options, only valid for app or lib.
+   std::string m_language = ""; ///< Language type, only valid for app or lib.
+   std::string m_options  = ""; ///< Compile options, only valid for app or lib.
 
    // test:
-   std::string m_command;       ///< Test command, only valid for test.
+   std::string m_command  = "";       ///< Test command, only valid for test.
 };
 
 } // namespace antler::project

@@ -47,11 +47,6 @@ template<>
    return to_csubstr(key::literals[static_cast<size_t>(e)]);
 }
 
-template<>
-[[nodiscard]] inline const c4::csubstr to_csubstr(antler::project::language e) {
-   return to_csubstr(antler::project::language_literals[static_cast<size_t>(e)]);
-}
-
 template<typename T>
 [[nodiscard]] inline const c4::csubstr to_csubstr_insert(T t) {
    std::stringstream ss;
@@ -122,7 +117,7 @@ void project::print(std::ostream& os) const noexcept {
          if (!obj.name().empty())
             map_node[to_csubstr(key::word::name)] << to_csubstr(obj.name());
          // lang
-         if (obj.language() != language::none)
+         if (!obj.language().empty())
             map_node[to_csubstr(key::word::lang)] << to_csubstr(obj.language());
          // options
          if (!obj.options().empty())

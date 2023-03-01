@@ -239,12 +239,12 @@ template <typename NODE_T>
                os << word << " tag in " << type << " list with no value.\n";
                return {};
             }
-            auto lang = to_language(i.val());
-            if (lang == language::none) {
+            auto lang = i.val();
+            if (lang.empty()) {
                os << "Invalid language tag in " << type << " list: " << i.val() << "\n";
                return {};
             }
-            if (rv.language() != language::none) {
+            if (!rv.language().empty()) {
                os << "Duplicate language values in " << type << " list: " << rv.language() << ", " << lang << "\n";
                return {};
             }

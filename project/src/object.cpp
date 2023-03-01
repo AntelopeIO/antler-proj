@@ -1,6 +1,7 @@
 /// @copyright See `LICENSE` in the root directory of this project.
 
 #include <antler/project/object.hpp>
+#include <boost/algorithm/string.hpp>
 
 #include <algorithm> // find_if()
 #include <magic_enum.hpp>
@@ -14,10 +15,10 @@ object::object(type_t ot)
    : m_type{ ot } {}
 
 
-object::object(type_t ot, std::string_view name, antler::project::language lang, std::string_view opts)
+object::object(type_t ot, std::string_view name, const std::string& lang, std::string_view opts)
    : m_type{ ot }
    , m_name{ name }
-   , m_language{ lang }
+   , m_language{ boost::algorithm::to_upper_copy(lang) }
    , m_options{ opts }
 {
 }
@@ -63,11 +64,11 @@ bool object::dependency_exists(std::string_view name) const noexcept {
 }
 
 
-antler::project::language object::language() const noexcept {
+std::string_view object::language() const noexcept {
    return m_language;
 }
 
-void object::language(antler::project::language lang) noexcept {
+void object::language(std::string_view lang) noexcept {
    m_language = lang;
 }
 

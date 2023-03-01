@@ -6,19 +6,6 @@ project("ANTLER Project Tools " VERSION 1.0.0)
 
 include( ./common.cmake REQUIRED )
 
-if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "11")
-    message(FATAL_ERROR "Insufficient clang version")
-  endif()
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "10")
-	  #message(FATAL_ERROR "Insufficient gcc version")
-  endif()
-else()
-  message(WARNING "This build requires a C++20 compliant compiler.")
-endif()
-
-
 add_subdirectory( project )
 add_subdirectory( aproj )
 

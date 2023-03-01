@@ -15,15 +15,9 @@ namespace antler::project {
 
 //--- alphabetic --------------------------------------------------------------------------------------------------------
 
-object::list_t project::all_objects() const noexcept {
-   auto rv = m_apps;
-   rv.reserve(m_apps.size() + m_libs.size() + m_tests.size());
-   for (const auto& a : m_libs)
-      rv.emplace_back(a);
-   for (const auto& a : m_tests)
-      rv.emplace_back(a);
-   return rv;
-}
+object::list_t& project::all_objects() noexcept { return m_apps; }
+object::list_t project::all_objects() const noexcept { return m_apps; }
+
 
 
 const object::list_t& project::apps() const noexcept {
@@ -76,6 +70,22 @@ void project::name(std::string_view s) noexcept {
    m_name = s;
 }
 
+
+antler::project::object& project::object(std::string_view name) {
+   auto temp = std::find_if(m_apps.begin(), m_apps.end(), [name](const auto& o) { return o.name() == name; });
+   if (temp != m_apps.end())
+      return *temp;
+
+   temp = std::find_if(m_libs.begin(), m_libs.end(), [name](const auto& o) { return o.name() == name; });
+   if (temp != m_libs.end())
+      return *temp;
+
+   temp= std::find_if(m_tests.begin(), m_tests.end(), [name](const auto& o) { return o.name() == name; });
+   if (temp != m_tests.end())
+      return *temp;
+
+   throw std::runtime_error("object not found.");
+}
 
 std::vector<antler::project::object> project::object(std::string_view name,  object::type_t type) const noexcept {
 

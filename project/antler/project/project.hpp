@@ -30,7 +30,7 @@ public:
    // constructors
    project() = default;
    project(const std::filesystem::path&);
-   project(std::string_view path, std::string_view name, std::string_view version_raw) :
+   project(const std::filesystem::path& path, std::string_view name, std::string_view version_raw) :
       m_path(path), m_name(name), m_ver(version_raw) {}
 
    /// Get the project name.
@@ -90,6 +90,8 @@ public:
    /// @return vector with copies of the objects.
    [[nodiscard]] std::vector<antler::project::object> object(std::string_view name, object::type_t type = object::type_t::any) const noexcept;
 
+   [[nodiscard]] antler::project::object& object(std::string_view name);
+
    /// @return A const ref to the application list.
    [[nodiscard]] const antler::project::object::list_t& apps() const noexcept;
    /// @return A const ref to the library list.
@@ -98,6 +100,7 @@ public:
    [[nodiscard]] const antler::project::object::list_t& tests() const noexcept;
    /// @return a list of ALL the
    [[nodiscard]] antler::project::object::list_t all_objects() const noexcept;
+   [[nodiscard]] antler::project::object::list_t& all_objects() noexcept;
 
    /// Validate the project.
    /// @param error_stream  Stream location for printing warnings and errors.

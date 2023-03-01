@@ -16,12 +16,18 @@
 #include <aproj-prefix.hpp>
 
 
+/// Load project.
+/// @param path  Path to the project root or project file.
+/// @return The loaded project.
+inline std::optional<antler::project::project> load_project(std::filesystem::path& path) noexcept {
+}
+
 
 /// Load project or exit function.
 /// @param cli  The CLI app to call exit from if things go poorly.
 /// @param path  Path to the project root or project file.
 /// @return The loaded project.
-antler::project::project load_project_or_exit(CLI::App& cli, std::filesystem::path& path) noexcept {
+inline antler::project::project load_project_or_exit(CLI::App& cli, std::filesystem::path& path) noexcept {
 
    // Get the path to the project.
    if (!antler::project::project::update_path(path))
