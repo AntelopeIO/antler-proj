@@ -35,8 +35,6 @@ int main(int argc, char** argv) {
 
    // Optional arguments:
    auto tag_opt = cli.add_option("--tag", dep_tag, "The github tag or commit hash; only valid when LOCATION is a github repository.");
-   //auto commit_opt = cli.add_option("--commit", dep_commit, "The github tag or commit hash; only valid when LOCATION is a github repository.");
-   //auto branch_opt = cli.add_option("--branch", dep_branch, "The github tag or commit hash; only valid when LOCATION is a github repository.");
    cli.add_option("--rel,--release", dep_rel, "A github release version.")->excludes(tag_opt);
    cli.add_option("--hash", dep_hash, "SHA256 hash; only valid when LOCATION gets an archive (i.e. *.tar.gz or similar).");
    // Option flag
