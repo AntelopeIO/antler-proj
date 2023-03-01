@@ -27,7 +27,6 @@ semver::semver(value_type x, value_type y, value_type z, std::string_view pre_re
 
 
 std::strong_ordering semver::operator<=>(const self& rhs) const noexcept {
-   //auto semver::operator<=>(const self& rhs) const noexcept {
    // Compare x.y.z
    for (size_t i = 0; i < m_xyz.size(); ++i) {
       if (auto cmp = m_xyz[i] <=> rhs.m_xyz[i] ; cmp != 0)
