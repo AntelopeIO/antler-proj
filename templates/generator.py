@@ -2,12 +2,13 @@
 import glob
 import os
 import subprocess
+import argparse
 
 PATH_TO_TEMPLATES = "./"  # must contains trailing slash
 
 
 # project_path must contains trailing slash
-def generator(template_name, project_path, project_name, args):
+def generator(template_name: str, project_path: str, project_name: str):
     full_template_path = PATH_TO_TEMPLATES + template_name
     full_project_path = project_path + project_name
 
@@ -34,3 +35,16 @@ def generator(template_name, project_path, project_name, args):
         f = os.path.dirname(file) + "/" + os.path.basename(file).replace(template_name, project_name, 1)
 
         subprocess.run(["sed", "s/APROJ_PROJECT_NAME/" + project_name + "/g", file, " > ", f])
+
+
+parser = argparse.ArgumentParser(description="Project generator")
+
+parser.add_argument("--project_path", dest="project_path", nargs=1, default="./", help="path to a new project")
+parser.add_argument("--project_name", dest="project_name", nargs=1, type=str, required=True, help="name of a new project")
+parser.add_argument("--template_name", dest="template_name", nargs=1, type=str, required=True, help="name of a template")
+
+args = parser.parse_args()
+
+print(args)
+
+generator(args.template_name[0], args.project_path, args.project_name[0])
