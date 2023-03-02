@@ -95,6 +95,10 @@ public:
    /// @param path  The path to the patch file to remove.
    void patch_remove(const std::filesystem::path& path) noexcept;
 
+   /// Test to see if the dependency is valid.
+   /// @return true if dependency is an archive, github repo, or local and is reachable
+   [[nodiscard]] bool is_valid() const noexcept;
+
 
    /// Test to see if a location is valid.
    /// @return true if s is an archive, a github repo, or an organization shorthand for a github repo.

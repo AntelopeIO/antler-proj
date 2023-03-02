@@ -14,14 +14,16 @@ namespace antler {
 
       template <antler::project::object::type_t Ty>
       bool remove_obj(antler::project::project& proj) {
-         if (!obj_name.empty()) {
+         if (obj_name.empty()) {
             std::cerr << "Name is empty" << std::endl;
             return false;
          }
 
-         std::cout << "Removing object: " << obj_name << " from the project." << std::endl;
-
-         return proj.remove(obj_name, Ty);
+         if (proj.remove(obj_name, Ty)) {
+            std::cout << "Removing object: " << obj_name << " from the project." << std::endl;
+            return true;
+         }
+         return false;
       }
 
       inline bool remove_app(antler::project::project& proj) { return remove_obj<antler::project::object::type_t::app>(proj); }
@@ -75,12 +77,10 @@ namespace antler {
          dep_subcommand->add_option("-d, dep", dep_name, "The name of the dependency.")->required();
          dep_subcommand->add_option("-o, obj", obj_name, "The name of the object the dependency is attached to.");
 
-   //// Option flag
-   //auto all_flag = cli.add_flag("--all", rm_all, "Remove dep_name from all objects (implies --app, --lib, --test). Default option.");
-   //cli.add_flag("--app", rm_app, "Remove dep_name from application objects.")->excludes(all_flag);
-   //cli.add_flag("--lib", rm_lib, "Remove dep_name from library objects.")->excludes(all_flag);
-   //cli.add_flag("--test", rm_test, "Remove dep_name from test objects.")->excludes(all_flag);
-   //cli.add_flag("--interactive", interactive, "Force interactive mode.");
+         /* TODO Add back after this release when we have the testing framework finished
+         test_subcommand = subcommand->add_subcommand("test", "Remove a test from the project.");
+         test_subcommand->add_option("-n, name", dep_name, "The name of the test to remove.")->required();
+         */
          
       }
 
@@ -100,7 +100,7 @@ namespace antler {
                remove_dependency(*proj);
             /* TODO Add back after this release when we have the testing framework finished
             } else if (*test_subcommand) {
-               add_test(*proj);
+               remove_test(*proj);
             */
             } else {
                std::cerr << "Need to supply either dep/app/lib/test after `add`" << std::endl;

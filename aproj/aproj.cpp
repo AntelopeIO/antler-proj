@@ -15,11 +15,14 @@
 #include <boost/dll/runtime_symbol_info.hpp> // boost::dll::program_location()
 
 #include <antler/system/exec.hpp>
+#include <antler/project/location.hpp>
 
 #include "add_to.hpp"
 #include "init.hpp"
 #include "populate.hpp"
 #include "remove_from.hpp"
+#include "update.hpp"
+#include "validate.hpp"
 
 template <typename T, typename V>
 static V depends(V&& v) { return std::forward<V>(v); }
@@ -52,10 +55,14 @@ int main(int argc, char** argv) {
    const auto app_name = std::filesystem::path(argv[0]).filename().string();
    CLI::App app{app_name};
 
+   antler::project::location::is_reachable("https://github.com");
+
    runner<antler::add_to_project, 
           antler::init_project,
           antler::populate_project,
-          antler::remove_from_project> runner{app};
+          antler::remove_from_project,
+          antler::update_project,
+          antler::validate_project> runner{app};
 
    CLI11_PARSE(app, argc, argv);
 

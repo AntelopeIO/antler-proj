@@ -29,7 +29,6 @@ namespace antler {
       
       CLI::App*   subcommand;
       std::string path;
-      std::string name;
-      std::string version_raw;
+      bool verbose;
    };
 } // namespace antler

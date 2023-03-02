@@ -141,33 +141,26 @@ void dependency::tag(std::string_view s) noexcept {
    m_tag_or_commit = s;
 }
 
+bool dependency::is_valid() const noexcept {
+   if (validate_location(m_loc)) {
+      //if (validate_location)
+      return true;
+   } else {
+      return false;
+   }
+}
 
 bool dependency::validate_location(std::string_view s) {
 
    return
       location::is_archive(s)
       || location::is_github_repo(s)
-      || location::is_org_repo_shorthand(s)
+      || location::is_github_org_repo_shorthand(s)
       ;
 }
 
 
 bool dependency::validate_location(std::string_view loc, std::string_view tag, std::string_view rel, std::string_view hash, std::ostream& os) {
-
-   // If location is empty, everything else should be too.
-   if (loc.empty()) {
-      if (tag.empty() && rel.empty() && hash.empty())
-         return true;
-      os << "If location is empty, then:";
-      if (!tag.empty())
-         os << " tag";
-      if (!rel.empty())
-         os << " release";
-      if (!hash.empty())
-         os << " hash";
-      os << " must also be empty.";
-      return false;
-   }
 
    if (!tag.empty()) {
       if (!rel.empty()) {
@@ -183,7 +176,7 @@ bool dependency::validate_location(std::string_view loc, std::string_view tag, s
    if (location::is_archive(loc)) {
       if (hash.empty())
          os << "Warning: archive locations should have a SHA256 hash.";
-   } else if (location::is_github_repo(loc) || location::is_org_repo_shorthand(loc)) {
+   } else if (location::is_github_repo(loc) || location::is_github_org_repo_shorthand(loc)) {
       if (rel.empty() && tag.empty())
          os << "Warning: github locations should have either a tag/commit or release field.";
    } else {
