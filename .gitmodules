@@ -1,0 +1,9 @@
+[submodule "external/rapidyaml"]
+	path = external/rapidyaml
+	url = https://github.com/biojppm/rapidyaml
+[submodule "external/magic_enum"]
+	path = external/magic_enum
+	url = https://github.com/Neargye/magic_enum
+[submodule "external/json"]
+	path = external/json
+	url = https://github.com/boostorg/json
