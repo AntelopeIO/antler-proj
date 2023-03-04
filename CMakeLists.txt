@@ -13,7 +13,8 @@ add_subdirectory( tools )
 
 
 option(PEDANTIC_BUILD "Pedantic builds" On)
-option(BUILD_TESTS "Build and run the tests." On)
+option(BUILD_TESTS "Build and run the tests." Off)
+
 if(BUILD_TESTS)
   enable_testing()
   add_subdirectory( test )

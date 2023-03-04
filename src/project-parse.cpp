@@ -393,7 +393,7 @@ std::optional<project> project::parse(const std::filesystem::path& path, std::os
                return {};
             }
             if (!rv.version().empty()) {
-               os << "Multiple version tags at root level: " << rv.version().raw() << ", " << i.val() << "\n";
+               os << "Multiple version tags at root level: " << rv.version().to_string() << ", " << i.val() << "\n";
                return {};
             }
             rv.version(antler::project::version(sv_from_csubstr(i.val())));

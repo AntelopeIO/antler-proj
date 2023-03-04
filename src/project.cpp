@@ -308,5 +308,24 @@ void project::version(const antler::project::version& ver) noexcept {
    m_ver = ver;
 }
 
+bool project::is_valid(std::ostream& os) {
+   bool rv = true;
+
+   const auto& test_populated = [&](auto var, std::string_view s) {
+      if ((var).empty()) {
+         os << s << " is unpopulated." << std::endl;
+         rv = false;
+      }
+   };
+
+   // First, validate the members of this object.
+   test_populated(m_path, "path");
+   test_populated(m_name, "name");
+   test_populated(m_ver, "version");
+
+   // Now validate: apps, libs, and tests.
+
+   return rv;
+}
 
 } // namespace antler::project

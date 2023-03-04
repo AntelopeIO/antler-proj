@@ -28,15 +28,10 @@ namespace antler::project {
 
 namespace { // anonymous
 
-constexpr semver::value_type min_semver_val = std::numeric_limits<semver::value_type>::min();
-constexpr semver::value_type max_semver_val = std::numeric_limits<semver::value_type>::max();
+constexpr uint16_t max_component = std::numeric_limits<uint16_t>::max();
 
-const semver min_semver{ min_semver_val, min_semver_val, min_semver_val };
-const semver max_semver{ max_semver_val, max_semver_val, max_semver_val };
-
-const version min_version{ min_semver };
-const version max_version{ max_semver };
-
+static inline const version min_version{};
+static inline const version max_version{max_component, max_component, max_component};
 
 /// Trim whitespace from the front and back of string.
 /// @param s  The string to trim
@@ -65,14 +60,6 @@ version_constraint::version_constraint() = default;
 
 version_constraint::version_constraint(std::string_view ver) {
    load(ver);
-}
-
-
-//--- operators ---------------------------------------------------------------------------------------------------------
-
-version_constraint& version_constraint::operator=(std::string_view ver) {
-   load(ver);
-   return *this;
 }
 
 

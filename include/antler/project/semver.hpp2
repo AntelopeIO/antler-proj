@@ -17,7 +17,7 @@ namespace antler::project {
 class semver {
 public:
    using self = semver;         ///< Alias for self type because sometimes it's nice to know who you are.
-   using value_type = unsigned; ///< Alias for the internal type.
+   using value_type = uint16_t; ///< Alias for the internal type.
 
    /// Constructor: major.minor.patch-pre_release+build
    /// @param major  The major value.
@@ -61,6 +61,11 @@ public:
    /// @param s  The string to attempt to parse into a semver.
    /// @return An optional either containing a semver if the parse was successful or empty if s was unparseable.
    [[nodiscard]] static std::optional<self> parse(std::string_view s) noexcept;
+
+   [[nodiscard]] inline uint16_t major() const noexcept { return m_xyz[0]; }
+   [[nodiscard]] inline uint16_t minor() const noexcept { return m_xyz[1]; }
+   [[nodiscard]] inline uint16_t patch() const noexcept { return m_xyz[2]; }
+   [[nodiscard]] inline std::string_view tweak() const noexcept { return m_pre; }
 
 
 private:

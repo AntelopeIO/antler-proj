@@ -18,6 +18,7 @@ public:
    // parse a project from a project.yml
 
    constexpr static inline std::string_view manifest_name = "project.yml";
+   constexpr static inline std::string_view magic_comment = "#antler-proj::generated";
 
    // constructors
    project() = default;

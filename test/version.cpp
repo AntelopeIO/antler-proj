@@ -1,7 +1,7 @@
 /// @copyright See `LICENSE` in the root directory of this project.
 
 #include <antler/project/version.hpp>
-#include <test_common.hpp>
+#include "test_common.hpp"
 
 #include <string>
 #include <vector>
@@ -103,12 +103,4 @@ void test_version() {
          } break;
       }
    }
-}
-
-
-int main(int, char**) {
-
-   test_version();
-
-   return result();
 }
