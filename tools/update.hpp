@@ -3,7 +3,7 @@
 #include <iostream>
 #include <string>
 
-#include <CLI11.hpp>
+#include "CLI11.hpp"
 
 #include <antler/project/project.hpp>
 
@@ -91,13 +91,18 @@ namespace antler {
          if (!obj_opt->empty()) {
             return update_dependency(proj, obj_name);
          } else {
-            // Get all the objects and their names.
-            auto& all_objs = proj.all_objects();
-            for (auto& o : all_objs) {
-               if (o.dependency_exists(dep_name)) {
-                  update_dependency(proj, o.name());
+            const auto& update_dep = [&](auto dep, auto& objs) {
+               for (auto& o : objs) {
+                  if (o.dependency_exists(dep_name)) {
+                     update_dependency(proj, o.name());
+                  }
                }
-            }
+            };
+
+            // Get all the objects and their names.
+            update_dep(dep_name, proj.apps());
+            update_dep(dep_name, proj.libs());
+            update_dep(dep_name, proj.tests());
          }
          return true;
       }

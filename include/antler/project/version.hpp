@@ -2,8 +2,6 @@
 
 /// @copyright See `LICENSE` in the root directory of this project.
 
-#include <boost/algorithm/string.hpp>
-
 #include <string>
 #include <string_view>
 #include <iostream>
@@ -11,7 +9,7 @@
 #include <array>
 #include <memory>
 #include <stdexcept>
-
+#include "../system/utils.hpp"
 
 namespace antler::project {
 
@@ -78,11 +76,16 @@ public:
 
    /// @return The string this version was built from.
    [[nodiscard]] std::string to_string() const noexcept {
-      return std::to_string(major_comp)+"."+std::to_string(minor_comp)+"."+std::to_string(patch_comp)+"-"+tweak_comp;
+      std::string ret = std::to_string(major_comp)+"."+std::to_string(minor_comp)+"."+std::to_string(patch_comp);
+      if (!tweak_comp.empty())
+         ret += "-" +tweak_comp;
+      return ret;
    }
 
    [[nodiscard]] static inline bool to_component(uint16_t& c, std::string_view s) {
       try {
+         if (s[0] == 'v' || s[0] == 'V')
+            s = s.substr(1);
          c = std::atoi(s.data());
       } catch(const std::invalid_argument&) {
          std::cerr << "component :" << s << " not a valid component." << std::endl;
@@ -101,19 +104,23 @@ public:
       min = 0;
       patch = 0;
       tweak = "";
-      std::vector<std::string> comps;
-      boost::split(comps, s, boost::is_any_of(".,-"));
+      auto comps = system::split<'.', '-'>(s);
+
+      bool ret = true;
 
       switch (comps.size()) {
-         case 1:
-            return to_component(maj, comps[0]);
-         case 2:
-            return to_component(maj, comps[0]) && to_component(min, comps[1]);
-         case 3:
-            return to_component(maj, comps[0]) && to_component(min, comps[1]) && to_component(patch, comps[2]);
          case 4:
             tweak = comps[3];
-            return to_component(maj, comps[0]) && to_component(min, comps[1]) && to_component(patch, comps[2]);
+            [[fallthrough]];
+         case 3:
+            ret = to_component(patch, comps[2]);
+            [[fallthrough]];
+         case 2:
+            ret &= to_component(min, comps[1]);
+            [[fallthrough]];
+         case 1:
+            ret &= to_component(maj, comps[0]);
+            return ret;
          default:
             std::cerr << "Version string is malformed " << s << std::endl;
             return false;
@@ -165,15 +172,15 @@ public:
 
    /// Get the major component of the version.
    /// @return The major component of the version.
-   [[nodiscard]] inline int16_t major() const noexcept { return major_comp; }
+   [[nodiscard]] inline uint16_t major() const noexcept { return major_comp; }
 
    /// Get the minor component of the version.
    /// @return The major component of the version.
-   [[nodiscard]] inline int16_t minor() const noexcept { return minor_comp; }
+   [[nodiscard]] inline uint16_t minor() const noexcept { return minor_comp; }
 
    /// Get the patch component of the version.
    /// @return The major component of the version.
-   [[nodiscard]] inline int16_t patch() const noexcept { return patch_comp; }
+   [[nodiscard]] inline uint16_t patch() const noexcept { return patch_comp; }
 
    /// Get the tweak component of the version.
    /// @return The major component of the version.

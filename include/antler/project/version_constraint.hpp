@@ -26,7 +26,7 @@ public:
    /// Clear this constraint.
    void clear();
 
-   /// @return true if the constraint is a iunque value (e.g. `== 3.0.2` as opposed to `>= 3.0.2` or `== 3.0.2 | == 4.0.)
+   /// @return true if the constraint is a unque value (e.g. `== 3.0.2` as opposed to `>= 3.0.2` or `== 3.0.2 | == 4.0.)
    [[nodiscard]] bool is_unique() const noexcept;
 
    /// @return true if this constraint is empty or invalid.

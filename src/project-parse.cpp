@@ -94,7 +94,7 @@ template <typename NODE_T>
       }
 
       // Get the key as one of our enums for a switch.
-      token tok = token_from_str(sv_from_csubstr(i.key()));
+      auto tok = system::from_string<token>(sv_from_csubstr(i.key()));
       switch (tok) {
 
          case token::name: {
@@ -220,7 +220,7 @@ template <typename NODE_T>
       }
 
       // Get the key as one of our enums for a switch.
-      token tok = token_from_str(sv_from_csubstr(i.key()));
+      auto tok = system::from_string<token>(sv_from_csubstr(i.key()));
       switch (tok) {
 
          case token::name: {
@@ -370,17 +370,18 @@ std::optional<project> project::parse(const std::filesystem::path& path, std::os
       }
 
       // Get the key as one of our enums for a switch.
-      token tok = token_from_str(sv_from_csubstr(i.key()));
+      auto tok = system::from_string<token>(sv_from_csubstr(i.key()));
+
       switch (tok) {
 
          case token::project: {
             // Sanity check before setting value.
             if (!i.has_val()) {
-               os << "Project tag at root level with no value.\n";
+               os << "Project key at root level with no value.\n";
                return {};
             }
             if (!rv.name().empty()) {
-               os << "Multiple project tags at root level: " << rv.name() << ", " << i.val() << "\n";
+               os << "Multiple project key at root level: " << rv.name() << ", " << i.val() << "\n";
                return {};
             }
             rv.name(sv_from_csubstr(i.val()));
@@ -389,11 +390,11 @@ std::optional<project> project::parse(const std::filesystem::path& path, std::os
          case token::version: {
             // Sanity check before setting value.
             if (!i.has_val()) {
-               os << "Version tag at root level with no value.\n";
+               os << "Version key at root level with no value.\n";
                return {};
             }
             if (!rv.version().empty()) {
-               os << "Multiple version tags at root level: " << rv.version().to_string() << ", " << i.val() << "\n";
+               os << "Multiple version keys at root level: " << rv.version().to_string() << ", " << i.val() << "\n";
                return {};
             }
             rv.version(antler::project::version(sv_from_csubstr(i.val())));
@@ -415,12 +416,12 @@ std::optional<project> project::parse(const std::filesystem::path& path, std::os
 
             // The list type.
             const object::type_t ot =
-               (tok == token::apps ? object::app :
-                     (tok == token::libraries ? object::lib : object::test) );
+               (tok == token::apps ? object::type_t::app :
+                     (tok == token::libraries ? object::type_t::lib : object::type_t::test) );
             // A reference to the list we want to populate.
             object::list_t& list =
-               (ot == object::app ? rv.m_apps :
-                     (ot == object::lib ? rv.m_libs : rv.m_tests) );
+               (ot == object::type_t::app ? rv.m_apps :
+                     (ot == object::type_t::lib ? rv.m_libs : rv.m_tests) );
 
             // For each object in the list, call parse object.
             for (auto node : i) {
@@ -437,22 +438,8 @@ std::optional<project> project::parse(const std::filesystem::path& path, std::os
          } break;
 
 
-         case token::command:
-         case token::depends:
-         case token::from:
-         case token::hash:
-         case token::lang:
-         case token::name:
-         case token::options:
-         case token::patch:
-         case token::release:
-         case token::tag: {
-            os << "Unexpected tag at root level: " << tok << "\n";
-            return {};
-         }
-
-         case token::error: {
-            os << "Unknown tag at root level: " << i.key() << "\n";
+         default: {
+            os << "Unexpected key at root level: " << tok << "\n";
             return {};
          }
       }
@@ -460,8 +447,8 @@ std::optional<project> project::parse(const std::filesystem::path& path, std::os
 
 
    // Validate here.
-   if (!rv.is_valid(os))
-      return {};
+   //if (!rv.is_valid(os))
+   //   return {};
 
    return rv;
 }

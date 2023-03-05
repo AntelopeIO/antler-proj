@@ -1,14 +1,18 @@
 /// @copyright See `LICENSE` in the root directory of this project.
 
 #include <antler/project/version_constraint.hpp>
-#include "test_common.hpp"
+
+#include <catch2/catch.hpp>
+#include "common.hpp"
 
 #include <string>
 #include <vector>
 #include <iostream>
 #include <sstream>
 
+using namespace antler::project;
 
+#if 0
 struct constraint_entry {
    std::string ver;        // left comparison
    std::string constraint; // right comparison
@@ -39,43 +43,15 @@ const std::vector<constraint_entry> compare_list = {
    { "3.0",     ">= 2.0.12, < 2.1 | >= 2.1.3, < 2.2 | >= 2.2.3, < 2.3 | >= 2.3.2, < 3 | >= 3.2", false},
    { "3.2-rc0", ">= 2.0.12, < 2.1 | >= 2.1.3, < 2.2 | >= 2.2.3, < 2.3 | >= 2.3.2, < 3 | >= 3.2", false},
 };
+#endif
 
+inline bool test_constraint(std::string_view v, std::string_view c) { return version_constraint{c}.test(version{v}); }
 
-void test_version() {
-
-   for (auto& a : compare_list) {
-      antler::project::version ver(a.ver);
-      antler::project::version_constraint cons(a.constraint);
-      std::stringstream ss;
-      ss << a.ver << " " << a.constraint << " expect " << (a.result ? "true" : "false");
-      auto msg = ss.str();
-
-      TEST(msg, cons.test(ver) == a.result)
-   }
-}
-
-
-
-/*
-struct constraint_entry {
-   version v;
-   contstraint c;
-   bool e;                      // expectation: constraint wor
-   //expectation e;
-};
-
-
-
-std::vector<std::string> versions {
-   { "1.0rc1", ">=1.0.0", false
-
-
-*/
-
-
-int main(int, char**) {
-
-   test_version();
-
-   return result();
+TEST_CASE("Testing version constraints") {
+   REQUIRE(test_constraint({"999"}, {""}));
+   REQUIRE(test_constraint({"1.0.0"}, {"1.0.0"}));
+   REQUIRE(test_constraint({"1.0.0"}, {"<=1.0.0"}));
+   REQUIRE(test_constraint({"1.0.0"}, {">=1.0.0"}));
+   REQUIRE(!test_constraint({"1.0.0"}, {"<1.0.0"}));
+   REQUIRE(!test_constraint({"1.0.0"}, {">1.0.0"}));
 }

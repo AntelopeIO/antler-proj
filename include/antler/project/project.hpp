@@ -75,25 +75,28 @@ public:
    /// @param type  If type is other than any, the search is limited to that single type.
    /// @return true if an object with the provided name exists in the indicated list.
    [[nodiscard]] bool object_exists(std::string_view name, object::type_t type = object::type_t::any) const noexcept;
+
    /// Return the first object with the matching name where search order is apps, libs, tests.
    /// @TODO replace this with a std::vector<antler::project::object>/antler::project::object::list_t to return all the objects
    /// with matching names.
    /// @param name  The name to search for in the object lists.
    /// @param type  If type is other than any, the search is limited to that single type.
    /// @return vector with copies of the objects.
-   [[nodiscard]] std::vector<antler::project::object> object(std::string_view name, object::type_t type = object::type_t::any) const noexcept;
-
-   [[nodiscard]] antler::project::object& object(std::string_view name);
+   [[nodiscard]] antler::project::object& object(std::string_view name); 
 
    /// @return A const ref to the application list.
-   [[nodiscard]] const antler::project::object::list_t& apps() const noexcept;
+   [[nodiscard]] inline const antler::project::object::list_t& apps() const noexcept { return m_apps; }
    /// @return A const ref to the library list.
-   [[nodiscard]] const antler::project::object::list_t& libs() const noexcept;
+   [[nodiscard]] inline const antler::project::object::list_t& libs() const noexcept { return m_libs; }
    /// @return A const ref to the test list.
-   [[nodiscard]] const antler::project::object::list_t& tests() const noexcept;
-   /// @return a list of ALL the
-   [[nodiscard]] antler::project::object::list_t all_objects() const noexcept;
-   [[nodiscard]] antler::project::object::list_t& all_objects() noexcept;
+   [[nodiscard]] inline const antler::project::object::list_t& tests() const noexcept { return m_tests; }
+
+   /// @return A ref to the application list.
+   [[nodiscard]] inline antler::project::object::list_t& apps() noexcept { return m_apps; }
+   /// @return A ref to the library list.
+   [[nodiscard]] inline antler::project::object::list_t& libs() noexcept { return m_libs; }
+   /// @return A ref to the test list.
+   [[nodiscard]] inline antler::project::object::list_t& tests() noexcept { return m_tests; }
 
    /// Validate the project.
    /// @param error_stream  Stream location for printing warnings and errors.

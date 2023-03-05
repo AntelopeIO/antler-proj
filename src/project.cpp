@@ -8,22 +8,7 @@
 
 namespace antler::project {
 
-
-//--- constructors/destrructor ------------------------------------------------------------------------------------------
-
-
 //--- alphabetic --------------------------------------------------------------------------------------------------------
-
-object::list_t& project::all_objects() noexcept { return m_apps; }
-object::list_t project::all_objects() const noexcept { return m_apps; }
-
-
-
-const object::list_t& project::apps() const noexcept {
-   return m_apps;
-}
-
-
 bool project::init_dirs(const std::filesystem::path& path, bool expect_empty, std::ostream& error_stream) noexcept {
 
    std::error_code sec;
@@ -54,12 +39,6 @@ bool project::init_dirs(const std::filesystem::path& path, bool expect_empty, st
    return true;
 }
 
-
-const object::list_t& project::libs() const noexcept {
-   return m_libs;
-}
-
-
 std::string_view project::name() const noexcept {
    return m_name;
 }
@@ -85,32 +64,6 @@ antler::project::object& project::object(std::string_view name) {
 
    throw std::runtime_error("object not found.");
 }
-
-std::vector<antler::project::object> project::object(std::string_view name,  object::type_t type) const noexcept {
-
-   std::vector<antler::project::object> rv;
-
-   if(type == object::type_t::any || type == object::type_t::app) {
-      auto temp = std::find_if(m_apps.begin(), m_apps.end(), [name](const auto& o) { return o.name() == name; });
-      if (temp != m_apps.end())
-         rv.emplace_back(*temp);
-   }
-
-   if(type == object::type_t::any || type == object::type_t::lib) {
-      auto temp = std::find_if(m_libs.begin(), m_libs.end(), [name](const auto& o) { return o.name() == name; });
-      if (temp != m_libs.end())
-         rv.emplace_back(*temp);
-   }
-
-   if(type == object::type_t::any || type == object::type_t::test) {
-      auto temp= std::find_if(m_tests.begin(), m_tests.end(), [name](const auto& o) { return o.name() == name; });
-      if (temp != m_tests.end())
-         rv.emplace_back(*temp);
-   }
-
-   return rv;
-}
-
 
 bool project::object_exists(std::string_view name, object::type_t type) const noexcept {
 
@@ -150,7 +103,7 @@ bool project::remove(std::string_view name, object::type_t type) noexcept {
 
    bool rv = false;
 
-   if (type == object::any || type == object::app) {
+   if (type == object::type_t::any || type == object::type_t::app) {
       auto i = std::find_if(m_apps.begin(), m_apps.end(), [name](const antler::project::object& o) { return o.name() == name; });
       if (i != m_apps.end()) {
          m_apps.erase(i);
@@ -158,7 +111,7 @@ bool project::remove(std::string_view name, object::type_t type) noexcept {
       }
    }
 
-   if (type == object::any || type == object::lib) {
+   if (type == object::type_t::any || type == object::type_t::lib) {
       auto i = std::find_if(m_libs.begin(), m_libs.end(), [name](const antler::project::object& o) { return o.name() == name; });
       if (i != m_libs.end()) {
          m_libs.erase(i);
@@ -166,7 +119,7 @@ bool project::remove(std::string_view name, object::type_t type) noexcept {
       }
    }
 
-   if (type == object::any || type == object::test) {
+   if (type == object::type_t::any || type == object::type_t::test) {
       auto i = std::find_if(m_tests.begin(), m_tests.end(), [name](const antler::project::object& o) { return o.name() == name; });
       if (i != m_tests.end()) {
          m_tests.erase(i);
@@ -189,7 +142,6 @@ bool project::sync(std::ostream& es) noexcept {
    try {
 
       // Open the file.
-
       std::ofstream out(m_path);
       if (!out.is_open()) {
          es << "Problem opening " << m_path << "\n";
@@ -197,21 +149,15 @@ bool project::sync(std::ostream& es) noexcept {
       }
       // Print this project to the file.
       print(out);
+      out.flush();
    }
    catch(std::exception& e) {
       es << "Exception: " << e.what() << "\n";
       return false;
    }
 
-   // Now, truly sync.
-   return system("sync") == 0;
+   return true;
 }
-
-
-const object::list_t& project::tests() const noexcept {
-   return m_tests;
-}
-
 
 std::string project::to_yaml() const noexcept {
 
@@ -254,12 +200,12 @@ bool project::update_path(std::filesystem::path& path) noexcept {
 void project::upsert(antler::project::object&& obj) noexcept {
 
    switch (obj.type()) {
-      case object::app: upsert_app(std::move(obj)); break;
-      case object::lib: upsert_lib(std::move(obj)); break;
-      case object::test: upsert_test(std::move(obj)); break;
+      case object::type_t::app: upsert_app(std::move(obj)); break;
+      case object::type_t::lib: upsert_lib(std::move(obj)); break;
+      case object::type_t::test: upsert_test(std::move(obj)); break;
 
-      case object::any:
-      case object::none:
+      case object::type_t::any:
+      case object::type_t::error:
          // error state!
          std::cerr << "Failed to upsert object with name and type: " << obj.name() << ", " << obj.type() << std::endl;
          return;
@@ -308,24 +254,5 @@ void project::version(const antler::project::version& ver) noexcept {
    m_ver = ver;
 }
 
-bool project::is_valid(std::ostream& os) {
-   bool rv = true;
-
-   const auto& test_populated = [&](auto var, std::string_view s) {
-      if ((var).empty()) {
-         os << s << " is unpopulated." << std::endl;
-         rv = false;
-      }
-   };
-
-   // First, validate the members of this object.
-   test_populated(m_path, "path");
-   test_populated(m_name, "name");
-   test_populated(m_ver, "version");
-
-   // Now validate: apps, libs, and tests.
-
-   return rv;
-}
 
 } // namespace antler::project

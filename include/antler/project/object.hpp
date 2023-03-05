@@ -5,6 +5,8 @@
 #include <string>
 #include <string_view>
 #include "dependency.hpp"
+//#include "object_type_def.hpp"
+//#include "../system/preprocessor.hpp"
 
 #include <unordered_set>
 #include <vector>
@@ -14,13 +16,12 @@ namespace antler::project {
 /// This class represents one of the app, lib, or test objects in a `project.yaml` file.
 class object {
 public:
-   /// This enum is used to communicate object type.
-   enum type_t {
-      none,                     ///< generally used for invalid state.
-      app,                      ///< An application.
-      lib,                      ///< A library.
-      test,                     ///< A test.
-      any,                      ///< any/all, used for searches.
+   enum class type_t : uint8_t {
+      app,
+      lib,
+      test,
+      any,
+      error
    };
    using list_t = std::vector<object>;
 
@@ -86,7 +87,7 @@ public:
    [[nodiscard]] std::optional<antler::project::dependency> dependency(std::string_view name);
 
 private:
-   type_t m_type = none;                               ///< Object type: app, lib, or test.
+   type_t m_type = type_t::error;                      ///< Object type: app, lib, or test.
    std::string m_name = "";                            ///< Object name.
    antler::project::dependency::list_t m_dependencies; ///< list of dependencies.
 

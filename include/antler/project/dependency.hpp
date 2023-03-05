@@ -24,6 +24,11 @@ public:
 
 public:
    // use default constructors, copy and move constructors and assignments
+   dependency() = default;
+   inline dependency(std::string_view name, std::string_view loc, std::string_view tag="", 
+                     std::string_view rel="", std::string_view hash="") {
+      set(name, loc, tag, rel, hash);
+   }
 
 
    /// Sets the internal values (regardless of the validity).

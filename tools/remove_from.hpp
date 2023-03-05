@@ -3,7 +3,7 @@
 #include <iostream>
 #include <string>
 
-#include <CLI11.hpp>
+#include "CLI11.hpp"
 
 #include <antler/project/project.hpp>
 
@@ -48,14 +48,17 @@ namespace antler {
                   std::cerr << "Object: " << obj_name << " does not exist." << std::endl;
                }
             } else {
-               // Get all the objects and their names.
-               auto& all_objs = proj.all_objects();
-
-               for (auto& o : all_objs) {
-                  if (o.remove_dependency(dep_name)) {
-                     std::cout << "Removing dependency: " << dep_name << " from: " << o.name() << std::endl;
+               const auto& remove_dep = [](auto dep, auto& objs) {
+                  for (auto& o : objs) {
+                     if (o.remove_dependency(dep)) {
+                        std::cout << "Removing dependency: " << dep << " from: " << o.name() << std::endl;
+                     }
                   }
-               }
+               };
+               // Get all the objects and their names.
+               remove_dep(dep_name, proj.apps());
+               remove_dep(dep_name, proj.libs());
+               remove_dep(dep_name, proj.tests());
             }
          }
 

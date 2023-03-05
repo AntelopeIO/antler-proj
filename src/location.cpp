@@ -2,10 +2,10 @@
 
 #include <antler/project/location.hpp>
 
+#include <cstring>
 #include <filesystem>
 #include <iostream>
 #include <stdexcept>
-#include <boost/algorithm/string.hpp> // boost::split()
 
 #include <curl/curl.h>
 
@@ -18,7 +18,7 @@ static inline bool ends_with(std::string_view src, std::string_view comp) {
    if (src.size() < sz)
       return false;
    
-   return memcmp(&src[0] + src.size()-sz, &comp[0], sz) == 0;
+   return std::memcmp(&src[0] + src.size()-sz, &comp[0], sz) == 0;
 }
 
 static inline bool starts_with(std::string_view src, std::string_view comp) {
@@ -26,7 +26,7 @@ static inline bool starts_with(std::string_view src, std::string_view comp) {
    if (src.size() < sz)
       return false;
    
-   return memcmp(&src[0], &comp[0], sz) == 0;
+   return std::memcmp(&src[0], &comp[0], sz) == 0;
 }
 
 // object to encapsulate curl

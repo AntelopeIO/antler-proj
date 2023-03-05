@@ -3,11 +3,13 @@
 include(CTest)
 
 add_executable(unit_tests
+               main.cpp
+               init_tests.cpp
                #string_from.cpp
-               version_constraint.cpp 
-               version.cpp
+               version_constraint_tests.cpp 
+               version_tests.cpp
 )
 
 set_property(TARGET unit_tests PROPERTY CXX_STANDARD 17)
-target_link_libraries(unit_tests PRIVATE antler-project Catch2::Catch2)
+target_link_libraries(unit_tests antler-project Catch2::Catch2)
 catch_discover_tests(unit_tests)

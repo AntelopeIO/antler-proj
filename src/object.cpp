@@ -1,7 +1,7 @@
 /// @copyright See `LICENSE` in the root directory of this project.
 
 #include <antler/project/object.hpp>
-#include <boost/algorithm/string.hpp>
+#include <antler/system/utils.hpp>
 
 #include <algorithm> // find_if()
 #include <magic_enum.hpp>
@@ -18,14 +18,14 @@ object::object(type_t ot)
 object::object(type_t ot, std::string_view name, const std::string& lang, std::string_view opts)
    : m_type{ ot }
    , m_name{ name }
-   , m_language{ boost::algorithm::to_upper_copy(lang) }
+   , m_language{ system::to_upper(lang) }
    , m_options{ opts }
 {
 }
 
 
 object::object(std::string_view name, std::string_view command)
-   : m_type{ object::test }
+   : m_type{ type_t::test }
    , m_name{ name }
    , m_command{ command }
 {
@@ -143,6 +143,6 @@ std::istream& operator>>(std::istream& is, antler::project::object::type_t& e) {
    }
 
    // This might be an exceptional state and so maybe we should throw an exception?
-   e = antler::project::object::type_t::none;
+   e = antler::project::object::type_t::error;
    return is;
 }

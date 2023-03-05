@@ -13,9 +13,21 @@ add_subdirectory( tools )
 
 
 option(PEDANTIC_BUILD "Pedantic builds" On)
-option(BUILD_TESTS "Build and run the tests." Off)
+option(BUILD_TESTS "Build and run the tests." On)
 
 if(BUILD_TESTS)
   enable_testing()
-  add_subdirectory( test )
+  add_subdirectory( tests )
 endif()
+
+
+# Copy licenses to BUILD dir
+#
+#  NOTE: This is used due to legacy requirements instead of:
+#    `install(FILE <license files> COMPONENT Documentation DESTINATION share/aproj/licenses)`
+configure_file(LICENSE ${CMAKE_BINARY_DIR}/licenses/LICENSE COPYONLY)
+file(GLOB license_files licenses/*)
+foreach(full_path IN ITEMS ${license_files})
+  string(REPLACE "${CMAKE_SOURCE_DIR}/" "" file_name ${full_path})
+  configure_file("${file_name}" "${CMAKE_BINARY_DIR}/${file_name}" COPYONLY)
+endforeach()
