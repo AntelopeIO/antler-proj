@@ -60,6 +60,23 @@ namespace antler::system {
       }
    }
 
+   inline static int32_t execute(std::string_view prog) {
+      FILE* h = popen(prog.data(), "r");
+      if (h == nullptr) {
+         std::cerr << "internal failure, program " << prog << " not found." << std::endl;
+         return -1;
+      }
+
+      std::array<char, 64> buff;
+
+      std::size_t n;
+
+      while ((n = fread(buff.data(), 1, buff.size(), h)) > 0) {
+         fwrite(buff.data(), 1, n, stdout);
+      }
+      return WEXITSTATUS(pclose(h));
+   }
+
 } // namespace antler::system
 
 // expose all enum operators

@@ -2,14 +2,13 @@
 
 /// @copyright See `LICENSE` in the root directory of this project.
 
+#include <regex>
 #include <string>
 #include <string_view>
-#include "dependency.hpp"
-//#include "object_type_def.hpp"
-//#include "../system/preprocessor.hpp"
-
 #include <unordered_set>
 #include <vector>
+
+#include "dependency.hpp"
 
 namespace antler::project {
 
@@ -77,7 +76,6 @@ public:
    /// @param s  The new test command.
    void command(std::string_view s) noexcept;
 
-
    /// Update or insert a dependency.
    /// @param dep  The dependency to upsert.
    void upsert_dependency(antler::project::dependency&& dep) noexcept;
@@ -94,6 +92,13 @@ public:
    /// @param name  The name to search for in the dependency list.
    /// @return optional with a copy of the dependency.
    [[nodiscard]] std::optional<antler::project::dependency> dependency(std::string_view name);
+
+   /// If an object name is valid? I.e. valid C/C++ name.
+   /// @param name  The name to check.
+   /// @return true if the name is valid, false otherwise.
+   [[nodiscard]] inline static bool is_valid_name(std::string_view name) { 
+      return std::regex_match(name.data(), std::regex("[a-zA-z][_a-zA-Z0-9]+")); 
+   }
 
 private:
    type_t m_type = type_t::error;                      ///< Object type: app, lib, or test.

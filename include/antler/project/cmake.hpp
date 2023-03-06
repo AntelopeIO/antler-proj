@@ -13,15 +13,18 @@ namespace antler::project {
    struct cmake {
       constexpr inline static uint16_t minimum_major = 3;
       constexpr inline static uint16_t minimum_minor = 13;
+      constexpr inline static std::string_view cmake_lists = "CMakeLists.txt";
+      constexpr inline static std::string_view cmake_exe   = "cmake";
 
       inline static std::string cmake_target_name(const project& proj, const object& obj) {
          using namespace std::literals;
-         return std::string(proj.name()) + "_"s + std::string(obj.name());
+         return std::string(proj.name()) + "-"s + std::string(obj.name());
       }
 
       template <typename Stream>
-      inline static void emit_add_subdirectory(Stream& s, const std::filesystem::path& p) noexcept { 
-         s << "add_subdirectory(" << p.string() << ")\n";
+      inline static void emit_add_subdirectory(Stream& s, std::string_view path, std::string_view name) noexcept { 
+         s << "add_subdirectory(${CMAKE_SOURCE_DIR}/" << path << "/" << name << ")\n";
+         s << std::endl;
       }
 
       template <typename Stream>
@@ -34,9 +37,10 @@ namespace antler::project {
       }
 
       template <typename Stream>
-      inline static void emit_add_base_subdirs(Stream& s) noexcept {
-         s << "add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../libs ${CMAKE_CURRENT_BINARY_DIR}/libs)\n";
-         s << "add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../tests ${CMAKE_CURRENT_BINARY_DIR}/tests)\n";
+      inline static void emit_project(Stream& s, const project& proj) noexcept {
+         s << "find_package(cdt)\n\n";
+         s << "add_subdirectory(${CMAKE_SOURCE_DIR}/../libs ${CMAKE_CURRENT_BINARY_DIR}/libs)\n";
+         s << "add_subdirectory(${CMAKE_SOURCE_DIR}/../tests ${CMAKE_CURRENT_BINARY_DIR}/tests)\n";
          s << std::endl;
       }
 
@@ -45,6 +49,7 @@ namespace antler::project {
          for (const auto& dep : obj.dependencies()) {
             s << "target_link_libraries(" << cmake_target_name(proj, obj) << " PUBLIC " << dep.name() <<")\n";
          }
+         s << std::endl;
       }
 
       template <typename Stream>
@@ -69,31 +74,15 @@ namespace antler::project {
 
       template <typename Stream>
       inline static void emit_app(Stream& s, const object& app, const project& proj) noexcept {
-         s << "add_executable(" << cmake_target_name(proj, app) << " " << app.name() << ".cpp" << ")\n"; 
+         s << "add_contract(" << app.name() << " " << cmake_target_name(proj, app) << " " << "${CMAKE_SOURCE_DIR}/../../apps/" 
+           << app.name() << "/" << app.name() << ".cpp" << ")\n"; 
          s << "target_include_directories(" << cmake_target_name(proj, app) 
-                                            << " PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include "
-                                            << "${CMAKE_CURRENT_SOURCE_DIR}/include/" << app.name() << " ./ )\n\n"; 
+                                            << " PUBLIC ${CMAKE_SOURCE_DIR}/../../include "
+                                            << "${CMAKE_SOURCE_DIR}/../../include/" << app.name() << " ./ )\n\n"; 
          emit_dependencies(s, proj, app);
          s << std::endl;
       }
 
-      template <typename Stream>
-      inline static void emit_project(Stream& s, const project& proj) noexcept {
-         for (auto app : proj.apps()) {
-            emit_app(s, app, proj);
-         }
-      }
    };
-
-/// @return the cmake_minimum string with trailing newline.
-[[nodiscard]] std::string minimum(unsigned major = 0, unsigned minor = 0, unsigned patch = 0) noexcept;
-
-/// @return the add_subdirectory string: add_subdirectory( "<path>" )\n
-[[nodiscard]] std::string add_subdirectory(const std::filesystem::path& path) noexcept;
-
-/// @return A string including the project name: project("<proj_name>")\n
-//[[nodiscard]] std::string project(std::string_view proj_name);
-/// @return A string including the project name: project("<proj_name>" VERSION <ver>)\n
-//[[nodiscard]] std::string project(std::string_view proj_name, const project::semver& ver) noexcept;
 
 } // namespace antler::project

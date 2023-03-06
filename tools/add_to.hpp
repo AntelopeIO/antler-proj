@@ -20,6 +20,54 @@ namespace antler {
             return false;
          }
 
+         if (!project::object::is_valid_name(obj_name)) {
+            std::cerr << "Object name: " << obj_name << " is not a valid name.\n";
+            std::cerr << "Valid names are of the form [a-ZA-Z][_a-zA-Z0-9]+\n";
+            return false;
+         }
+         
+         // TODO for the next release we will remove the C++ restrictions
+         const auto& is_valid_cpp_lang = [](auto l) {
+            return l == "cpp" ||
+                   l == "CPP" ||
+                   l == "c++" ||
+                   l == "C++" ||
+                   l == "cxx" ||
+                   l == "CXX" ||
+                   l == "Cxx";
+         };
+
+         const auto& is_valid_c_lang = [](auto l) {
+            return l == "C" ||
+                   l == "c";
+         };
+
+         // we need to produce stub for the app
+         if (Ty == project::object::type_t::app) {
+            if (!is_valid_cpp_lang(lang)) {
+               std::cerr << "Sorry, as of this version only C++ is available. Given : " << lang << "\n";
+               std::cerr << "This restriction will be removed in future releases.\n";
+               return false;
+            }
+            lang = "CXX";
+         } else {
+            if (is_valid_cpp_lang(lang))
+               lang = "CXX";
+            else if (is_valid_c_lang(lang))
+               lang = "C";
+            else {
+               std::cerr << "Sorry, as of this version only C or C++ is available. Given : " << lang << "\n";
+               std::cerr << "This restriction will be removed in future releases.\n";
+               return false;
+            }
+         }
+
+         auto path = proj.path().parent_path();
+         std::filesystem::create_directory(path / project::detail::dir<Ty>() / obj_name);
+         std::filesystem::create_directory(path / std::filesystem::path("include") / obj_name);
+         project::source<Ty>::create_source_file(path, obj_name);
+         project::source<Ty>::create_specification_file(path, obj_name);
+
          auto obj = antler::project::object(Ty, obj_name, lang, copts, lopts);
          proj.upsert<Ty>(std::move(obj));
          std::cout
@@ -29,17 +77,6 @@ namespace antler {
             << "compile options:  " << copts << '\n'
             << "link options:  " << lopts << '\n'
             << std::endl;
-
-         std::cout << "PATH " << proj.path() << "\n";
-
-         // we need to produce stub for the app
-         if (Ty == project::object::type_t::app) {
-            auto path = proj.path().parent_path();
-            std::filesystem::create_directory(path / "apps" / obj_name);
-            project::app_source::create_source_file(path, obj_name);
-            project::app_source::create_specification_file(path, obj_name);
-         }
-
          return true;
       }
 

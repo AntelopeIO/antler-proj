@@ -22,7 +22,13 @@ namespace antler {
             return -1;
          }
 
-         return proj->populate() ? 0 : -1;
+         if (!proj->populate()) {
+            std::cerr << "Project population failed!" << std::endl;
+            return -1;
+         }
+
+         std::cout << "Project population successful!" << std::endl;
+         return 0;
       }
       
       CLI::App*   subcommand;

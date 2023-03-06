@@ -16,6 +16,7 @@
 
 #include "add_to.hpp"
 #include "app_version.hpp"
+#include "build.hpp"
 #include "init.hpp"
 #include "populate.hpp"
 #include "remove_from.hpp"
@@ -56,6 +57,7 @@ int main(int argc, char** argv) {
 
    runner<antler::add_to_project, 
           antler::app_version,
+          antler::build_project,
           antler::init_project,
           antler::populate_project,
           antler::remove_from_project,

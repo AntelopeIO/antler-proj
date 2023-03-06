@@ -44,11 +44,17 @@ bool project::populate(bool replace, std::ostream& error_stream) noexcept {
    auto project_path = m_path.parent_path();
    if (!init_dirs(project_path, false, error_stream)) // expect_empty is `false`, it's okay if everthing exists.
       return false;                                   // But its not okay if the filesystem doesn't already exist AND can't be created.
+   
+   auto build_path = project_path / std::filesystem::path("build");
+   std::filesystem::create_directory(build_path);
+   std::filesystem::create_directory(project_path / std::filesystem::path("build") / std::filesystem::path("apps"));
+   std::filesystem::create_directory(project_path / std::filesystem::path("build") / std::filesystem::path("libs"));
+   std::filesystem::create_directory(project_path / std::filesystem::path("build") / std::filesystem::path("tests"));
 
-   auto root_path = project_path / cmake_lists;
-   auto apps_path = project_path / std::filesystem::path("apps") / cmake_lists;
-   auto libs_path = project_path / std::filesystem::path("libs") / cmake_lists;
-   auto tests_path = project_path / std::filesystem::path("tests") / cmake_lists;
+   auto root_path = build_path / cmake_lists;
+   auto apps_path = build_path / std::filesystem::path("apps") / cmake_lists;
+   auto libs_path = build_path / std::filesystem::path("libs") / cmake_lists;
+   auto tests_path = build_path / std::filesystem::path("tests") / cmake_lists;
 
    bool create = true;
    // Look to see if the header contains the magic, if it does we will not create the file.
@@ -80,19 +86,44 @@ bool project::populate(bool replace, std::ostream& error_stream) noexcept {
       error_stream << "Can not open path for writing\n";
       return false;
    } else {
-      return try_emit(root_path, [&]() {
+      if (!try_emit(root_path, [&]() {
          cmake::emit_preamble(rfs, *this);
          cmake::emit_entry(rfs, *this);
-      })
-      &&
-      try_emit(apps_path, [&]() {
+      })) {
+         error_stream << "Error emitting cmake for root.\n";
+         return false;
+      }
+      
+      if (!try_emit(apps_path, [&]() {
          cmake::emit_preamble(afs, *this);
-         cmake::emit_add_base_subdirs(afs);
          cmake::emit_project(afs, *this);
-      });
+      })) {
+         error_stream << "Error emitting base cmake for project.\n";
+         return false;
+      }
+      
+      for (const auto& app : apps()) {
+         auto app_path = apps_path.parent_path() / std::filesystem::path(app.name()) / cmake_lists;
+         std::filesystem::create_directory(app_path.parent_path());
+         std::ofstream apfs(app_path);
+
+         if (!try_emit(apps_path, [&](){
+            cmake::emit_add_subdirectory(afs, ".", app.name());
+         })) {
+            error_stream << "Error emitting cmake for app: " << app.name() << "\n";
+            return false;
+         }
+
+         if (!try_emit(app_path, [&]() {
+            cmake::emit_app(apfs, app, *this);
+         })) {
+            error_stream << "Error emitting cmake for app: " << app.name() << "\n";
+            return false;
+         }
+      }
    }
 
-   return false;
+   return true;
 }
 
 
