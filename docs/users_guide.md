@@ -18,79 +18,78 @@
 
 - [Using of a contract](#Using-of-a-contract)
 
-[Addressbook example](#Addressbook-example)
+[Address book example](#Address-book-example)
 
 [Tic-Tac-Toe example](#Tic-Tac-Toe-example)
 
 [Creation of a custom template](#Creating-of-a-custom-template)
 
 
-In this guide we will learn how to use aproj to simplify and speedup of development of the contract projects. 
-If you want to learn abilities of aporj, it's commands, how it works and how it designed please read this document https://github.com/AntelopeIO/antler-proj/blob/main/docs/usecases.md
+In this guide, we will learn how to use aproj to simplify and speedup of development of the contract projects. 
+If you want to learn the abilities of aproj, it's commands, how it works and how it is designed please read this document https://github.com/AntelopeIO/antler-proj/blob/main/docs/usecases.md
 
-In order to show why it make sense to use aproj we take examples from EOS tutorials and show how to create and manage these projects with aproj.
+In order to show why it makes sense to use aproj we take examples from EOS tutorials and show how to create and manage these projects with aproj.
 
-The general way of using of aptoj looks like this:
+The general way of using of aproj looks like this:
 
 - ##### We ask aproj to create a new project for us.
 
-Project is a complex of applications which implements the smart contracts and other kinds of programs, programming libraries and other dependencies which needed for building of the applications, and tests needed for testing of the applications and the libraries.
+A project is a complex set of applications which implements the smart contracts and other kinds of programs, programming libraries and other dependencies which are needed for building the applications. Additionally tests are also part of the project.
 
 - ##### We ask aproj to add a new application, library or test to the project.
 
-By default aproj creates a set of empty directories, project files and building files enough for start of the building process. 
-But we may ask aproj add a new application, library or test from templates of the template library of aproj.
-In this case it adds files where implemented frequently used project structures and functions. 
-Or even you can create your own template which implements all needed features which you often use.
+By default, aproj creates a set of empty directories, project files and building files enough for the start of the building process. 
+But we may ask aproj to add a new application, library or test from templates of the template library of aproj.
+In this case, it adds files with frequently used project structures and functions.
+Or even you can create your own template which implements all the needed features which you often use.
 
-- ##### We add to the project descriptions of all dependencies needed building for our applications, libraries or tests
+- ##### We add to the project descriptions of all dependencies needing a build for our applications, libraries or tests
 
 Like external libraries or/and data files.
 
-- ##### We ask aproj to download all external dependencies and build all part of the project.
+- ##### We ask aproj to download all external dependencies and build all parts of the project.
 
-And here we have binaries of the smart contracts ready for deploying into the block chain and work
+And here we have binaries of the smart contracts ready for deploying into the blockchain and work
 
 
 
 ## Prerequisites
 
-Lets say we have successfully installed EOS tools and the test network is already bootstrapped and ready for deploying of the user's contacts.
+Let's say we have successfully installed EOS tools and the test network is already bootstrapped and ready for deploying of the user's contacts.
 
 ## Understanding of templates
 
-Aproj has a library of templates. They allows to make a stub of any kind of application and use it as a good base for a new project where the frequently used code is already implemented. You won't need to copy it from one project to another and manually edit names of files, classes and variables which are different in different projects.
+Aproj has a library of templates. They allow making a stub of any kind of application and use it as a good base for a new project where the frequently used code is already implemented. You won't need to copy it from one project to another and manually edit names of files, classes and variables which are different in different projects.
 
-The library of templates is organized very simple. It is a set of directories. Each directory contains directory structure of a project with all needed files for this project. All the texts inside of the files which may be changed are described as macros. Creation of a new project from a template have following algorithm:
+The library of templates is organized very simple. It is a set of directories. Each directory contains the directory structure of a project with all the needed files for this project. All the texts inside the files which may be changed are described as macros. Creation of a new project from a template has the following algorithm:
  
-0. User runs a command: aproj ./project_path add --app --template template_name
- 
-1. Copy of a directories and files from the chosen template into the project directory; 
-2. Change names of files and directories corresponding to name of the project 
-3. Process each file with macro processor to substitute macros to real data in the files. Any user may  create his/her own templates by copying and editing of existing templates and adding of a new directory with the new template to the template storage.
+1. User runs a command: `aproj ./project_path add --app --template template_name`
+2. Copy of directories and files from the chosen template into the project directory
+3. Change names of files and directories corresponding to the name of the project 
+4. Process each file with macro processor to substitute macros to real data in the files. Any user may create his/her own templates by copying and editing of existing templates and adding a new directory with the new template to the template storage.
 
-Later in this guide we will learn this processes more details and create a new template from an existing template.
+Later in this guide we will learn this process in more details and create a new template from an existing template.
 
 ## Hello World example
 
 Let's see how to create and manage a project in aproj on the example of smart contract Hello World, described in EOS Tutorial here https://docs.eosnetwork.com/docs/latest/getting-started/smart-contract-development/hello-world/
 
-The tutorial has a detailed description of how to write, build and deploy the contract from scratch. Aproj is a more hight level tool designed to avoid manual work as much as possible. So here we will not create this project from scratch but create if from an existing template. This template calls "basic" and contains an implementation of a contract with one action. So after creation of the project from this template the user need only feel the method of the action by his own logic. We will write there the code which will prints "Hello <user>" as in the tutorial.
+The tutorial has a detailed description of how to write, build and deploy the contract from scratch. Aproj is a more high level tool designed to avoid manual work as much as possible. So here we will not create this project from scratch but create it from an existing template. The template used is "basic" and contains an implementation of a contract with one action. After creation of the project from this template, the user needs only to fill the method of the action with his own logic. We will write there the code which will print "Hello <user>" as in the tutorial.
 
 ## The Creation
 
 > _In the beginning was the Word, and the Word was with two bytes._
 
-We need to create a directory with an empty project structure into this directory. So let's call
+We need to create a directory with an empty project structure. So let's call
 
 `aproj init --name project`
 
 This call creates a new directory "project" in the current directory with an empty project structure.
-Optional key `--ver` may be used to define an initial version of the project. 
+An optional key `--ver` may be used to define an initial version of the project. 
 
 For example: `aproj init --name project --ver 1.0`
 
-If the initial version of the project is not explicitly defined it is set to 0.0. 
+If the initial version of the project is not explicitly defined, it is set to 0.0. 
 
 ```
 ──project
@@ -102,9 +101,8 @@ If the initial version of the project is not explicitly defined it is set to 0.0
     └───project.yaml
 ```
 
-This is the structure of an empty project. It contains a `project.yaml` file with description of the project and 
-directories where will be created applications, programming libraries and test for these applications and
-libraries.
+This is the structure of an empty project. It contains a `project.yaml` file with a description of the project and 
+directories where it will create applications, programming libraries and tests for them.
 
 
 ## Adding of a new application
@@ -112,7 +110,7 @@ libraries.
 
 #### Hello example
 
-In order to add a new application we should call the following command:
+In order to add a new application, we should call the following command:
 
 `aproj add ./project --app --name hello --template basic`
 
@@ -133,7 +131,7 @@ apps/
         └── hello.cpp
 ```
 
-with all needed files for building of the project. File `hello.cpp` has implementation of a contract with
+with all needed files for building of the project. File `hello.cpp` has an implementation of a contract with
 and empty action:
 
 ```c++
@@ -172,9 +170,9 @@ class [[eosio::contract]] hello : public contract {
 };
 ```
 
-Update the Ricardian file and describe there what your contact and it's action do.
+Update the Ricardian file and describe there what your contact and its action do.
 
-Here is how generated Ricardian file looks like:
+Here is how the generated Ricardian file looks like:
 ```html
 <h1 class="contract">hello</h1>
 ---
@@ -185,7 +183,7 @@ You should rename this action and add your own code which will do something usef
 icon:
 ```
 
-Let's update it with correct description of our action:
+Let's update it with a correct description of our action:
 
 ```html
 <h1 class="contract">hello</h1>
@@ -197,16 +195,16 @@ caller in the command line.
 icon:
 ```
 
-## Building of a new application
+## Building a new application
 
-It time to build our app.
+It is time to build our app.
 
 Call `aproj build ./project`
 
 builds all libraries applications and tests described in the project.
 
 Call `aproj build ./project --app --name hello` 
-builds only an application with name hello.
+builds only an application with the name hello.
 
 If you need to rebuild the app or whole project from scratch, call:
 
@@ -220,7 +218,7 @@ for the application `hello` only
 
 ## Deploying of a contract
 
-When our contract is built we should deploy it to out block chain.
+When our contract is built, we should deploy it to our blockchain.
 It is easy to do with `DUNE`
 
 Call `dune --deploy ./projects/apps/hello/build/hello/ eosio`
@@ -231,19 +229,19 @@ Then let's call the action from the deployed contract.
 
 Call `dune --send-action eosio hello hi '["bob"]' bob@active`
 
-## Addressbook example
+## Address book example
 #### Adding of a new Application
 
 Now let's make an example described in EOS Tutorial here: https://docs.eosnetwork.com/docs/latest/getting-started/smart-contract-development/data-persistence/
 This is the implementation of an address book which shows how to use persistent data tables for saving data.
 
-The good base for making of this example is template `database` which generates implementation of a 
+The good base for making of this example is a template `database` which generates implementation of a 
 simple database with one multi index table. In order to add a new application to the project let's call:
 
 `aproj add ./project --app --name addressbook --template database`
 
 This call creates an application's directory `addressbook` in the project's directory `apps`.
-Now we have the following directory tree in the apps directory:
+Now we have the following directory tree in the `apps` directory:
  
 ```
 apps/
@@ -272,7 +270,7 @@ apps/
 
 ```
 
-File `addressbook.cpp` has implementation of a contract with a multi index table and action for adding, 
+File `addressbook.cpp` has implementation of a contract with a multi index table and actions for adding, 
 changing and removing data:
 
 ```c++
@@ -409,7 +407,7 @@ public:
 };    
 ```
 
-## Building of the Addressbook application
+## Building of the `Addressbook` application
 
 Now we have two applications in our project
 
@@ -417,7 +415,7 @@ Call `aproj build ./project`
 
 builds both of the applications.
 
-In order to build only the Addressbook app
+In order to build only the `Addressbook` app
 
 Call `aproj build ./project --app --name addressbook` 
 
@@ -425,11 +423,11 @@ The same for cleaning and rebuilding:
 
 `aproj clean ./project --app --name addressbook && aproj build ./project --app --name addressbook`
 
-## Deploying of the Addressbook contract
+## Deploying of the `Addressbook` contract
 
 Call `dune --deploy ./projects/apps/addressbook/build/addressbook/ eosio`
 
-## Using of the Addressbook contract
+## Using of the `Addressbook` contract
 
 Then let's call the action from the deployed contract.
 
@@ -441,10 +439,9 @@ Call: `dune --send-action eosio addressbook upsert '["alice", "alice", "liddell"
 This is another example from EOS Tutorial described here: 
 https://docs.eosnetwork.com/docs/latest/tutorials/tic-tac-toe-game-smart-contract-single-node/
 This example shows how to work with the same data table from several accounts, therefore the only difference with the
-previous example of the Addressbook is adding of accounts of the game players. It means that we can use for
-start of this project the same template and put our implementation of the contract. 
+previous example of the `Addressbook` is adding accounts of the game players. It means that we can initially use the same template and write our implementation of the contract. 
  
-So, in order to add a new application to the  project let's call:
+So, in order to add a new application to the project let's call:
 
 `aproj add ./project --app --name tic-tac-toe --template database`
 
@@ -712,7 +709,7 @@ icon:
 ---
 spec-version: 0.0.1
 title: move
-summary: This action sets a marker on the gameboard and updates the game board array. The host or the challenger may use this command.
+summary: This action sets a marker on the game board and updates the game board array. The host or the challenger may use this command.
 icon:
 ```
 #### Build Tic-Tac-Toe application
@@ -737,7 +734,7 @@ Call `dune --deploy ./projects/apps/tic-tac-toe/build/tic-tac-toe/ tictactoe@act
 
 `dune --get-table host tictactoe games`
 
-This call prints current state of the table `games`
+This call prints the current state of the table `games`
 
 #### Restart the Game
 
@@ -749,18 +746,17 @@ This call prints current state of the table `games`
 
 ## Creating of a custom template
 
-Template is a directory structure which contains all files needed for a project. 
-The only difference with a project directory structure is that all names inside of the files
-that dependent on name and type of the project are changed to macros. 
+A template is a directory structure which contains all files needed for a project. 
+The only difference in a project directory structure is that all the names inside the files
+that depend on the name and type of the project are changed to macros. 
 
-When Antler-proj creates a new project from a template it copy the directory structure of 
-a chosen template to the project directory, rename files which contain the template name to the project name
-and run a macro processor for each of the template file. As you see it is easy to convert to a template
-any of your project.
+When Antler-proj creates a new project from a template it copies the directory structure of 
+a chosen template to the project directory, renames files which contain the template name to the project name
+and runs a macro processor for each of the template file. As you see, it is easy to convert any of your project to a template.
 
 Let's see at the simplest template `"basic"`. All templates are placed in `~/.config/aproj/templates` directory
 
-Let's go there and find a directory with name `"basic"`. It has following structure:
+Let's go there and find a directory with the name `"basic"`. It has the following structure:
 
 ```
 templates/
