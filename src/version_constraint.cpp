@@ -45,7 +45,7 @@ inline std::string_view trim(std::string_view s) {
    auto last = std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) {return !std::isspace(ch);});
    // Convert the reverse iter last to the forward iterator containing end using base().
    //    See: https://en.cppreference.com/w/cpp/iterator/reverse_iterator/base
-   return std::string_view{first, last.base() - first};
+   return std::string_view{first, static_cast<std::string_view::size_type>(last.base() - first)};
 }
 
 
