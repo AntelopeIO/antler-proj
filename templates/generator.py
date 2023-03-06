@@ -1,10 +1,8 @@
 # pylint: disable=missing-function-docstring, missing-module-docstring
-import glob
 import os
-import subprocess
 import argparse
 from pathlib import Path
-from jinja2 import Environment, FileSystemLoader, Template
+from jinja2 import Template
 
 PATH_TO_TEMPLATES = os.path.dirname(os.path.abspath(__file__))
 
@@ -12,8 +10,6 @@ PATH_TO_TEMPLATES = os.path.dirname(os.path.abspath(__file__))
 def generator(template_name: str, project_path: Path, project_name: str, macros: dict):
     full_template_path = Path(PATH_TO_TEMPLATES) / template_name
     full_project_path = Path(project_path).absolute() / project_name
-
-#    full_project_path = full_project_path.absolute()
 
     if not os.path.isdir(full_template_path):
         raise Exception("Can't find template: " + template_name)
@@ -44,7 +40,7 @@ def generator(template_name: str, project_path: Path, project_name: str, macros:
             os.makedirs(d, exist_ok=True)
 
 
-# return change pairs for sed in format "s/MACRO/substitutor/g"
+# return a dictionary with change pairs { MACRO : VALUE }
 def get_macros(project_name: str, macro: list) -> dict:
 
     res: dict = {"APROJ_PROJECT_NAME": project_name}
@@ -63,7 +59,5 @@ parser.add_argument("--template_name", dest="template_name", nargs=1, type=str, 
 parser.add_argument("-D", nargs="*", dest="macro", help="add macros in format MACRO=VALUE [MACRO=VALUE]")
 
 args = parser.parse_args()
-
-print(args)
 
 generator(args.template_name[0], args.project_path, args.project_name[0], get_macros(args.project_name[0], args.macro))
