@@ -53,6 +53,25 @@ namespace antler {
          return system::execute(make_cmd);
       }
 
+      void move_artifacts(const project::project& proj) noexcept {
+         namespace sf = std::filesystem;
+         auto build_dir = sf::path(path) / sf::path("build");
+         auto bin_dir = build_dir / sf::path("antler-bin");
+
+         for (const auto& app : proj.apps()) {
+            std::string app_nm = std::string(app.name());
+            std::string proj_nm = std::string(proj.name());
+            auto from_wasm = bin_dir / sf::path(proj.name()) / sf::path(app_nm+"/"+proj_nm+"-"+app_nm+".wasm");
+            auto from_abi = bin_dir / sf::path(proj.name()) / sf::path(app_nm+"/"+proj_nm+"-"+app_nm+".abi");
+
+            auto to_wasm = build_dir /  sf::path(app_nm+".wasm");
+            auto to_abi = build_dir / sf::path(app_nm+".abi");
+
+            std::filesystem::copy(from_wasm, to_wasm);
+            std::filesystem::copy(from_abi, to_abi);
+         }
+      }
+
       int32_t exec() {
          auto proj = load_project(path);
          if (!proj) {
@@ -66,9 +85,18 @@ namespace antler {
             }
             if (auto rv = configure(); rv != 0) {
                std::cerr << "Configuring project build failed!" << std::endl;
+               return rv;
             }
          }
-         return build();
+
+         if ( auto rv = build(); rv != 0) {
+            std::cerr << "Building failed!" << std::endl;
+            return rv;
+         }
+
+         move_artifacts(*proj);
+
+         return 0;
       }
       
       CLI::App*   subcommand;

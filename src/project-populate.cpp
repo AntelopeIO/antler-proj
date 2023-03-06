@@ -41,7 +41,7 @@ namespace { // anonymous
 bool project::populate(bool replace, std::ostream& error_stream) noexcept {
    // Find the project path, and make sure the subdirs/project directory tree exists.
    auto project_path = m_path.parent_path();
-   if (!init_dirs(project_path, false, error_stream)) // expect_empty is `false`, it's okay if everthing exists.
+   if (!init_dirs(project_path, error_stream)) // expect_empty is `false`, it's okay if everthing exists.
       return false;                                   // But its not okay if the filesystem doesn't already exist AND can't be created.
    
    auto build_path = project_path / std::filesystem::path("build");
@@ -118,7 +118,6 @@ bool project::populate(bool replace, std::ostream& error_stream) noexcept {
       }
 
       for (const auto& lib : libs()) {
-         std::cout << "LIB " << lib.name() << std::endl;
          auto lib_path = libs_path.parent_path() / std::filesystem::path(lib.name()) / cmake::cmake_lists;
          std::filesystem::create_directory(lib_path.parent_path());
          std::ofstream lpfs(lib_path);

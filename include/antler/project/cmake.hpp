@@ -16,14 +16,8 @@ namespace antler::project {
       constexpr inline static std::string_view cmake_lists = "CMakeLists.txt";
       constexpr inline static std::string_view cmake_exe   = "cmake";
 
-      inline static std::string extension(std::string_view l) {
-         if (l == "CXX")
-            return ".cpp";
-         else
-            return ".c";
-      }
-
-      inline static std::string cmake_target_name(const project& proj, const object& obj) {
+      template <typename T>
+      inline static std::string cmake_target_name(const project& proj, T&& obj) {
          using namespace std::literals;
          return std::string(proj.name()) + "-"s + std::string(obj.name());
       }
@@ -54,7 +48,8 @@ namespace antler::project {
       template <typename Stream>
       inline static void emit_dependencies(Stream& s, const project& proj, const object& obj) noexcept {
          for (const auto& dep : obj.dependencies()) {
-            s << "target_link_libraries(" << cmake_target_name(proj, obj) << " PUBLIC " << dep.name() <<")\n";
+            std::string dep_name = dep.location().empty() ? cmake_target_name(proj, dep) : std::string(dep.name());
+            s << "target_link_libraries(" << cmake_target_name(proj, obj) << " PUBLIC " << dep_name <<")\n";
          }
          s << std::endl;
       }
@@ -86,7 +81,7 @@ namespace antler::project {
                << obj.name() << "/" << obj.name() << ".cpp" << ")\n"; 
          } else {
             s << "add_library(" << cmake_target_name(proj, obj) << " " << "${CMAKE_SOURCE_DIR}/../../libs/" 
-               << obj.name() << "/" << obj.name() << extension(obj.language())  << ")\n"; 
+               << obj.name() << "/" << obj.name() << system::extension(obj.language())  << ")\n"; 
          }
 
          s << "target_include_directories(" << cmake_target_name(proj, obj) 

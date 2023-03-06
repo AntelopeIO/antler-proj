@@ -26,7 +26,8 @@ namespace antler::project {
 
    template <>
    struct source <object::type_t::app> {
-      inline static void create_source_file(std::filesystem::path p, const std::string& name) {
+      inline static void create_source_file(std::filesystem::path p, const object& obj) {
+         std::string name = std::string(obj.name());
          p /= std::filesystem::path("apps") / name / (name+".cpp");
          std::ofstream src{p.c_str()};
          src << "#include <" << name << ".hpp>\n\n";
@@ -39,7 +40,8 @@ namespace antler::project {
          src.close();
       }
 
-      inline static void create_specification_file(std::filesystem::path p, const std::string& name) {
+      inline static void create_specification_file(std::filesystem::path p, const object& obj) {
+         std::string name = std::string(obj.name());
          p /= std::filesystem::path("include") / name / (name+".hpp");
          std::ofstream hdr{p.c_str()};
          hdr << "#include <eosio/eosio.hpp>\n\n";
@@ -58,8 +60,10 @@ namespace antler::project {
 
    template <>
    struct source <object::type_t::lib> {
-      inline static void create_source_file(std::filesystem::path p, const std::string& name) {
-         p /= std::filesystem::path("libs") / name / (name+".c");
+      inline static void create_source_file(std::filesystem::path p, const object& obj) {
+         std::string name = std::string(obj.name());
+         std::string ext = system::extension(obj.language());
+         p /= std::filesystem::path("libs") / name / (name+ext);
          std::ofstream src{p.c_str()};
          src << "#include <eosio/print.h>\n\n";
          src << "/// Add your code here for the library\n";
@@ -67,6 +71,6 @@ namespace antler::project {
          src.close();
       }
 
-      inline static void create_specification_file(std::filesystem::path p, const std::string& name) {}
+      inline static void create_specification_file(std::filesystem::path p, const object& obj) {}
    };
 }

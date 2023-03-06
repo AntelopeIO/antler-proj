@@ -62,13 +62,13 @@ namespace antler {
             }
          }
 
+         auto obj = antler::project::object(Ty, obj_name, lang, copts, lopts);
          auto path = proj.path().parent_path();
          std::filesystem::create_directory(path / project::detail::dir<Ty>() / obj_name);
          std::filesystem::create_directory(path / std::filesystem::path("include") / obj_name);
-         project::source<Ty>::create_source_file(path, obj_name);
-         project::source<Ty>::create_specification_file(path, obj_name);
+         project::source<Ty>::create_source_file(path, obj);
+         project::source<Ty>::create_specification_file(path, obj);
 
-         auto obj = antler::project::object(Ty, obj_name, lang, copts, lopts);
          proj.upsert<Ty>(std::move(obj));
          std::cout
             << '\n'
@@ -115,7 +115,7 @@ namespace antler {
 
             antler::project::dependency dep;
             dep.set(dep_name, location, tag, release, hash);
-            if (proj.validate_dependency(dep)) {
+            if (!proj.validate_dependency(dep)) {
                std::cerr << "Dependency: " << dep_name << " is invalid." << std::endl;
                return false;
             }

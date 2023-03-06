@@ -9,7 +9,7 @@
 namespace antler::project {
 
 //--- alphabetic --------------------------------------------------------------------------------------------------------
-bool project::init_dirs(const std::filesystem::path& path, bool expect_empty, std::ostream& error_stream) noexcept {
+bool project::init_dirs(const std::filesystem::path& path, std::ostream& error_stream) noexcept {
 
    std::error_code sec;
 
@@ -17,11 +17,6 @@ bool project::init_dirs(const std::filesystem::path& path, bool expect_empty, st
    std::filesystem::create_directories(path, sec);
    if (sec) {
       error_stream << path << " could not be created: " << sec << "\n";
-      return false;
-   }
-
-   if (expect_empty && !std::filesystem::is_empty(path, sec)) {
-      error_stream << path << " is NOT empty!\n";
       return false;
    }
 
@@ -52,10 +47,11 @@ namespace detail {
    template <typename List>
    inline static typename std::remove_reference_t<List>::value_type* find_if(List&& objs, std::string_view name) {
       auto tmp = std::find_if(objs.begin(), objs.end(), [name](const auto& o) { return o.name() == name; });
-      if (tmp != objs.end())
+      if (tmp != objs.end()) {
          return &*tmp;
-      else
+      } else {
          return nullptr;
+      }
    }
    
 }
@@ -237,7 +233,6 @@ void project::version(const antler::project::version& ver) noexcept {
 
 bool project::validate_dependency(const dependency& dep, std::ostream& errs) const noexcept {
    if (dep.location().empty()) {
-      std::cout << "DEP " << dep.name() << std::endl;
       return object_exists(dep.name(), object::type_t::lib);
    } else if (!dep.is_valid_location()) {
       errs << "Error dependency: " << dep.name() << " is invalid." << std::endl;

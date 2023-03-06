@@ -152,12 +152,9 @@ public:
 
    /// Initialize the directories
    /// @param path  The location of the project.yaml file or the path containing it.
-   /// @param expect_empty  This boolean describes behavior when paths preexist:
-   ///                        when true, any existing path - excluding the root - will cause an immediate false return;
-   ///                        when false, only failures to create will generate a false return.
    /// @param error_stream  The stream to print failure reports to.
    /// @return true for success; false indidates failure.
-   [[nodiscard]] static bool init_dirs(const std::filesystem::path& path, bool expect_empty = true, std::ostream& error_stream = std::cerr) noexcept;
+   [[nodiscard]] static bool init_dirs(const std::filesystem::path& path, std::ostream& error_stream = std::cerr) noexcept;
 
    /// Search this and directories above for `project.yaml` file.
    /// @note if path extension is `.yaml` no directory search is performed, instead return value indicating existence of path a regular file.

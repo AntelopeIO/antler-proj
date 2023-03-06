@@ -77,6 +77,13 @@ namespace antler::system {
       return WEXITSTATUS(pclose(h));
    }
 
+   inline static std::string extension(std::string_view l) {
+      if (l == "CXX")
+         return ".cpp";
+      else
+         return ".c";
+   }
+
 } // namespace antler::system
 
 // expose all enum operators
