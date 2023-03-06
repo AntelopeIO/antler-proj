@@ -11,7 +11,6 @@ namespace antler::project {
 
 namespace { // anonymous
 
-const std::filesystem::path cmake_lists{"CMakeLists.txt"};
 
 
 /// Test to see if a file has the magic maintenance string.
@@ -51,10 +50,10 @@ bool project::populate(bool replace, std::ostream& error_stream) noexcept {
    std::filesystem::create_directory(project_path / std::filesystem::path("build") / std::filesystem::path("libs"));
    std::filesystem::create_directory(project_path / std::filesystem::path("build") / std::filesystem::path("tests"));
 
-   auto root_path = build_path / cmake_lists;
-   auto apps_path = build_path / std::filesystem::path("apps") / cmake_lists;
-   auto libs_path = build_path / std::filesystem::path("libs") / cmake_lists;
-   auto tests_path = build_path / std::filesystem::path("tests") / cmake_lists;
+   auto root_path = build_path / cmake::cmake_lists;
+   auto apps_path = build_path / std::filesystem::path("apps") / cmake::cmake_lists;
+   auto libs_path = build_path / std::filesystem::path("libs") / cmake::cmake_lists;
+   auto tests_path = build_path / std::filesystem::path("tests") / cmake::cmake_lists;
 
    bool create = true;
    // Look to see if the header contains the magic, if it does we will not create the file.
@@ -63,11 +62,7 @@ bool project::populate(bool replace, std::ostream& error_stream) noexcept {
    std::ofstream lfs(libs_path);
    std::ofstream tfs(tests_path);
 
-   lfs << "\n";
-   lfs.close();
-
    tfs << "\n";
-   tfs.close();
 
    const auto& try_emit = [&](auto path, auto func) {
       try {
@@ -103,7 +98,7 @@ bool project::populate(bool replace, std::ostream& error_stream) noexcept {
       }
       
       for (const auto& app : apps()) {
-         auto app_path = apps_path.parent_path() / std::filesystem::path(app.name()) / cmake_lists;
+         auto app_path = apps_path.parent_path() / std::filesystem::path(app.name()) / cmake::cmake_lists;
          std::filesystem::create_directory(app_path.parent_path());
          std::ofstream apfs(app_path);
 
@@ -121,6 +116,28 @@ bool project::populate(bool replace, std::ostream& error_stream) noexcept {
             return false;
          }
       }
+
+      for (const auto& lib : libs()) {
+         std::cout << "LIB " << lib.name() << std::endl;
+         auto lib_path = libs_path.parent_path() / std::filesystem::path(lib.name()) / cmake::cmake_lists;
+         std::filesystem::create_directory(lib_path.parent_path());
+         std::ofstream lpfs(lib_path);
+
+         if (!try_emit(libs_path, [&](){
+            cmake::emit_add_subdirectory(lfs, "../libs", lib.name());
+         })) {
+            error_stream << "Error emitting cmake for lib: " << lib.name() << "\n";
+            return false;
+         }
+
+         if (!try_emit(lib_path, [&]() {
+            cmake::emit_lib(lpfs, lib, *this);
+         })) {
+            error_stream << "Error emitting cmake for lib: " << lib.name() << "\n";
+            return false;
+         }
+      }
+
    }
 
    return true;

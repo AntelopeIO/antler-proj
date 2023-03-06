@@ -31,8 +31,6 @@ TEST_CASE("Testing cmake emission") {
 
 
    object app = {object::type_t::app, "test_app", "C++", "", ""};
-   //inline dependency(std::string_view name, std::string_view loc, std::string_view tag="", 
-   //                  std::string_view rel="", std::string_view hash="") {
 
    dependency dep = {"test_lib", "https://github.com/larryk85/fast_math"};
 
@@ -48,5 +46,4 @@ TEST_CASE("Testing cmake emission") {
                                                  "target_link_libraries(test_app PUBLIC test_lib)\n\n";
 
    REQUIRE( ss.str() == project_expected );
-   std::cout << "SS " << ss.str() << "\n";
 }

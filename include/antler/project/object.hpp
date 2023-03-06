@@ -59,17 +59,25 @@ public:
    void language(std::string_view lang) noexcept;
 
    /// @return Current compile options.
-   [[nodiscard]] inline std::string_view compile_options() const noexcept { return m_comp_options; }
+   [[nodiscard]] inline const std::vector<std::string>& compile_options() const noexcept { return m_comp_options; }
    /// @return Current link options.
-   [[nodiscard]] inline std::string_view link_options() const noexcept { return m_link_options; }
+   [[nodiscard]] inline const std::vector<std::string>& link_options() const noexcept { return m_link_options; }
 
    /// Replace any existing options with the new value.
    /// @param options  The new options to store.
-   void compile_options(std::string_view options) noexcept { m_comp_options = options; }
+   inline void compile_options(std::string_view options) noexcept { m_comp_options = system::split<';'>(options); }
+
+   /// Add a compile option.
+   /// @param option  The new option to store.
+   inline void add_compile_option(const std::string& option) noexcept { m_comp_options.push_back(option); }
 
    /// Replace any existing options with the new value.
    /// @param options  The new options to store.
-   void link_options(std::string_view options) noexcept { m_link_options = options; }
+   inline void link_options(std::string_view options) noexcept { m_link_options = system::split<';'>(options); }
+
+   /// Add a link option.
+   /// @param option  The new option to store.
+   void add_link_option(const std::string& option) noexcept { m_link_options.push_back(option); }
 
    /// @return  The test command.
    [[nodiscard]] std::string_view command() const noexcept;
@@ -107,8 +115,8 @@ private:
 
    // app, lib:
    std::string m_language = ""; ///< Language type, only valid for app or lib.
-   std::string m_comp_options = "";
-   std::string m_link_options = "";
+   std::vector<std::string> m_comp_options = {};
+   std::vector<std::string> m_link_options = {};
 
    // test:
    std::string m_command  = "";       ///< Test command, only valid for test.

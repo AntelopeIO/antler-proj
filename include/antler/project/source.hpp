@@ -33,7 +33,7 @@ namespace antler::project {
          src << "[[eosio::action]]\n";
          src << "void " << name << "::hi( name nm ) {\n";
          src << "   /* generated example action */\n";
-         src << "   print_f(\"Hello : %\", nm)\n";
+         src << "   print_f(\"Hello : %\", nm);\n";
          src << "}\n";
          src << std::endl;
          src.close();
@@ -59,9 +59,9 @@ namespace antler::project {
    template <>
    struct source <object::type_t::lib> {
       inline static void create_source_file(std::filesystem::path p, const std::string& name) {
-         p /= std::filesystem::path("libs") / name / (name+".cpp");
+         p /= std::filesystem::path("libs") / name / (name+".c");
          std::ofstream src{p.c_str()};
-         src << "#include <eosio/eosio.hpp>\n\n";
+         src << "#include <eosio/print.h>\n\n";
          src << "/// Add your code here for the library\n";
          src << std::endl;
          src.close();

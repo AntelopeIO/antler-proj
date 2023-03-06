@@ -36,8 +36,8 @@ namespace antler {
 
             std::cout << "Updating object: " << obj_name << "\n"
                       << "language: " << obj.language() << "\n"
-                      << "compile options: " << obj.compile_options() << "\n"
-                      << "link options: " << obj.link_options() << std::endl;
+                      << "compile options: " << copts << "\n"
+                      << "link options: " << lopts << std::endl;
 
             return true;
          } catch(...) {
@@ -110,7 +110,7 @@ namespace antler {
       update_project(CLI::App& app) {
          path = std::filesystem::current_path().string();
          subcommand = app.add_subcommand("update", "Update an app, dependency, library or test to your project.");
-         subcommand->add_option("-p, path", path, "This must be the path to the `project.yml` or the path containing it.")->required();
+         subcommand->add_option("-p, path", path, "This must be the path to the `project.yml` or the path containing it.");
 
          app_subcommand = subcommand->add_subcommand("app", "Remove app from the project.");
          app_subcommand->add_option("-n, name", obj_name, "The name of the app to remove.")->required();

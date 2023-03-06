@@ -76,10 +76,18 @@ void project::print(std::ostream& os) const noexcept {
          if (!obj.language().empty())
             map_node[to_csubstr(token::lang)] << to_csubstr(obj.language());
          // options
+
+         const auto& conjoin_opts = [&](const auto& opts) {
+            std::string s;
+            for (const auto& o : opts)
+              s += std::string(o) + ";";
+            return s;
+         };
+
          if (!obj.compile_options().empty())
-            map_node[to_csubstr(token::compile_options)] << to_csubstr(obj.compile_options());
+            map_node[to_csubstr(token::compile_options)] << to_csubstr(conjoin_opts(obj.compile_options()));
          if (!obj.link_options().empty())
-            map_node[to_csubstr(token::link_options)] << to_csubstr(obj.link_options());
+            map_node[to_csubstr(token::link_options)] << to_csubstr(conjoin_opts(obj.link_options()));
 
          // depends - dependencies are also a list.
          if (!obj.dependencies().empty()) {

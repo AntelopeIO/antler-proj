@@ -23,8 +23,8 @@ namespace antler::system {
    }
 
    template <char... Delims>
-   inline static std::vector<std::string_view> split(std::string_view s) {
-      std::vector<std::string_view> strings;
+   inline static std::vector<std::string> split(std::string_view s) {
+      std::vector<std::string> strings;
 
       std::size_t i=0, p=0;
 

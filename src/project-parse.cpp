@@ -26,6 +26,7 @@ namespace antler::project {
 namespace { // anonymous
 
 inline static std::string_view sv_from_csubstr(const c4::csubstr& s) { return {s.data(), s.size()}; }
+inline static std::string s_from_csubstr(const c4::csubstr& s) { return {s.data(), s.size()}; }
 
 /// Load a text file into a string.
 ///
@@ -268,7 +269,7 @@ template <typename NODE_T>
                return {};
             }
             if (!rv.compile_options().empty()) {
-               os << "Duplicate " << tok << " values in " << type << " list: " << rv.compile_options() << ", " << i.val() << "\n";
+               os << "Duplicate " << tok << " values in options\n";
                return {};
             }
             if (type == object::type_t::test) {
@@ -286,7 +287,7 @@ template <typename NODE_T>
                return {};
             }
             if (!rv.link_options().empty()) {
-               os << "Duplicate " << tok << " values in " << type << " list: " << rv.link_options() << ", " << i.val() << "\n";
+               os << "Duplicate " << tok << " values in options\n";
                return {};
             }
             if (type == object::type_t::test) {
@@ -294,7 +295,7 @@ template <typename NODE_T>
                return {};
             }
 
-            rv.compile_options(sv_from_csubstr(i.val()));
+            rv.link_options(sv_from_csubstr(i.val()));
          } break;
 
          case token::command: {

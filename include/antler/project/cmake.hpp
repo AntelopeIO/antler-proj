@@ -12,9 +12,16 @@ namespace antler::project {
 
    struct cmake {
       constexpr inline static uint16_t minimum_major = 3;
-      constexpr inline static uint16_t minimum_minor = 13;
+      constexpr inline static uint16_t minimum_minor = 11;
       constexpr inline static std::string_view cmake_lists = "CMakeLists.txt";
       constexpr inline static std::string_view cmake_exe   = "cmake";
+
+      inline static std::string extension(std::string_view l) {
+         if (l == "CXX")
+            return ".cpp";
+         else
+            return ".c";
+      }
 
       inline static std::string cmake_target_name(const project& proj, const object& obj) {
          using namespace std::literals;
@@ -72,15 +79,45 @@ namespace antler::project {
          s << std::endl;
       }
 
+      template <object::type_t Ty, typename Stream>
+      inline static void emit_obj(Stream& s, const object& obj, const project& proj) noexcept {
+         if constexpr (Ty == object::type_t::app) {
+            s << "add_contract(" << obj.name() << " " << cmake_target_name(proj, obj) << " " << "${CMAKE_SOURCE_DIR}/../../apps/" 
+               << obj.name() << "/" << obj.name() << ".cpp" << ")\n"; 
+         } else {
+            s << "add_library(" << cmake_target_name(proj, obj) << " " << "${CMAKE_SOURCE_DIR}/../../libs/" 
+               << obj.name() << "/" << obj.name() << extension(obj.language())  << ")\n"; 
+         }
+
+         s << "target_include_directories(" << cmake_target_name(proj, obj) 
+                                            << " PUBLIC ${CMAKE_SOURCE_DIR}/../../include "
+                                            << "${CMAKE_SOURCE_DIR}/../../include/" << obj.name() << " ./ )\n\n"; 
+         s << std::endl;
+
+         for (const auto& o : obj.compile_options()) {
+            s << "target_compile_options(" << cmake_target_name(proj, obj)
+                                           << " PUBLIC " << o << ")\n";
+         }
+         s << std::endl;
+
+         for (const auto& o : obj.link_options()) {
+            s << "target_link_libraries(" << cmake_target_name(proj, obj)
+                                          << " PUBLIC " << o << ")\n";
+         }
+         s << std::endl;
+
+         emit_dependencies(s, proj, obj);
+         s << std::endl;
+      }
+
       template <typename Stream>
       inline static void emit_app(Stream& s, const object& app, const project& proj) noexcept {
-         s << "add_contract(" << app.name() << " " << cmake_target_name(proj, app) << " " << "${CMAKE_SOURCE_DIR}/../../apps/" 
-           << app.name() << "/" << app.name() << ".cpp" << ")\n"; 
-         s << "target_include_directories(" << cmake_target_name(proj, app) 
-                                            << " PUBLIC ${CMAKE_SOURCE_DIR}/../../include "
-                                            << "${CMAKE_SOURCE_DIR}/../../include/" << app.name() << " ./ )\n\n"; 
-         emit_dependencies(s, proj, app);
-         s << std::endl;
+         return emit_obj<object::type_t::app>(s, app, proj);
+      }
+
+      template <typename Stream>
+      inline static void emit_lib(Stream& s, const object& lib, const project& proj) noexcept {
+         return emit_obj<object::type_t::lib>(s, lib, proj);
       }
 
    };

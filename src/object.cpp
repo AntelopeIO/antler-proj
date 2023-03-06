@@ -19,10 +19,9 @@ object::object(type_t ot, std::string_view name, const std::string& lang, std::s
    : m_type{ ot }
    , m_name{ name }
    , m_language{ system::to_upper(lang) }
-   , m_comp_options{ copts }
-   , m_link_options{ lopts }
-{
-}
+   , m_comp_options{ system::split<';'>(copts) }
+   , m_link_options{ system::split<';'>(lopts) }
+{}
 
 
 object::object(std::string_view name, std::string_view command)
