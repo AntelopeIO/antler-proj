@@ -15,11 +15,12 @@ object::object(type_t ot)
    : m_type{ ot } {}
 
 
-object::object(type_t ot, std::string_view name, const std::string& lang, std::string_view opts)
+object::object(type_t ot, std::string_view name, const std::string& lang, std::string_view copts, std::string_view lopts)
    : m_type{ ot }
    , m_name{ name }
    , m_language{ system::to_upper(lang) }
-   , m_options{ opts }
+   , m_comp_options{ copts }
+   , m_link_options{ lopts }
 {
 }
 
@@ -82,17 +83,6 @@ void object::name(std::string_view s) noexcept {
    m_name = s;
 }
 
-
-std::string_view object::options() const noexcept {
-   return m_options;
-}
-
-
-void object::options(std::string_view options) noexcept {
-   m_options = options;
-}
-
-
 bool object::remove_dependency(std::string_view name) noexcept {
    // If possible, find a dependency with matching name and return it.
    auto i = std::find_if(m_dependencies.begin(), m_dependencies.end(), [name](const antler::project::dependency& d) { return d.name() == name; } );
@@ -109,7 +99,7 @@ object::type_t object::type() const noexcept {
 
 
 void object::upsert_dependency(antler::project::dependency&& dep) noexcept {
-   // If possible, find a dependency with matching name and reutrn it.
+   // If possible, find a dependency with matching name and reurrn it.
    auto i = std::find_if(m_dependencies.begin(), m_dependencies.end(), [dep](const antler::project::dependency& d) { return d.name() == dep.name(); } );
    if( i == m_dependencies.end() )
       m_dependencies.emplace_back(dep);
@@ -117,32 +107,4 @@ void object::upsert_dependency(antler::project::dependency&& dep) noexcept {
       *i = dep;
 }
 
-
 } // namespace antler::project
-
-
-//--- global operators ------------------------------------------------------------------------------------------
-
-
-std::ostream& operator<<(std::ostream& os, const antler::project::object::type_t& e) {
-   os << magic_enum::enum_name(e);
-   return os;
-}
-
-
-std::istream& operator>>(std::istream& is, antler::project::object::type_t& e) {
-
-   std::string temp;
-   if (is >> temp) {
-      // Try string as is.
-      auto opt = magic_enum::enum_cast<antler::project::object::type_t>(temp);
-      if (opt.has_value()) {
-         e = opt.value();
-         return is;
-      }
-   }
-
-   // This might be an exceptional state and so maybe we should throw an exception?
-   e = antler::project::object::type_t::error;
-   return is;
-}

@@ -22,23 +22,23 @@ namespace antler {
          try {
             auto& obj = proj.object(obj_name);
             const auto* lang_opt = app.get_option_no_throw("language");
-            const auto* opts_opt = app.get_option_no_throw("options");
+            const auto* copts_opt = app.get_option_no_throw("compile_options");
+            const auto* lopts_opt = app.get_option_no_throw("link_options");
 
 
             if (!lang_opt->empty())
                obj.language(lang);
 
-            if (!opts_opt->empty())
-               obj.options(opts);
+            if (!copts_opt->empty())
+               obj.compile_options(copts);
+            if (!lopts_opt->empty())
+               obj.link_options(lopts);
 
             std::cout << "Updating object: " << obj_name << "\n"
                       << "language: " << obj.language() << "\n"
-                      << "options: " << obj.options() << std::endl;
+                      << "compile options: " << obj.compile_options() << "\n"
+                      << "link options: " << obj.link_options() << std::endl;
 
-            //if (proj.remove(obj_name, Ty)) {
-            //   std::cout << "Removing object: " << obj_name << " from the project." << std::endl;
-            //   return true;
-            //}
             return true;
          } catch(...) {
             std::cerr << "Object: " << obj_name << " does not exist." << std::endl;
@@ -70,7 +70,7 @@ namespace antler {
                dep->hash(digest);
 
             if (dep) {
-               if (!dep->is_valid()) {
+               if (!proj.validate_dependency(*dep)) {
                   std::cerr << "Dependency: " << dep_name << " is invalid." << std::endl;
                   return false;
                }
@@ -115,12 +115,14 @@ namespace antler {
          app_subcommand = subcommand->add_subcommand("app", "Remove app from the project.");
          app_subcommand->add_option("-n, name", obj_name, "The name of the app to remove.")->required();
          app_subcommand->add_option("-l, language", lang, "The language of the app.");
-         app_subcommand->add_option("-o, options", opts, "The options used to build the app.");
+         app_subcommand->add_option("--comp, compile_options", copts, "The compile options used to build the app.");
+         app_subcommand->add_option("--link, link_options", lopts, "The link options used to build the app.");
 
          lib_subcommand = subcommand->add_subcommand("lib", "Remove lib from the project.");
          lib_subcommand->add_option("-n, name", obj_name, "The name of the library to add.")->required();
          lib_subcommand->add_option("-l, language", lang, "The language of the lib.");
-         lib_subcommand->add_option("-o, options", opts, "The options used to build the lib.");
+         lib_subcommand->add_option("--comp, compile_options", copts, "The compile options used to build the app.");
+         lib_subcommand->add_option("--link, link_options", lopts, "The link options used to build the app.");
 
          dep_subcommand = subcommand->add_subcommand("dep", "Remove a dependency from the project.");
          dep_subcommand->add_option("-d, dep", dep_name, "The name of the dependency.")->required();
@@ -176,7 +178,8 @@ namespace antler {
       std::string obj_name;
       std::string dep_name;
       std::string lang;
-      std::string opts;
+      std::string copts;
+      std::string lopts;
       std::string loc;
       std::string tag;
       std::string release;

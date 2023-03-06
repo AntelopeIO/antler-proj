@@ -185,7 +185,8 @@ template <typename NODE_T>
          case token::apps:
          case token::tests:
          case token::lang:
-         case token::options:
+         case token::compile_options:
+         case token::link_options:
          case token::depends:
          case token::command: {
             os << "Unexpected tag in dependency list: " << tok << "\n";
@@ -260,14 +261,14 @@ template <typename NODE_T>
             rv.language(sv_from_csubstr(lang));
          } break;
 
-         case token::options: {
+         case token::compile_options: {
             // Sanity check before setting value.
             if (!i.has_val()) {
                os << tok << " tag in " << type << " list with no value.\n";
                return {};
             }
-            if (!rv.options().empty()) {
-               os << "Duplicate " << tok << " values in " << type << " list: " << rv.options() << ", " << i.val() << "\n";
+            if (!rv.compile_options().empty()) {
+               os << "Duplicate " << tok << " values in " << type << " list: " << rv.compile_options() << ", " << i.val() << "\n";
                return {};
             }
             if (type == object::type_t::test) {
@@ -275,9 +276,26 @@ template <typename NODE_T>
                return {};
             }
 
-            rv.options(sv_from_csubstr(i.val()));
+            rv.compile_options(sv_from_csubstr(i.val()));
          } break;
 
+         case token::link_options: {
+            // Sanity check before setting value.
+            if (!i.has_val()) {
+               os << tok << " tag in " << type << " list with no value.\n";
+               return {};
+            }
+            if (!rv.link_options().empty()) {
+               os << "Duplicate " << tok << " values in " << type << " list: " << rv.link_options() << ", " << i.val() << "\n";
+               return {};
+            }
+            if (type == object::type_t::test) {
+               os << type << " objects may not have an options tag.";
+               return {};
+            }
+
+            rv.compile_options(sv_from_csubstr(i.val()));
+         } break;
 
          case token::command: {
             // Sanity check before setting value.

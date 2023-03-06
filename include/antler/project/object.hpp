@@ -36,8 +36,9 @@ public:
    /// @param ot  The type of this object. Must be app or lib.
    /// @param name  The Name of the object.
    /// @param lang  The language type of this object.
-   /// @param opts  Compile time options for this object. May be empty.
-   object(type_t ot, std::string_view name, const std::string& lang, std::string_view opts);
+   /// @param copts  Compile time options for this object. May be empty.
+   /// @param lopts  Compile time options for this object. May be empty.
+   object(type_t ot, std::string_view name, const std::string& lang, std::string_view copts, std::string_view lopts);
    /// Object constructor for test type.
    /// @param name  The Name of the object.
    /// @param command  The command to run for this test.
@@ -58,11 +59,18 @@ public:
    /// @param lang  The new language value to store.
    void language(std::string_view lang) noexcept;
 
-   /// @return Current options.
-   [[nodiscard]] std::string_view options() const noexcept;
+   /// @return Current compile options.
+   [[nodiscard]] inline std::string_view compile_options() const noexcept { return m_comp_options; }
+   /// @return Current link options.
+   [[nodiscard]] inline std::string_view link_options() const noexcept { return m_link_options; }
+
    /// Replace any existing options with the new value.
    /// @param options  The new options to store.
-   void options(std::string_view options) noexcept;
+   void compile_options(std::string_view options) noexcept { m_comp_options = options; }
+
+   /// Replace any existing options with the new value.
+   /// @param options  The new options to store.
+   void link_options(std::string_view options) noexcept { m_link_options = options; }
 
    /// @return  The test command.
    [[nodiscard]] std::string_view command() const noexcept;
@@ -73,6 +81,7 @@ public:
    /// Update or insert a dependency.
    /// @param dep  The dependency to upsert.
    void upsert_dependency(antler::project::dependency&& dep) noexcept;
+
    /// Remove dependency if it exists.
    /// @return true if the dependency was found and removed; otherwise, false (i.e. dependency does not exist)
    bool remove_dependency(std::string_view name) noexcept;
@@ -93,14 +102,11 @@ private:
 
    // app, lib:
    std::string m_language = ""; ///< Language type, only valid for app or lib.
-   std::string m_options  = ""; ///< Compile options, only valid for app or lib.
+   std::string m_comp_options = "";
+   std::string m_link_options = "";
 
    // test:
    std::string m_command  = "";       ///< Test command, only valid for test.
 };
 
 } // namespace antler::project
-
-
-std::ostream& operator<<(std::ostream& os, const antler::project::object::type_t& e);
-std::istream& operator>>(std::istream& is, antler::project::object::type_t& e);

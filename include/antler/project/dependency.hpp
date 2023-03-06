@@ -102,7 +102,7 @@ public:
 
    /// Test to see if the dependency is valid.
    /// @return true if dependency is an archive, github repo, or local and is reachable
-   [[nodiscard]] bool is_valid() const noexcept;
+   [[nodiscard]] bool is_valid_location() const noexcept;
 
 
    /// Test to see if a location is valid.

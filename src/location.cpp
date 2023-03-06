@@ -8,6 +8,7 @@
 #include <stdexcept>
 
 #include <curl/curl.h>
+#include <nlohmann/json.hpp>
 
 
 namespace antler::project::location {
@@ -62,7 +63,6 @@ struct curl {
       curl_easy_setopt(curl_obj, CURLOPT_WRITEDATA, &buff);
 
       auto res = curl_easy_perform(curl_obj);
-      std::cerr << "Failure: " << curl_easy_strerror(res) << std::endl;
       if (res) {
          std::cerr << "Failure: " << curl_easy_strerror(res) << std::endl;
          throw std::runtime_error("internal curl failure");
@@ -103,7 +103,11 @@ struct github {
 
    inline bool is_reachable(std::string_view s) {
       try {
-         (void)request(s);
+         auto js = nlohmann::json::parse(request(s));
+         auto msg = js["message"];
+         if (!msg.is_null())
+            if (msg == "Not Found")
+               return false;
          return true;
       } catch(...) {
          return false;
@@ -132,8 +136,6 @@ struct github {
    std::string bearer_token;
 };
 
-
-
 bool is_archive(std::string_view s) {
    return ends_with(s, ".tar.gz")  ||
           ends_with(s, ".tgz")     ||
@@ -148,19 +150,15 @@ bool is_github_archive(std::string_view s) { return is_github(s) && is_archive(s
 
 bool is_url(std::string_view l) { return curl::is_url(l); }
 
-bool is_local(std::string_view l) { return std::filesystem::exists(l); }
-
 bool is_github_org_repo_shorthand(std::string_view s) { return github::is_shorthand(s); }
 
 bool is_github_repo(std::string_view s) { return is_github(s) && !is_archive(s); }
 
 bool is_reachable(std::string_view l) {
-   if (is_local(l)) {
-      return true;
+   if (is_github_repo(l) || is_github_org_repo_shorthand(l)) {
+      return github{}.is_reachable(l);
    } else if (is_archive(l) || is_url(l) || is_github_archive(l)) {
       return curl{}.is_reachable(l);
-   } else if (is_github_repo(l) || is_github_org_repo_shorthand(l)) {
-      return github{}.is_reachable(l);
    } else {
       return false;
    }

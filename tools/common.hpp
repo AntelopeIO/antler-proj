@@ -2,6 +2,8 @@
 
 #include <filesystem>
 
+#include "CLI11.hpp"
+
 #include <antler/project/project.hpp>
 
 namespace antler {

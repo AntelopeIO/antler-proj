@@ -28,14 +28,20 @@ namespace antler {
             if (verbose) {
                std::cout << proj->to_yaml() << std::endl;
             } else {
-               std::cout << "Valid format for an antler-proj project." << std::endl;
+               std::cout << "Valid format for an antler-proj project.yml." << std::endl;
             }
+
+            if (!proj->has_valid_dependencies()) {
+               std::cerr << "Project contains invalid dependencies." << std::endl;
+               return -1;
+            }
+
+            std::cout << "Valid project dependencies and all are reachable." << std::endl;
+            return 0;
          } catch(...) {
             std::cerr << "Path: " << path << " not found." << std::endl;
             return -1;
          }
-
-         return 0;
       }
       
       CLI::App*   subcommand;

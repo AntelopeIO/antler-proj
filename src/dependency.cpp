@@ -141,7 +141,7 @@ void dependency::tag(std::string_view s) noexcept {
    m_tag_or_commit = s;
 }
 
-bool dependency::is_valid() const noexcept {
+bool dependency::is_valid_location() const noexcept {
    if (!m_tag_or_commit.empty()) {
       if (!m_rel.empty()) {
          std::cerr << "release AND tag/commit flags are not valid at the same time for location.";

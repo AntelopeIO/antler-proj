@@ -4,6 +4,7 @@ include(CTest)
 
 add_executable(unit_tests
                main.cpp
+               cmake_tests.cpp
                init_tests.cpp
                #string_from.cpp
                version_constraint_tests.cpp 

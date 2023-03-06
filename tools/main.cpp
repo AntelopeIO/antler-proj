@@ -15,6 +15,7 @@
 #include <antler/system/utils.hpp>
 
 #include "add_to.hpp"
+#include "app_version.hpp"
 #include "init.hpp"
 #include "populate.hpp"
 #include "remove_from.hpp"
@@ -50,9 +51,11 @@ int main(int argc, char** argv) {
    // using this as we will alias antler-proj to cdt-proj for the 
    // next release of CDT.
    const auto app_name = std::filesystem::path(argv[0]).filename().string();
-   CLI::App app{app_name};
+
+   CLI::App app{"Antelope Smart Contract Project Management Tool", app_name};
 
    runner<antler::add_to_project, 
+          antler::app_version,
           antler::init_project,
           antler::populate_project,
           antler::remove_from_project,

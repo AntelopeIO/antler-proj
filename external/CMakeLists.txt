@@ -11,3 +11,7 @@ set(CATCH_BUILD_TESTING OFF CACHE BOOL "Skip build testing")
 add_subdirectory(Catch2)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/Catch2/contrib)
 include(Catch)
+
+set(JSON_BuildTests OFF CACHE INTERNAL "Skip json tests")
+set(JSON_Install OFF CACHE INTERNAL "Skip json install")
+add_subdirectory(nlohmann)
