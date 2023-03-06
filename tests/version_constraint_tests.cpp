@@ -12,7 +12,6 @@
 
 using namespace antler::project;
 
-#if 0
 struct constraint_entry {
    std::string ver;        // left comparison
    std::string constraint; // right comparison
@@ -41,11 +40,17 @@ const std::vector<constraint_entry> compare_list = {
    { "2.2",     ">= 2.0.12, < 2.1 | >= 2.1.3, < 2.2 | >= 2.2.3, < 2.3 | >= 2.3.2, < 3 | >= 3.2", false},
    { "2.3",     ">= 2.0.12, < 2.1 | >= 2.1.3, < 2.2 | >= 2.2.3, < 2.3 | >= 2.3.2, < 3 | >= 3.2", false},
    { "3.0",     ">= 2.0.12, < 2.1 | >= 2.1.3, < 2.2 | >= 2.2.3, < 2.3 | >= 2.3.2, < 3 | >= 3.2", false},
-   { "3.2-rc0", ">= 2.0.12, < 2.1 | >= 2.1.3, < 2.2 | >= 2.2.3, < 2.3 | >= 2.3.2, < 3 | >= 3.2", false},
+   // version does not support prerelease or build metadata at this time, so don't test for it.
+   //   { "3.2-rc0", ">= 2.0.12, < 2.1 | >= 2.1.3, < 2.2 | >= 2.2.3, < 2.3 | >= 2.3.2, < 3 | >= 3.2", false},
 };
-#endif
 
 inline bool test_constraint(std::string_view v, std::string_view c) { return version_constraint{c}.test(version{v}); }
+inline bool test_constraint(std::string_view v, std::string_view c, bool expect) {
+   if (version_constraint{c}.test(version{v}) == expect)
+      return true;
+   std::cerr << "Failed: ver: " << v << " " << c << " expect: " << expect << "\n";
+   return false;
+}
 
 TEST_CASE("Testing version constraints") {
    REQUIRE(test_constraint({"999"}, {""}));
@@ -54,4 +59,8 @@ TEST_CASE("Testing version constraints") {
    REQUIRE(test_constraint({"1.0.0"}, {">=1.0.0"}));
    REQUIRE(!test_constraint({"1.0.0"}, {"<1.0.0"}));
    REQUIRE(!test_constraint({"1.0.0"}, {">1.0.0"}));
+
+   for(const auto& a : compare_list) {
+      REQUIRE(test_constraint(a.ver, a.constraint, a.result));
+   }
 }

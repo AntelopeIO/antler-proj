@@ -45,7 +45,7 @@ inline std::string_view trim(std::string_view s) {
    auto last = std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) {return !std::isspace(ch);});
    // Convert the reverse iter last to the forward iterator containing end using base().
    //    See: https://en.cppreference.com/w/cpp/iterator/reverse_iterator/base
-   return std::string_view{first, s.size() - 1 - (last - s.rbegin())};
+   return std::string_view{first, last.base() - first};
 }
 
 
@@ -106,9 +106,19 @@ void version_constraint::load(std::string_view sin, std::ostream& os) {
 
          if (el_list.size() == 1) {
             // One member MUST be a unique.
-            auto ver_str = trim(el_list[0]);
-            m_constraints.emplace_back(constraint{ version(ver_str), version(), bounds_inclusivity::unique });
-            continue;
+            auto ver_str = std::string(trim(el_list[0]));
+
+            if(std::isdigit(ver_str[0])) {
+               m_constraints.emplace_back(constraint{ version(ver_str), version(), bounds_inclusivity::unique });
+               continue;
+            }
+
+            // first char must have been an operation, right?
+            auto first_digit = ver_str.find_first_of("0123456789");
+            if(first_digit != ver_str.npos) {
+               el_list.push_back( ver_str.substr(first_digit) );
+               el_list[0] = ver_str.substr(0,first_digit);
+            }
          }
 
          if (el_list.size() == 2) {
@@ -215,7 +225,7 @@ void version_constraint::load(std::string_view sin, std::ostream& os) {
       }
 
       os << __FILE__ << ":" << __LINE__ << " Failed to decode version_constraint: \"" << sin << "\" Too many elements in: \"";
-   
+
       for (const auto& e : element) {
          os << e;
       }
