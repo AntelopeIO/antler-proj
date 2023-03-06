@@ -3,12 +3,11 @@
 #include <antler/project/version.hpp>
 #include <antler/project/version_constraint.hpp>
 #include <antler/string/from.hpp>
+#include <antler/system/utils.hpp>
 
+#include <algorithm>
 #include <iostream>
 #include <limits>
-
-#include <boost/algorithm/string.hpp> // boost::split()
-
 
 std::ostream& operator<<(std::ostream& os, const std::vector<std::string_view>& v) {
    os << "[";
@@ -92,17 +91,14 @@ void version_constraint::load(std::string_view sin, std::ostream& os) {
       return;
 
    // Start by splitting on '|'
-   std::vector<std::string> splits;
-   boost::split(splits, m_raw, boost::is_any_of("|;"));
+   std::vector<std::string> splits = system::split<'|', ';'>(m_raw);
    for (auto split : splits) {
       // Now split on ','
-      std::vector<std::string> element;
-      boost::split(element, split, boost::is_any_of(","));
+      std::vector<std::string> element = system::split<','>(split);
       if (element.size() == 1) {
          // If there's only one constraint, we need to decide if it's an upper bound, a lower bound, or unique.
          auto trimmed_el = trim(element[0]);
-         std::vector<std::string> el_list;
-         boost::split(el_list, trimmed_el, boost::is_any_of(" "));
+         std::vector<std::string> el_list = system::split<' '>(trimmed_el);
 
          if (el_list.size() == 1) {
             // One member MUST be a unique.
@@ -147,10 +143,8 @@ void version_constraint::load(std::string_view sin, std::ostream& os) {
       }
 
       if (element.size() == 2) {
-         std::vector<std::string> lower_list;
-         boost::split(lower_list, trim(element[0]), boost::is_any_of(" "));
-         std::vector<std::string> upper_list;
-         boost::split(upper_list, trim(element[1]), boost::is_any_of(" "));
+         std::vector<std::string> lower_list = system::split<' '>(trim(element[0]));
+         std::vector<std::string> upper_list = system::split<' '>(trim(element[1]));
 
          if (lower_list.size() != 2 || upper_list.size() != 2) {
             os << __FILE__ << ":" << __LINE__ << " Failed to decode version_constraint: \"" << sin
