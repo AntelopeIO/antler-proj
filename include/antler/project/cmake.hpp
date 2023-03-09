@@ -38,7 +38,7 @@ namespace antler::project {
       }
 
       template <typename Stream>
-      inline static void emit_project(Stream& s, const project& proj) noexcept {
+      inline static void emit_project(Stream& s, const project&) noexcept {
          s << "find_package(cdt)\n\n";
          s << "add_subdirectory(${CMAKE_SOURCE_DIR}/../libs ${CMAKE_CURRENT_BINARY_DIR}/libs)\n";
          s << "add_subdirectory(${CMAKE_SOURCE_DIR}/../tests ${CMAKE_CURRENT_BINARY_DIR}/tests)\n";

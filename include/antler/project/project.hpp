@@ -59,7 +59,7 @@ public:
    /// exists, an update is performed by removing the old one and adding the new one.
    /// @param obj  The object to update or insert.
    template <object::type_t Ty>
-   inline void upsert(object&& obj) noexcept {
+   inline void upsert(object&& obj) {
       if constexpr (Ty == object::type_t::app)
          return upsert_app(std::move(obj));
       else if constexpr (Ty == object::type_t::lib)
@@ -163,7 +163,7 @@ public:
    [[nodiscard]] static bool update_path(std::filesystem::path& path) noexcept;
 
 private:
-   inline void create_app(std::string_view name) {
+   inline void create_app(std::string_view) {
    }
 
    std::filesystem::path m_path;   ///< path to the project.yaml file.

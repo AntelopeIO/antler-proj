@@ -1,7 +1,6 @@
 /// @copyright See `LICENSE` in the root directory of this project.
 
 #include <antler/project/object.hpp>
-#include <antler/system/utils.hpp>
 
 #include <algorithm> // find_if()
 #include <magic_enum.hpp>

@@ -19,7 +19,7 @@ public:
    using self = version;        ///< Alias for self type.
 
    /// @param ver  A string to create this version with.
-   inline version(std::string_view ver) {
+   inline explicit version(std::string_view ver) {
       if (!from_string(ver, major_comp, minor_comp, patch_comp, tweak_comp))
          throw std::runtime_error("version malformed");
    }
@@ -28,7 +28,7 @@ public:
    /// @param min  Minor version component.
    /// @param pat  Patch version component.
    /// @param tweak  Tweak version component.
-   inline version(uint16_t maj=0, uint16_t min=0, uint16_t pat=0, std::string tweak="")
+   inline explicit version(uint16_t maj=0, uint16_t min=0, uint16_t pat=0, std::string tweak="")
       : major_comp(maj), minor_comp(min), patch_comp(pat), tweak_comp(std::move(tweak)) {}
 
    /// Copy constructor.
@@ -159,8 +159,8 @@ public:
                return 0;
             else if (v1 > v2)
                return 1;
-            else
-               return -1;
+            
+            return -1;
          }
          return c;
       };
@@ -187,9 +187,9 @@ public:
    [[nodiscard]] inline std::string_view tweak() const noexcept { return tweak_comp; }
 
 private:
-   uint16_t major_comp;
-   uint16_t minor_comp;
-   uint16_t patch_comp;
+   uint16_t major_comp = 0;
+   uint16_t minor_comp = 0;
+   uint16_t patch_comp = 0;
    std::string tweak_comp;
    std::string raw_str;
 };

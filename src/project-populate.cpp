@@ -38,7 +38,7 @@ namespace { // anonymous
 } // anonymous namespace
 
 
-bool project::populate(bool replace, std::ostream& error_stream) noexcept {
+bool project::populate(bool, std::ostream& error_stream) noexcept {
    // Find the project path, and make sure the subdirs/project directory tree exists.
    auto project_path = m_path.parent_path();
    if (!init_dirs(project_path, error_stream)) // expect_empty is `false`, it's okay if everthing exists.
@@ -55,7 +55,6 @@ bool project::populate(bool replace, std::ostream& error_stream) noexcept {
    auto libs_path = build_path / std::filesystem::path("libs") / cmake::cmake_lists;
    auto tests_path = build_path / std::filesystem::path("tests") / cmake::cmake_lists;
 
-   bool create = true;
    // Look to see if the header contains the magic, if it does we will not create the file.
    std::ofstream rfs(root_path);
    std::ofstream afs(apps_path);

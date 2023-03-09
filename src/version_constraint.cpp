@@ -2,7 +2,6 @@
 
 #include <antler/project/version.hpp>
 #include <antler/project/version_constraint.hpp>
-#include <antler/string/from.hpp>
 
 #include <iostream>
 #include <limits>
@@ -30,8 +29,8 @@ namespace { // anonymous
 
 constexpr uint16_t max_component = std::numeric_limits<uint16_t>::max();
 
-static inline const version min_version{};
-static inline const version max_version{max_component, max_component, max_component};
+inline const version min_version{};
+inline const version max_version{max_component, max_component, max_component};
 
 /// Trim whitespace from the front and back of string.
 /// @param s  The string to trim
@@ -115,7 +114,7 @@ void version_constraint::load(std::string_view sin, std::ostream& os) {
 
             // first char must have been an operation, right?
             auto first_digit = ver_str.find_first_of("0123456789");
-            if(first_digit != ver_str.npos) {
+            if(first_digit != std::string::npos) {
                el_list.push_back( ver_str.substr(first_digit) );
                el_list[0] = ver_str.substr(0,first_digit);
             }
@@ -253,7 +252,7 @@ void version_constraint::print(std::ostream& os) const noexcept {
          case bounds_inclusivity::upper:  os << ">" << a.lower_bound << ", <=" << a.upper_bound; break;
          case bounds_inclusivity::both:   os << ">=" << a.lower_bound << ", <=" << a.upper_bound; break;
          case bounds_inclusivity::unique: os << a.lower_bound; break;
-      };
+      }
    }
 }
 

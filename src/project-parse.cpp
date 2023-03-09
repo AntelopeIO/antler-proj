@@ -25,8 +25,8 @@ namespace antler::project {
 
 namespace { // anonymous
 
-inline static std::string_view sv_from_csubstr(const c4::csubstr& s) { return {s.data(), s.size()}; }
-inline static std::string s_from_csubstr(const c4::csubstr& s) { return {s.data(), s.size()}; }
+inline std::string_view sv_from_csubstr(const c4::csubstr& s) { return {s.data(), s.size()}; }
+inline std::string s_from_csubstr(const c4::csubstr& s) { return {s.data(), s.size()}; }
 
 /// Load a text file into a string.
 ///

@@ -1,18 +1,11 @@
 /// @copyright See `LICENSE` in the root directory of this project.
 
 #include <iostream>
-#include <string>
-#include <string_view>
 #include <filesystem>
-#include <memory>
-#include <vector>
 #include <optional>
 #include <tuple>
 
 #include "CLI11.hpp"
-
-#include <antler/project/location.hpp>
-#include <antler/system/utils.hpp>
 
 #include "add_to.hpp"
 #include "app_version.hpp"

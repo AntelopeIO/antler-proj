@@ -33,6 +33,5 @@ namespace antler {
       
       CLI::App*   subcommand;
       std::string path;
-      bool verbose;
    };
 } // namespace antler

@@ -14,7 +14,7 @@ TEST_CASE("Testing cmake emission") {
    project proj = {};
 
    proj.name("test_proj");
-   proj.version({"v1.0.0"});
+   proj.version(antler::project::version{"v1.0.0"});
 
    std::stringstream ss;
 

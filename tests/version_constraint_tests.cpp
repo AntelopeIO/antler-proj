@@ -3,12 +3,10 @@
 #include <antler/project/version_constraint.hpp>
 
 #include <catch2/catch.hpp>
-#include "common.hpp"
 
 #include <string>
 #include <vector>
 #include <iostream>
-#include <sstream>
 
 using namespace antler::project;
 
