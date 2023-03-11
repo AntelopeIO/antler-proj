@@ -7,6 +7,8 @@
 #include <vector>
 
 #include <magic_enum.hpp>
+#include <bluegrass/cturtle.hpp>
+#include <bluegrass/meta.hpp>
 
 namespace antler::system {
    namespace detail {
@@ -83,6 +85,17 @@ namespace antler::system {
       else
          return ".c";
    }
+
+   template <typename Ex>
+   inline static void print_error(Ex&& ex) {
+      std::cerr << "manifest error at pos: " << ex.mark.pos << " line: " << ex.mark.line << ", column: " << ex.mark.column << std::endl;
+      std::cerr << "   Message: " << ex.msg << std::endl;
+   }
+
+   using bluegrass::cturtle::debug_log;
+   using bluegrass::cturtle::info_log;
+   using bluegrass::cturtle::warn_log;
+   using bluegrass::cturtle::error_log;
 
 } // namespace antler::system
 

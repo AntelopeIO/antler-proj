@@ -3,19 +3,24 @@ include(FindPkgConfig)
 pkg_check_modules(CURL libcurl REQUIRED)
 
 add_library(antler-project
+   cmake_templates.cpp
    dependency.cpp 
    location.cpp 
-   object.cpp 
-   project-parse.cpp 
-   project-populate.cpp 
-   project-print.cpp 
+   #project-populate.cpp 
    project.cpp
-   version_constraint.cpp 
+   #version_constraint.cpp 
 )
 
 target_include_directories(antler-project PUBLIC ../include 
                                                  ${CMAKE_CURRENT_BINARY_DIR}/../include
+                                                 ${CMAKE_SOURCE_DIR}/external/Mustache
                                                  ${CURL_INCLUDE_DIRS}
 )
-target_link_libraries(antler-project PUBLIC magic_enum ryml nlohmann_json::nlohmann_json ${CURL_LIBRARIES})
+target_link_libraries(antler-project PUBLIC magic_enum 
+                                            mustache
+                                            nlohmann_json::nlohmann_json 
+                                            yaml-cpp::yaml-cpp
+                                            bluegrass::cturtle
+                                            bluegrass::meta_refl
+                                            ${CURL_LIBRARIES})
 set_property(TARGET antler-project PROPERTY CXX_STANDARD 17)

@@ -34,7 +34,69 @@ namespace { // anonymous
    return std::memcmp(buffer.data(), project::magic_comment.data(), buffer.size()) == 0;
 }
 
+   template <typename Stream, typename Str, typename F>
+   static bool try_emit(Stream& error_stream, Str&& path, F&& func) {
+      try {
+         func();
+         return true;
+      } catch (const std::exception& e) {
+         error_stream << "Error writing to " << path << ": " << e.what() << "\n";
+         return false;
+      } catch (...) {
+         error_stream << "Error writing to " << path << ": UNKNOWN\n";
+         return false;
+      }
+   };
+   
+   template <typename Stream, typename Objs, typename F>
+   static bool populate_objs(Stream& error_stream, Objs&& objs, const project& proj, F&& func) {
+      bool succeeded = true;
+      std::for_each(objs.begin(), objs.end(), [&](const auto& obj) {
+         const auto& o = obj.second;
 
+         auto obj_path = obj_path.parent_path() / std::filesystem::path(o.name()) / cmake::cmake_lists;
+         std::filesystem::create_directory(obj_path.parent_path());
+         std::ofstream obfs(obj_path);
+
+         if (!try_emit(error_stream, obj_path, [&]() {
+            cmake::emit_add_subdirectory(obfs, ".", o.name());
+         })) {
+            error_stream << "Error emitting cmake for object: " << o.name() << std::endl;
+            succeeded = false;
+            return false;
+         }
+
+         if (!try_emit(error_stream, obj_path, [&]() {
+
+         })) {
+            error_stream << "Error emitting cmake for object: " << o.name() << "\n";
+         }
+      });
+   }
+      bool succeeded = true; 
+      std::all_of(apps().begin(), apps().end(),
+         [&](const auto& obj) {
+            const auto& app = obj.second;
+            auto app_path = apps_path.parent_path() / std::filesystem::path(app.name()) / cmake::cmake_lists;
+            std::filesystem::create_directory(app_path.parent_path());
+            std::ofstream apfs(app_path);
+
+            if (!try_emit(apps_path, [&](){
+               cmake::emit_add_subdirectory(afs, ".", app.name());
+            })) {
+                  error_stream << "Error emitting cmake for app: " << app.name() << "\n";
+                  succeeded = false;
+                  return false;
+               }
+         }
+
+            if (!try_emit(app_path, [&]() {
+               cmake::emit_app(apfs, app, *this);
+            })) {
+               error_stream << "Error emitting cmake for app: " << app.name() << "\n";
+               succeeded = false;
+               return false;
+ 
 } // anonymous namespace
 
 
@@ -64,24 +126,12 @@ bool project::populate(bool replace, std::ostream& error_stream) noexcept {
 
    tfs << "\n";
 
-   const auto& try_emit = [&](auto path, auto func) {
-      try {
-         func();
-         return true;
-      } catch (const std::exception& e) {
-         error_stream << "Error writing to " << path << ": " << e.what() << "\n";
-         return false;
-      } catch (...) {
-         error_stream << "Error writing to " << path << ": UNKNOWN\n";
-         return false;
-      }
-   };
 
    if (!rfs.good() && !afs.good()) {
       error_stream << "Can not open path for writing\n";
       return false;
    } else {
-      if (!try_emit(root_path, [&]() {
+      if (!try_emit(error_stream, root_path, [&]() {
          cmake::emit_preamble(rfs, *this);
          cmake::emit_entry(rfs, *this);
       })) {
@@ -89,54 +139,67 @@ bool project::populate(bool replace, std::ostream& error_stream) noexcept {
          return false;
       }
       
-      if (!try_emit(apps_path, [&]() {
+      if (!try_emit(error_stream, apps_path, [&]() {
          cmake::emit_preamble(afs, *this);
          cmake::emit_project(afs, *this);
       })) {
          error_stream << "Error emitting base cmake for project.\n";
          return false;
       }
-      
-      for (const auto& app : apps()) {
-         auto app_path = apps_path.parent_path() / std::filesystem::path(app.name()) / cmake::cmake_lists;
-         std::filesystem::create_directory(app_path.parent_path());
-         std::ofstream apfs(app_path);
 
-         if (!try_emit(apps_path, [&](){
-            cmake::emit_add_subdirectory(afs, ".", app.name());
-         })) {
-            error_stream << "Error emitting cmake for app: " << app.name() << "\n";
-            return false;
+      const auto& add_objs = [&]() {
+
+      };
+
+      bool succeeded = true; 
+      std::all_of(apps().begin(), apps().end(),
+         [&](const auto& obj) {
+            const auto& app = obj.second;
+            auto app_path = apps_path.parent_path() / std::filesystem::path(app.name()) / cmake::cmake_lists;
+            std::filesystem::create_directory(app_path.parent_path());
+            std::ofstream apfs(app_path);
+
+            if (!try_emit(apps_path, [&](){
+               cmake::emit_add_subdirectory(afs, ".", app.name());
+            })) {
+                  error_stream << "Error emitting cmake for app: " << app.name() << "\n";
+                  succeeded = false;
+                  return false;
+               }
          }
 
-         if (!try_emit(app_path, [&]() {
-            cmake::emit_app(apfs, app, *this);
-         })) {
-            error_stream << "Error emitting cmake for app: " << app.name() << "\n";
-            return false;
-         }
-      }
+            if (!try_emit(app_path, [&]() {
+               cmake::emit_app(apfs, app, *this);
+            })) {
+               error_stream << "Error emitting cmake for app: " << app.name() << "\n";
+               succeeded = false;
+               return false;
+            }
+            return true;
+      });
 
-      for (const auto& lib : libs()) {
-         auto lib_path = libs_path.parent_path() / std::filesystem::path(lib.name()) / cmake::cmake_lists;
-         std::filesystem::create_directory(lib_path.parent_path());
-         std::ofstream lpfs(lib_path);
+      std::all_of(libs().begin(), libs().end(),
+         [&](const auto& obj) {
+            const auto& lib = obj.second;
+            auto lib_path = libs_path.parent_path() / std::filesystem::path(lib.name()) / cmake::cmake_lists;
+            std::filesystem::create_directory(lib_path.parent_path());
+            std::ofstream lpfs(lib_path);
 
-         if (!try_emit(libs_path, [&](){
-            cmake::emit_add_subdirectory(lfs, "../libs", lib.name());
-         })) {
-            error_stream << "Error emitting cmake for lib: " << lib.name() << "\n";
-            return false;
-         }
+            if (!try_emit(libs_path, [&](){
+               cmake::emit_add_subdirectory(lfs, "../libs", lib.name());
+            })) {
+               error_stream << "Error emitting cmake for lib: " << lib.name() << "\n";
+               return false;
+            }
 
-         if (!try_emit(lib_path, [&]() {
-            cmake::emit_lib(lpfs, lib, *this);
-         })) {
-            error_stream << "Error emitting cmake for lib: " << lib.name() << "\n";
-            return false;
-         }
-      }
-
+            if (!try_emit(lib_path, [&]() {
+               cmake::emit_lib(lpfs, lib, *this);
+            })) {
+               error_stream << "Error emitting cmake for lib: " << lib.name() << "\n";
+               return false;
+            }
+            return true;
+      });
    }
 
    return true;

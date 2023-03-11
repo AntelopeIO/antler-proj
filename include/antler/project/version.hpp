@@ -4,12 +4,15 @@
 
 #include <string>
 #include <string_view>
+#include <sstream>
 #include <iostream>
 #include <optional>
 #include <array>
 #include <memory>
 #include <stdexcept>
 #include "../system/utils.hpp"
+
+#include <yaml-cpp/yaml.h>
 
 namespace antler::project {
 
@@ -197,3 +200,18 @@ private:
 } // namespace antler::project
 
 inline std::ostream& operator<<(std::ostream& os, const antler::project::version& o) { os << o.to_string(); return os; }
+
+/// Overloads for our datatype conversions
+namespace YAML {
+   template<>
+   struct convert<antler::project::version> {
+      static YAML::Node encode(const antler::project::version& v) {
+         return YAML::Node{v.to_string()};
+      }
+
+      static bool decode(const YAML::Node& n, antler::project::version& v) {
+         v = {n["version"].as<std::string>()};
+         return true;
+      }
+   };
+}

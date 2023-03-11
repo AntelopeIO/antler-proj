@@ -69,6 +69,8 @@ namespace antler {
 
             std::filesystem::copy(from_wasm, to_wasm);
             std::filesystem::copy(from_abi, to_abi);
+
+            std::cout << to_wasm << " and " << to_abi << " have been created." << std::endl;
          }
       }
 

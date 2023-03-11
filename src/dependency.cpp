@@ -28,10 +28,6 @@ inline bool is_valid_hash(std::string_view s, size_t byte_count = 32) noexcept {
 namespace antler::project {
 
 
-//--- constructors/destructor ------------------------------------------------------------------------------------------
-
-
-
 //--- alphabetic --------------------------------------------------------------------------------------------------------
 
 bool dependency::empty_version() const noexcept {
@@ -51,26 +47,6 @@ void dependency::hash(std::string_view s) noexcept {
 
 bool dependency::is_archive() const noexcept {
    return location::is_archive(m_loc);
-}
-
-
-std::string_view dependency::location() const noexcept {
-   return m_loc;
-}
-
-
-void dependency::location(std::string_view s) noexcept {
-   m_loc = s;
-}
-
-
-std::string_view dependency::name() const noexcept {
-   return m_name;
-}
-
-
-void dependency::name(std::string_view s) noexcept {
-   m_name = s;
 }
 
 

@@ -1,35 +1,15 @@
-#pragma once
-
 /// @copyright See `LICENSE` in the root directory of this project.
 
-#include <filesystem>
-#include <iostream>
-#include <string_view>
-
 #include <antler/project/project.hpp>
+#include "common.hpp"
 
-inline bool remove_file(std::string_view fn) { return std::filesystem::remove_all(fn); }
+#include <catch2/catch.hpp>
 
-inline bool load_project(std::string_view fn, antler::project::project& proj) {
-   auto p = std::filesystem::canonical(std::filesystem::path(fn));
-   if (!antler::project::project::update_path(p)) {
-      return false;
-   }
 
-   auto po = antler::project::project::parse(p);
-   
-   if (po) {
-      proj = *po;
-      return true;
-   }
-   return false;
-}
-
-static antler::project::project create_project() {
+TEST_CASE("Testing project") {
    using namespace antler::project;
-
-   app_t apps[] = { {"appa", "C", "-M", "-flto"},
-                  {"appb", "C++", "-std=c++14;-Mm", "-ld"},
+   app_t apps[] = { {"appa", "C", "", ""},
+                  {"appb", "C++", "", ""},
                   {"appc", "C++", "", ""},
                   {"appd", "C++", "", ""} };
 
@@ -58,5 +38,37 @@ static antler::project::project create_project() {
    proj.upsert(std::move(apps[2]));
    proj.upsert(std::move(apps[3]));
 
-   return proj;
+   REQUIRE(proj.name() == "test_proj");
+   REQUIRE(proj.version() == version{1, 3, 4});
+   REQUIRE(proj.version().to_string() == "1.3.4");
+
+   REQUIRE(proj.apps().size() == 4);
+   REQUIRE(proj.libs().size() == 3);
+}
+
+
+TEST_CASE("Testing project yaml conversion") {
+   using namespace antler::project;
+
+   project proj = create_project();
+
+   
+   std::string psv = "project: test_proj\n"
+                          "version: 1.3.4";
+
+   auto nn = YAML::Load(psv);
+
+   std::cout << "NN " << nn << std::endl;
+
+   YAML::Node node;
+   node = proj;
+
+   //project proj2 = node["test"].as<project>();
+
+
+
+   //REQUIRE(proj.name() == proj2.name());
+   //REQUIRE(proj.version() == proj2.version());
+   //REQUIRE(proj.apps().size() == proj2.apps().size());
+   //REQUIRE(proj.libs().size() == proj2.libs().size());
 }

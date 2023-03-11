@@ -15,6 +15,8 @@ bool same(const L& l, const R& r) {
 
 using namespace antler::string;
 
+TEST_CASE("Testing antler::string")
+
 int main(int,char**) {
 
    uint8_t u8;

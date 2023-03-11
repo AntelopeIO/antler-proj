@@ -2,12 +2,14 @@
 
 /// @copyright See `LICENSE` in the root directory of this project.
 
-#include "object.hpp"
-#include "version.hpp"
 #include <filesystem>
 #include <optional>
-
 #include <iostream>
+#include <sstream>
+
+
+#include "object.hpp"
+#include "version.hpp"
 
 namespace antler::project {
 
@@ -49,23 +51,32 @@ public:
    /// @param ver  The new version information.
    void version(const antler::project::version& ver) noexcept;
 
-   /// Remove a named object of a given type. If type is any, then all objects with name are removed.
-   /// @param name  The name of the object(s) to remove.
-   /// @param type  The type of the object(s) to remove. If type is any, then all objects with name are removed.
-   /// @return True if one or more objects are removed; otherwise, false.
-   [[nodiscard]] bool remove(std::string_view name, object::type_t type) noexcept;
+   /// Remove an app from the project.
+   /// @param name  The name of the app to remove.
+   /// @return True if the app existed and was erased, false otherwise.
+   [[nodiscard]] inline bool remove_app(const std::string& name) noexcept { return m_apps.erase(name) > 0; }
+
+   /// Remove a lib from the project.
+   /// @param name  The name of the lib to remove.
+   /// @return True if the lib existed and was erased, false otherwise.
+   [[nodiscard]] inline bool remove_lib(const std::string& name) noexcept { return m_libs.erase(name) > 0; }
+
+   /// Remove an object from the project.
+   /// @param name  The name of the object to remove.
+   /// @return True if the object existed and was erased, false otherwise.
+   [[nodiscard]] inline bool remove(const std::string& name) noexcept { return remove_app(name) || remove_lib(name); }
 
    /// update or insert a new object. It's type() is evaluated to determine which list it belongs in. If the object already
-   /// exists, an update is performed by removing the old one and adding the new one.
+   /// exists.
    /// @param obj  The object to update or insert.
-   template <object::type_t Ty>
-   inline void upsert(object&& obj) noexcept {
-      if constexpr (Ty == object::type_t::app)
+   template <typename Tag>
+   inline void upsert(object<Tag>&& obj) noexcept {
+      if constexpr (std::is_same_v<Tag, app_tag>)
          return upsert_app(std::move(obj));
-      else if constexpr (Ty == object::type_t::lib)
+      else if constexpr (std::is_same_v<Tag, lib_tag>)
          return upsert_lib(std::move(obj));
-      else if constexpr (Ty == object::type_t::test)
-         return upsert_test(std::move(obj));
+      //else if constexpr (Ty == object::type_t::test)
+      //   return upsert_test(std::move(obj));
       else
          throw std::runtime_error("internal failure");
    }
@@ -73,21 +84,35 @@ public:
    /// update or insert a new application object. If the object already exists, an update is performed by removing the old one and
    /// adding the new one.
    /// @param obj  The object to update or insert.
-   void upsert_app(object&& app) noexcept;
+   void upsert(app_t&& app) noexcept { m_apps[app.name()] = std::move(app); }
+
    /// update or insert a new library object. If the object already exists, an update is performed by removing the old one and
    /// adding the new one.
    /// @param obj  The object to update or insert.
-   void upsert_lib(object&& lib) noexcept;
+   void upsert(lib_t&& lib) noexcept { m_libs[lib.name()] = std::move(lib); }
+
+#if 0
    /// update or insert a new test object. If the object already exists, an update is performed by removing the old one and
    /// adding the new one.
    /// @param obj  The object to update or insert.
    void upsert_test(object&& test) noexcept;
+#endif
 
-   /// Search the lists to see if an object exists.
+   /// Does the given app exist in the project.
+   /// @param name  The app name to search for.
+   /// @return true if the app exists, false otherwise.
+   [[nodiscard]] inline bool app_exists(const std::string& name) const noexcept { return m_apps.count(name) > 0; }
+
+   /// Does the given lib exist in the project.
+   /// @param name  The lib name to search for.
+   /// @return true if the lib exists, false otherwise.
+   [[nodiscard]] inline bool lib_exists(const std::string& name) const noexcept { return m_libs.count(name) > 0; }
+
+   /// Does the given object exist in the project.
    /// @param name  The object name to search for.
-   /// @param type  If type is other than any, the search is limited to that single type.
-   /// @return true if an object with the provided name exists in the indicated list.
-   [[nodiscard]] bool object_exists(std::string_view name, object::type_t type = object::type_t::any) const noexcept;
+   /// @return true if the object exists, false otherwise.
+   [[nodiscard]] inline bool exists(const std::string& name) const noexcept { return app_exists(name) || lib_exists(name); }
+
 
    /// Return the first object with the matching name where search order is apps, libs, tests.
    /// @TODO replace this with a std::vector<antler::project::object>/antler::project::object::list_t to return all the objects
@@ -95,21 +120,40 @@ public:
    /// @param name  The name to search for in the object lists.
    /// @param type  If type is other than any, the search is limited to that single type.
    /// @return vector with copies of the objects.
-   [[nodiscard]] antler::project::object& object(std::string_view name); 
+   template <typename Tag>
+   [[nodiscard]] auto& object(std::string_view name) {
+      const auto& get = [](auto nm, auto& c) -> auto& {
+         auto itr = c.find(nm);
+         return itr->second;
+      };
+
+      if constexpr (std::is_same_v<Tag, app_tag>) {
+         return get(name, m_apps);
+      } else if constexpr (std::is_same_v<Tag, lib_tag>) {
+         return get(name, m_libs);
+      } else {
+         throw std::runtime_error("internal failure");
+      }
+   } 
 
    /// @return A const ref to the application list.
-   [[nodiscard]] inline const antler::project::object::list_t& apps() const noexcept { return m_apps; }
+   [[nodiscard]] inline const app_t::map_t& apps() const noexcept { return m_apps; }
+   /// @return A ref to the application list.
+   [[nodiscard]] inline app_t::map_t& apps() noexcept { return m_apps; }
+   inline void apps(app_t::map_t&& apps) noexcept { m_apps = std::move(apps); }
+
    /// @return A const ref to the library list.
-   [[nodiscard]] inline const antler::project::object::list_t& libs() const noexcept { return m_libs; }
+   [[nodiscard]] inline const lib_t::map_t& libs() const noexcept { return m_libs; }
+   /// @return A ref to the library list.
+   [[nodiscard]] inline lib_t::map_t& libs() noexcept { return m_libs; }
+   inline void libs(lib_t::map_t&& libs) noexcept { m_libs = std::move(libs); }
+
+   #if 0
    /// @return A const ref to the test list.
    [[nodiscard]] inline const antler::project::object::list_t& tests() const noexcept { return m_tests; }
-
-   /// @return A ref to the application list.
-   [[nodiscard]] inline antler::project::object::list_t& apps() noexcept { return m_apps; }
-   /// @return A ref to the library list.
-   [[nodiscard]] inline antler::project::object::list_t& libs() noexcept { return m_libs; }
    /// @return A ref to the test list.
    [[nodiscard]] inline antler::project::object::list_t& tests() noexcept { return m_tests; }
+   #endif
 
    /// Validate a dependency
    /// @param dep Dependency to check
@@ -126,8 +170,15 @@ public:
    /// Print the yaml object to a stream.
    /// @param os  The ostream to print to.
    void print(std::ostream& os) const noexcept;
+
    /// @return yaml string representation of this object.
-   [[nodiscard]] std::string to_yaml() const noexcept;
+   [[nodiscard]] std::string to_yaml() const noexcept {
+      YAML::Node node;
+      node["project"] = *this;
+      std::stringstream ss;
+      ss << node;
+      return ss.str();
+   }
 
    /// Write the file to disk.
    /// @note path() must be set.
@@ -163,18 +214,53 @@ public:
    [[nodiscard]] static bool update_path(std::filesystem::path& path) noexcept;
 
 private:
-   inline void create_app(std::string_view name) {
-   }
 
    std::filesystem::path m_path;   ///< path to the project.yaml file.
    std::string m_name;             ///< The project name.
    antler::project::version m_ver; ///< The version information for this project.
-   object::list_t m_apps;          ///< List of applications.
-   object::list_t m_libs;          ///< List of libraries.
-   object::list_t m_tests;         ///< List of tests.
+   app_t::map_t m_apps;            ///< Map of applications.
+   lib_t::map_t m_libs;            ///< Map of libraries.
+   //object::list_t m_tests;         ///< List of tests.
 };
 
 } // namespace antler::project
 
 
-inline std::ostream& operator<<(std::ostream& os, const antler::project::project& o) { o.print(os); return os; }
+// TODO in the future use something like meta_refl to simply reflect
+// the objects and one overload in manifest
+/// Overloads for our datatype conversions
+namespace YAML {
+   template<>
+   struct convert<antler::project::project> {
+      static Node encode(const antler::project::project& p) {
+         Node n;
+         //TODO we will need to readdress when adding support for test objects
+         n["project"] = std::string(p.name());
+         n["version"] = p.version();
+         for (const auto& [k,v] : p.apps())
+            n["apps"].push_back(v);
+         for (const auto& [k,v]: p.libs())
+            n["libraries"].push_back(v);
+         return n;
+      }
+
+      static bool decode(const YAML::Node& n, antler::project::project& p) {
+         using apps_map = antler::project::app_t::map_t;
+         using libs_map = antler::project::lib_t::map_t;
+
+         try {
+            p.name(n["project"].as<std::string>());
+            p.version(n["version"].as<antler::project::version>());
+            for (auto app : n["apps"])
+               p.upsert(app.as<antler::project::app_t>());
+            for (auto lib : n["libraries"])
+               p.upsert(lib.as<antler::project::app_t>());
+         } catch(const YAML::Exception& ex) {
+            antler::system::print_error(ex);
+            return false;
+         }
+         return true;
+      }
+   };
+}
+

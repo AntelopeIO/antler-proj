@@ -5,116 +5,202 @@
 #include <antler/project/project.hpp>
 
 #include <filesystem> // path
+#include <fstream>
+#include <stdexcept>
 #include <string_view>
+
+#include <mustache.hpp>
 
 
 namespace antler::project {
 
-   struct cmake {
-      constexpr inline static uint16_t minimum_major = 3;
-      constexpr inline static uint16_t minimum_minor = 11;
-      constexpr inline static std::string_view cmake_lists = "CMakeLists.txt";
-      constexpr inline static std::string_view cmake_exe   = "cmake";
+   namespace km = kainjow::mustache;
 
-      template <typename T>
-      inline static std::string cmake_target_name(const project& proj, T&& obj) {
-         using namespace std::literals;
-         return std::string(proj.name()) + "-"s + std::string(obj.name());
+   /// @brief struct to encapsulate a CMakeLists.txt file
+   struct cmake_lists {
+      constexpr inline static std::string_view cmake_lists_fn = "CMakeLists.txt";
+
+      /// @brief constructor
+      /// @param p base path for where this CMakeLists.txt will reside
+      cmake_lists(std::filesystem::path p)
+         : path(p / cmake_lists_fn),
+           outs(path) {
+         std::filesystem::create_directories(p);
+         system::debug_log("cmake_lists(std::filesystem::path) constructed.");
+         system::debug_log("path = {0} ", path.string());
       }
 
-      template <typename Stream>
-      inline static void emit_add_subdirectory(Stream& s, std::string_view path, std::string_view name) noexcept { 
-         s << "add_subdirectory(${CMAKE_SOURCE_DIR}/" << path << "/" << name << ")\n";
-         s << std::endl;
+      ~cmake_lists() { outs.close(); }
+
+      /// @brief stream operator insertion overload
+      /// @tparam T type of object will be inserted
+      /// @param v object that will be inserted in this CMakeLists.txt
+      /// @return CMakeLists stream
+      template<typename T>
+      inline std::ostream& operator<<(T&& v) { 
+         outs << std::forward<T>(v); 
+         return outs;
       }
 
-      template <typename Stream>
-      inline static void emit_preamble(Stream& s, const project& proj) noexcept {
-         s << "# Generated with antler-proj tool, modify at your own risk\n";
-         s << "cmake_minimum_required(VERSION " << minimum_major << "." << minimum_minor << ")\n";
-         s << "project(\"" << proj.name() << "\" VERSION " << proj.version().major() << "." << 
-                              proj.version().minor() << "." << proj.version().patch() << ")\n";
-         s << std::endl;
-      }
+      std::filesystem::path path;
+      std::ofstream outs;
+   };
 
-      template <typename Stream>
-      inline static void emit_project(Stream& s, const project& proj) noexcept {
-         s << "find_package(cdt)\n\n";
-         s << "add_subdirectory(${CMAKE_SOURCE_DIR}/../libs ${CMAKE_CURRENT_BINARY_DIR}/libs)\n";
-         s << "add_subdirectory(${CMAKE_SOURCE_DIR}/../tests ${CMAKE_CURRENT_BINARY_DIR}/tests)\n";
-         s << std::endl;
-      }
+   /// @brief Object to house emission of CMake for antler-proj projects
+   class cmake {
+      public:
+         constexpr inline static uint16_t minimum_major = 3;
+         constexpr inline static uint16_t minimum_minor = 11;
+         constexpr inline static std::string_view build_dir_name  = "build";
+         constexpr inline static std::string_view apps_dir_name   = "build";
+         constexpr inline static std::string_view libs_dir_name   = "build";
+         constexpr inline static std::string_view tests_dir_name  = "build";
 
-      template <typename Stream>
-      inline static void emit_dependencies(Stream& s, const project& proj, const object& obj) noexcept {
-         for (const auto& dep : obj.dependencies()) {
-            std::string dep_name = dep.location().empty() ? cmake_target_name(proj, dep) : std::string(dep.name());
-            s << "target_link_libraries(" << cmake_target_name(proj, obj) << " PUBLIC " << dep_name <<")\n";
-         }
-         s << std::endl;
-      }
+         // `mustache` templates for the cmake
+         static km::mustache add_subdirectory_template;
+         static km::mustache preamble_template;
+         static km::mustache project_stub_template;
+         static km::mustache target_compile_template;
+         static km::mustache target_include_template;
+         static km::mustache target_link_libs_template;
+         static km::mustache entry_template;
+         static km::mustache add_action_template;
+         static km::mustache add_library_template;
 
-      template <typename Stream>
-      inline static void emit_entry(Stream& s, const project& proj) noexcept {
-         s << "include(ExternalProject)\n";
-         s << "if(CDT_ROOT STREQUAL \"\" OR NOT CDT_ROOT)\n";
-         s << "\tfind_package(cdt)\n";
-         s << "endif()\n\n";
-         s << "ExternalProject_Add(\n";
-         s << "\t" << proj.name() << "_project\n";
-         s << "\tSOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/apps\n";
-         s << "\tBINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/" << proj.name() << "\n";
-         s << "\tCMAKE_ARGS -DCMAKE_TOOLCHAIN_FILE=${CDT_ROOT}/lib/cmake/cdt/CDTWasmToolchain.cmake\n";
-         s << "\tUPDATE_COMMAND \"\"\n";
-         s << "\tPATCH_COMMAND \"\"\n";
-         s << "\tTEST_COMMAND \"\"\n";
-         s << "\tINSTALL_COMMAND \"\"\n";
-         s << "\tBUILD_ALWAYS 1\n";
-         s << ")\n";
-         s << std::endl;
-      }
-
-      template <object::type_t Ty, typename Stream>
-      inline static void emit_obj(Stream& s, const object& obj, const project& proj) noexcept {
-         if constexpr (Ty == object::type_t::app) {
-            s << "add_contract(" << obj.name() << " " << cmake_target_name(proj, obj) << " " << "${CMAKE_SOURCE_DIR}/../../apps/" 
-               << obj.name() << "/" << obj.name() << ".cpp" << ")\n"; 
-         } else {
-            s << "add_library(" << cmake_target_name(proj, obj) << " " << "${CMAKE_SOURCE_DIR}/../../libs/" 
-               << obj.name() << "/" << obj.name() << system::extension(obj.language())  << ")\n"; 
+         cmake(const project& proj)
+            : proj(&proj),
+            base_path(proj.path().parent_path() / build_dir_name),
+            base_lists(base_path),
+            apps_lists(base_path / apps_dir_name),
+            libs_lists(base_path / apps_dir_name),
+            tests_lists(base_path / apps_dir_name) {
+            system::debug_log("cmake(const project&) constructed");
+            system::debug_log("project name = {0}", proj.name());
          }
 
-         s << "target_include_directories(" << cmake_target_name(proj, obj) 
-                                            << " PUBLIC ${CMAKE_SOURCE_DIR}/../../include "
-                                            << "${CMAKE_SOURCE_DIR}/../../include/" << obj.name() << " ./ )\n\n"; 
-         s << std::endl;
-
-         for (const auto& o : obj.compile_options()) {
-            s << "target_compile_options(" << cmake_target_name(proj, obj)
-                                           << " PUBLIC " << o << ")\n";
+         template <typename T>
+         inline std::string target_name(T&& obj) {
+            using namespace std::literals;
+            return std::string(proj->name()) + "-"s + std::string(obj.name());
          }
-         s << std::endl;
 
-         for (const auto& o : obj.link_options()) {
-            s << "target_link_libraries(" << cmake_target_name(proj, obj)
-                                          << " PUBLIC " << o << ")\n";
+         template <typename Stream>
+         inline void emit_add_subdirectory(Stream& s, std::filesystem::path path, std::string_view name) noexcept { 
+            s << add_subdirectory_template.render(datum{"path", (path / name).string()});
          }
-         s << std::endl;
 
-         emit_dependencies(s, proj, obj);
-         s << std::endl;
-      }
+         template <typename Stream>
+         inline void emit_preamble(Stream& s) noexcept {
+            s << preamble_template.render(datum{"tool", "antler-proj"}
+                                               ("major", minimum_major)
+                                               ("minor", minimum_minor)
+                                               ("proj_name", proj->name())
+                                               ("proj_major", proj->version().major())
+                                               ("proj_minor", proj->version().minor())
+                                               ("proj_patch", proj->version().patch()));
+         }
 
-      template <typename Stream>
-      inline static void emit_app(Stream& s, const object& app, const project& proj) noexcept {
-         return emit_obj<object::type_t::app>(s, app, proj);
-      }
+         template <typename Stream>
+         inline void emit_project_stub(Stream& s) noexcept { s << project_stub_template.render({}); }
 
-      template <typename Stream>
-      inline static void emit_lib(Stream& s, const object& lib, const project& proj) noexcept {
-         return emit_obj<object::type_t::lib>(s, lib, proj);
-      }
+         template <typename Stream, typename Tag>
+         inline void emit_dependencies(Stream& s, const object<Tag>& obj) noexcept {
+            for (const auto& [k, dep] : obj.dependencies()) {
+               std::string dep_name = dep.location().empty() ? target_name(dep) : std::string(dep.name());
+               s << target_link_libs_template.render(datum{"target_name", target_name(obj)}
+                                                          ("dep_name", dep_name));
+            }
+            s << "\n";
+         }
+         template <typename Stream>
+         inline void emit_entry(Stream& s) noexcept { s << entry_template.render(datum{"proj", proj->name()}); }
+   
+         template <typename Stream, typename Tag>
+         inline void emit_object(Stream& s, const object<Tag>& obj) {
+            km::mustache& temp = std::is_same_v<Tag, app_t> ? add_action_template : add_library_template;
 
+            s << temp.render(datum{"obj_name", obj.name()}
+                                  ("target_name", target_name(obj))
+                                  ("obj_source", std::string(obj.name())+system::extension(obj.language())));
+
+            for (const auto& o : obj.compile_options()) {
+               s << target_compile_template.render(datum{"target_name", target_name(obj)}
+                                                        ("opt", o));
+            }
+
+            s << "\n";
+
+            for (const auto& o : obj.link_options()) {
+               s << target_link_libs_template.render(datum{"target_name", target_name(obj)}
+                                                          ("dep_name", o));
+            }
+
+            s << "\n";
+
+            emit_dependencies(s, obj);
+            s << "\n";
+         }
+
+         template <typename Stream, typename Objs>
+         void emit_objects(Stream& s, std::string_view dir, Objs&& objs) {
+            for (const auto& [k, obj] : objs) {
+               emit_add_subdirectory(s, dir, obj.name());
+               emit_object(s, obj);
+            }
+         }
+
+         template <typename Stream, typename Tag>
+         inline void emit_dependency(Stream& s, const object<Tag>& dep) noexcept {
+         }
+
+         void emit() {
+            if (!proj) {
+               throw std::runtime_error("internal failure, proj is null");
+            }
+
+            emit_preamble(base_lists);
+            emit_entry(base_lists);
+
+            emit_preamble(apps_lists);
+            emit_project_stub(apps_lists);
+
+            emit_objects(apps_lists, ".", proj->apps());
+            emit_objects(libs_lists, "../libs", proj->libs());
+         }
+
+      private:
+         
+         // simple helper to clean km::data usage
+         struct datum {
+            template <typename T>
+            decltype(auto) fwrd(T&& val) {
+               std::stringstream ss;
+               ss << std::forward<T>(val);
+               return ss.str();
+            }
+
+            template <typename Str, typename T>
+            inline datum(Str&& key, T&& val) 
+               : data(std::forward<Str>(key), fwrd(std::forward<T>(val))) {}
+            
+            template <typename Str, typename T>
+            datum& operator()(Str&& key, T&& val) {
+               data.set(std::forward<Str>(key), fwrd(std::forward<T>(val)));
+               return *this;
+            }
+
+            operator km::data() const { return data; }
+            operator km::data&() { return data; }
+
+            km::data data;
+         };
+
+         const project* proj = nullptr; // non-owning pointer to project
+         std::filesystem::path base_path;
+         cmake_lists           base_lists;
+         cmake_lists           apps_lists;
+         cmake_lists           libs_lists;
+         cmake_lists           tests_lists;
    };
 
 } // namespace antler::project

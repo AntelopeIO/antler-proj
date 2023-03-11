@@ -1,0 +1,5 @@
+#pragma once
+
+#include <string_view>
+
+constexpr static inline std::string_view test_dir = "@ANTLER_TEST_DIR@";

@@ -11,6 +11,7 @@
 #include <filesystem>
 
 #include "version.hpp"
+#include "../system/utils.hpp"
 
 
 namespace antler::project {
@@ -30,6 +31,12 @@ public:
       set(name, loc, tag, rel, hash);
    }
 
+   dependency(const dependency&) = default;
+   dependency(dependency&&) = default;
+   
+   dependency& operator=(const dependency&) = default;
+   dependency& operator=(dependency&&) = default;
+
 
    /// Sets the internal values (regardless of the validity).
    /// @note Check that validate_location() returns true before setting these values.
@@ -43,17 +50,17 @@ public:
 
    /// Get the dependency name.
    /// @return The name of this dependency.
-   [[nodiscard]] std::string_view name() const noexcept;
+   [[nodiscard]] inline const std::string& name() const noexcept { return m_name; }
    /// Set the dependency name.
    /// @param s  The new name for this dependency.
-   void name(std::string_view s) noexcept;
+   inline void name(std::string s) noexcept { m_name = std::move(s); }
 
    /// Get the location field of this dependency.
    /// @return the from location of this dependency.
-   [[nodiscard]] std::string_view location() const noexcept;
+   [[nodiscard]] inline std::string_view location() const noexcept { return m_loc; }
    /// Set the location field of this dependency.
    /// @param s  The new from location of this dependency.
-   void location(std::string_view s) noexcept;
+   void location(std::string s) noexcept { m_loc = std::move(s); }
 
    /// Report on the status of this dependencies from field: does it look like an archive?
    /// @return true if location ends in an archive format (e.g. ".tar.gz", ".tgz", etc")
@@ -116,8 +123,7 @@ public:
    /// @return true indicates the values passed in are a valid combination.
    [[nodiscard]] static bool validate_location(std::string_view loc, std::string_view tag, std::string_view rel, std::string_view hash,
          std::ostream& os=std::cerr);
-
-
+   
 private:
    std::string m_name;          ///< Name of the dependency.
    std::string m_loc;           ///< Location of the dep: local or remote archive, github repo (https: or org shorthand)
@@ -127,5 +133,47 @@ private:
    patch_list_t m_patchfiles;   ///< List of patch files.
 };
 
-
 } // namespace antler::project
+
+// TODO in the future use something like meta_refl to simply reflect
+// the objects and one overload in manifest
+/// Overloads for our datatype conversions
+namespace YAML {
+   template<>
+   struct convert<antler::project::dependency> {
+      static Node encode(const antler::project::dependency& o) {
+         Node n;
+         //TODO we will need to readdress when adding support for tests
+         n["name"] = std::string(o.name());
+         n["location"] = std::string(o.location());
+         n["tag"] = std::string(o.tag());
+         n["release"] = std::string(o.release());
+         n["hash"] = std::string(o.hash());
+
+         return n;
+      }
+
+      static bool decode(const YAML::Node& n, antler::project::dependency& d) {
+         try {
+            d.name(n["name"].as<std::string>());
+            d.location(n["location"].as<std::string>());
+            d.tag(n["tag"].as<std::string>());
+            d.release(n["release"].as<std::string>());
+            d.hash(n["hash"].as<std::string>());
+         } catch(const YAML::Exception& ex) {
+            antler::system::print_error(ex);
+            return false;
+         }
+         return true;
+      }
+   };
+}
+
+namespace std {
+   template <>
+   struct hash<antler::project::dependency> {
+      std::size_t operator()(const antler::project::dependency& d) const {
+         return std::hash<std::string>{}(d.name());
+      }
+   };
+}
