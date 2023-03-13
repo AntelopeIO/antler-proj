@@ -24,7 +24,6 @@ public:
    };
    using list_t = std::vector<object>;
 
-public:
    // use default constructors, copy and move constructors and assignments
 
    /// Create a n object.
@@ -110,16 +109,16 @@ public:
 
 private:
    type_t m_type = type_t::error;                      ///< Object type: app, lib, or test.
-   std::string m_name = "";                            ///< Object name.
+   std::string m_name;                                 ///< Object name.
    antler::project::dependency::list_t m_dependencies; ///< list of dependencies.
 
    // app, lib:
-   std::string m_language = ""; ///< Language type, only valid for app or lib.
+   std::string m_language;     ///< Language type, only valid for app or lib.
    std::vector<std::string> m_comp_options = {};
    std::vector<std::string> m_link_options = {};
 
    // test:
-   std::string m_command  = "";       ///< Test command, only valid for test.
+   std::string m_command;      ///< Test command, only valid for test.
 };
 
 } // namespace antler::project

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ctype.h>
+#include <cctype>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -55,9 +55,10 @@ namespace antler::system {
       auto sv = magic_enum::enum_cast<Enum>(s);
       if (sv) {
          return *sv;
-      } else {
-         return Enum::error;
       }
+
+      return Enum::error;
+      
    }
 
    inline static int32_t execute(std::string_view prog) {
@@ -67,9 +68,10 @@ namespace antler::system {
          return -1;
       }
 
-      std::array<char, 64> buff;
+      constexpr size_t array_size = 64;
+      std::array<char, array_size> buff{};
 
-      std::size_t n;
+      std::size_t n = 0;
 
       while ((n = fread(buff.data(), 1, buff.size(), h)) > 0) {
          fwrite(buff.data(), 1, n, stdout);
@@ -80,8 +82,8 @@ namespace antler::system {
    inline static std::string extension(std::string_view l) {
       if (l == "CXX")
          return ".cpp";
-      else
-         return ".c";
+
+      return ".c";
    }
 
 } // namespace antler::system

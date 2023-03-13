@@ -8,7 +8,7 @@
 
 #include <antler/project/project.hpp>
 
-inline bool remove_file(std::string_view fn) { return std::filesystem::remove_all(fn); }
+inline bool remove_file(std::string_view fn) { return std::filesystem::remove_all(fn) != 0U; }
 
 inline bool load_project(std::string_view fn, antler::project::project& proj) {
    auto p = std::filesystem::canonical(std::filesystem::path(fn));

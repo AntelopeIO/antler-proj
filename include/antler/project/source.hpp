@@ -71,6 +71,6 @@ namespace antler::project {
          src.close();
       }
 
-      inline static void create_specification_file(std::filesystem::path p, const object& obj) {}
+      inline static void create_specification_file(const std::filesystem::path&, const object&) {}
    };
 }

@@ -3,7 +3,6 @@
 #include <antler/project/location.hpp>
 
 #include <cstring>
-#include <filesystem>
 #include <iostream>
 #include <stdexcept>
 
@@ -48,12 +47,12 @@ struct curl {
       return sz*nm;
    }
 
-   std::string authenticated_request(std::string_view token, std::string_view url) {
+   [[nodiscard]] std::string authenticated_request(std::string_view token, std::string_view url) const {
       curl_easy_setopt(curl_obj, CURLOPT_XOAUTH2_BEARER, token.data());
       return request(url);
    }
 
-   std::string request(std::string_view url) {
+   [[nodiscard]] std::string request(std::string_view url) const {
       curl_easy_setopt(curl_obj, CURLOPT_URL, url.data());
       curl_easy_setopt(curl_obj, CURLOPT_WRITEFUNCTION, &curl::write_data);
       curl_easy_setopt(curl_obj, CURLOPT_USERAGENT, "antler-proj");
@@ -71,7 +70,7 @@ struct curl {
    }
 
    inline static bool is_url(std::string_view url) { return starts_with(url, "http:") || starts_with(url, "https:"); }
-   inline bool is_reachable(std::string_view url) {
+   inline bool is_reachable(std::string_view url) const {
       try {
          (void)request(url);
          return true;
@@ -115,21 +114,21 @@ struct github {
    }
 
    static std::string_view get_org(std::string_view s) {
-      auto sub = s.substr(0, s.find_last_of("/"));
-      auto pos = sub.find_last_of("/");
+      auto sub = s.substr(0, s.find_last_of('/'));
+      auto pos = sub.find_last_of('/');
       return pos == std::string_view::npos ? 
              sub :
              sub.substr(pos+1);
    }
 
    static std::string_view get_repo(std::string_view s) {
-      auto pos = s.find_last_of("/");
+      auto pos = s.find_last_of('/');
       return s.substr(pos+1);
    }
 
    static inline bool is_shorthand(std::string_view s) {
-      auto sub = s.substr(0, s.find_last_of("/"));
-      return sub.size() != s.size() && sub.find_last_of("/") == std::string_view::npos;
+      auto sub = s.substr(0, s.find_last_of('/'));
+      return sub.size() != s.size() && sub.find_last_of('/') == std::string_view::npos;
    }
 
    curl sender;

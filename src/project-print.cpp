@@ -21,7 +21,7 @@ namespace antler::project {
 
 inline static c4::csubstr to_csubstr(std::string_view sv) noexcept { return {sv.data(), sv.size()}; }
 inline static c4::csubstr to_csubstr(token tok) noexcept { return to_csubstr(system::to_string(tok)); }
-inline static c4::csubstr to_csubstr(version v) noexcept { return to_csubstr(v.to_string()); }
+inline static c4::csubstr to_csubstr(const version& v) noexcept { return to_csubstr(v.to_string()); }
 
 void project::print(std::ostream& os) const noexcept {
 

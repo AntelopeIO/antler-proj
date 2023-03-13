@@ -1,7 +1,6 @@
 /// @copyright See `LICENSE` in the root directory of this project.
 
 #include <antler/project/project.hpp>
-#include <antler/project/dependency.hpp>
 
 #include <catch2/catch.hpp>
 
