@@ -94,7 +94,6 @@ void dependency::set(std::string_view name, std::string_view loc, std::string_vi
    m_hash = hash;
    m_patchfiles.clear();
 
-
    if (!m_tag_or_commit.empty() && !m_rel.empty()) {
       std::cerr << "Unexpectedly have tag AND release. ";
       if (is_valid_hash(m_tag_or_commit)) {

@@ -3,3 +3,4 @@ CMakeLists.txt.user
 *.md.backup
 
 settings.json
+checks.json
