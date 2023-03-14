@@ -26,12 +26,12 @@ TEST_CASE("Testing object") {
    CHECK(app1.dependencies().empty());
 
    CHECK(!app1.dependency_exists("dep1"));
-   CHECK(!app1.dependency("dep1"));
+   CHECK(!app1.find_dependency("dep1"));
 
    CHECK(app1.upsert_dependency(std::move(dep1)));
 
    CHECK(app1.dependency_exists("dep1"));
-   const auto& d = app1.dependency("dep1");
+   const auto& d = app1.find_dependency("dep1");
 
    CHECK(d);
    CHECK(d->name() == dep2.name());
@@ -95,32 +95,59 @@ TEST_CASE("Testing object node conversions <pass>") {
    }
 }
 
-TEST_CASE("Testing object node conversions <fail>") {
+TEST_CASE("Testing object node conversions 2") {
    using namespace antler::project;
 
-   YAML::Node root;
    YAML::Node node;
 
    node["name"] = std::string("hello");
-   node["lang"] = std::string("c++");
-
-   root["test"] = node;
+   node["lang"] = std::string("CXX");
 
    app_t app;
 
-   CHECK_THROWS(root["test"].as<app_t>());
 
-   node["compile_options"] = std::vector<std::string>{};
-   node["link_options"] = std::vector<std::string>{};
-   node["dependencies"] = app_t::dependencies_t{};
+   CHECK(app.from_yaml(node));
 
-   app = root["test"].as<app_t>();
+   CHECK(app.name() == "hello");
+   CHECK(app.language() == "CXX");
+   CHECK(app.compile_options().empty());
+   CHECK(app.link_options().empty());
+   CHECK(app.dependencies().empty());
+
+   node["compile_options"] = std::string{"-std=c++14;-fno-rtti"};
+   node["link_options"] = std::string{"-fno-lto;-lm"};
+
+   dependency dep1 = {"dep1", "larryk85/foo"};
+   dependency dep2 = {"dep2", "larryk85/foo2"};
+
+   node["depends"] = std::vector<dependency>{ dep1, dep2 };
+
+   std::cout << "Node: " << node << std::endl;
+
+   CHECK(app.from_yaml(node));
+
+   CHECK(app.compile_options().size() == 2);
+   CHECK(app.link_options().size() == 2);
+
+   CHECK(app.compile_options()[0] == "-std=c++14");
+   CHECK(app.compile_options()[1] == "-fno-rtti");
+
+   CHECK(app.link_options()[0] == "-fno-lto");
+   CHECK(app.link_options()[1] == "-lm");
+
+   CHECK(app.dependencies().size() == 2);
+
+   CHECK(app.dependencies()["dep1"].name() == dep1.name());
+   CHECK(app.dependencies()["dep1"].location() == dep1.location());
+
+   CHECK(app.dependencies()["dep2"].name() == dep2.name());
+   CHECK(app.dependencies()["dep2"].location() == dep2.location());
 }
 
 TEST_CASE("Testing object node conversions with dependencies") {
    using namespace antler::project;
 
-   app_t app = {"test", "C", "", ""};
+   app_t app = {"test", "C", "abc;def", ""};
 
    app.upsert_dependency({"foo", "https://github.com/larryk85/dune", "v13.3"});
    app.upsert_dependency({"bar", "https://github.com/larryk85/fast_math", "blah"});
@@ -129,7 +156,8 @@ TEST_CASE("Testing object node conversions with dependencies") {
    YAML::Node node;
    node["test"] = app;
 
-   app_t app2 = node["test"].as<app_t>();
+   app_t app2;
+   CHECK(app2.from_yaml(node["test"]));
    
    CHECK(app.name() == app2.name());
    CHECK(app.language() == app2.language());
@@ -147,7 +175,7 @@ TEST_CASE("Testing object node conversions with dependencies") {
    CHECK(app.dependencies().size() == app2.dependencies().size());
    for (const auto& [k,v] : app.dependencies()) {
       CHECK(app2.dependency_exists(k));
-      const auto& d = app2.dependency(k);
+      const auto& d = app2.find_dependency(k);
       CHECK(d); // it is not a null optional
       CHECK(v.name() == d->name());
       CHECK(v.location() == d->location());

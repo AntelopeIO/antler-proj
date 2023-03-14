@@ -12,7 +12,8 @@
 #include <stdexcept>
 #include "../system/utils.hpp"
 
-#include <yaml-cpp/yaml.h>
+#include "yaml.hpp"
+
 
 namespace antler::project {
 
@@ -131,12 +132,8 @@ public:
    }
 
    /// Create the components of the version from a string.
-   /// @return false if version string is ill-formed.
-   [[nodiscard]] static version from_string(std::string_view s) {
-      version v;
-      if (!from_string(s, v.major_comp, v.minor_comp, v.patch_comp, v.tweak_comp))
-         throw std::runtime_error("invalid version string");
-      return v;
+   bool from_string(std::string_view s) {
+      return from_string(s, major_comp, minor_comp, patch_comp, tweak_comp);
    }
 
    /// @return The string this version was built from.
@@ -189,6 +186,15 @@ public:
    /// @return The major component of the version.
    [[nodiscard]] inline std::string_view tweak() const noexcept { return tweak_comp; }
 
+   /// Serialization function from version to yaml node
+   [[nodiscard]] inline yaml::node_t to_yaml() const noexcept { return yaml::node_t{to_string()}; }
+
+   /// Deserialization function from yaml node to version
+   [[nodiscard]] inline bool from_yaml(const yaml::node_t& n) noexcept {
+      std::string s = n.as<std::string>();
+      return from_string({s.c_str(), s.size()});
+   }
+
 private:
    uint16_t major_comp;
    uint16_t minor_comp;
@@ -201,17 +207,4 @@ private:
 
 inline std::ostream& operator<<(std::ostream& os, const antler::project::version& o) { os << o.to_string(); return os; }
 
-/// Overloads for our datatype conversions
-namespace YAML {
-   template<>
-   struct convert<antler::project::version> {
-      static YAML::Node encode(const antler::project::version& v) {
-         return YAML::Node{v.to_string()};
-      }
-
-      static bool decode(const YAML::Node& n, antler::project::version& v) {
-         v = {n["version"].as<std::string>()};
-         return true;
-      }
-   };
-}
+ANTLER_YAML_CONVERSIONS(antler::project::version);

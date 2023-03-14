@@ -1,7 +1,6 @@
 /// @copyright See `LICENSE` in the root directory of this project.
 
-#include <antler/project/project.hpp>
-#include <antler/project/dependency.hpp>
+#include <antler/project/manifest.hpp>
 
 #include <catch2/catch.hpp>
 
@@ -16,11 +15,17 @@ TEST_CASE("Testing init subcommand") {
       remove_file("./foo");
       REQUIRE(proj.init_dirs(std::filesystem::path("./foo")));
 
-      proj.sync();
+      manifest m;
 
-      //REQUIRE(load_project("./foo", proj));
+      m.set(proj.to_yaml());
 
-      // should fail if directory exists
-      //REQUIRE(!proj.init_dirs(std::filesystem::path("./foo")));
+      m.write("./foo");
+
+      manifest m2{"./foo"};
+
+      project proj2 = m2.to_project();
+
+      CHECK(proj2.name() == "foo");
+      CHECK(proj2.version() == version{"v1.0.0"});
    }
 }

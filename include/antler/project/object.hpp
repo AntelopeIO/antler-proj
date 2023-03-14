@@ -12,14 +12,6 @@
 
 namespace antler::project {
 
-enum class type_t : uint8_t {
-   app,
-   lib,
-   test,
-   any,
-   error
-};
-
 /// This class represents one of the app, lib, or test objects in a `project.yaml` file.
    template <typename Tag>
    class object {
@@ -39,9 +31,12 @@ enum class type_t : uint8_t {
       /// @param lopts  Compile time options for this object. May be empty.
       object(std::string_view name, const std::string& lang, std::string_view copts, std::string_view lopts)
          : m_name{ name }
-         , m_language{ system::to_upper(lang) }
+         , m_language{ system::language_spec(lang) }
          , m_comp_options{ system::split<';'>(copts) }
-         , m_link_options{ system::split<';'>(lopts) } {}
+         , m_link_options{ system::split<';'>(lopts) } {
+         system::debug_log("object::object(name, lang, copts, lopts) created");
+         system::debug_log("with name: {0} lang: {1} copts: {2} lopts: {3}", name, lang, copts, lopts);
+      }
 
       
       object(const object&) = default;
@@ -61,7 +56,7 @@ enum class type_t : uint8_t {
 
       /// Replace any existing language info with the new value.
       /// @param lang  The new language value to store.
-      inline void language(std::string_view lang) noexcept { m_language = lang; }
+      inline void language(std::string_view lang) noexcept { m_language = system::language_spec(lang); }
 
       /// @return Current compile options.
       [[nodiscard]] inline const std::vector<std::string>& compile_options() const noexcept { return m_comp_options; }
@@ -110,6 +105,9 @@ enum class type_t : uint8_t {
       /// @return The dependency map.
       [[nodiscard]] inline const dependencies_t& dependencies() const noexcept { return m_dependencies; }
 
+      /// @return The dependency map.
+      [[nodiscard]] inline dependencies_t& dependencies() noexcept { return m_dependencies; }
+
       /// Update the map of dependencies.
       /// @param deps The map of dependencies to set.
       inline void dependencies(dependencies_t&& deps) noexcept { m_dependencies = std::move(deps); }
@@ -117,10 +115,11 @@ enum class type_t : uint8_t {
       /// Search the lists to see if a dependency exists.
       /// @param name  The dependency name to search for.
       [[nodiscard]] inline bool dependency_exists(const std::string& name) const noexcept { return m_dependencies.count(name) > 0; }
+
       /// Return the dependency with the matching name.
       /// @param name  The name to search for in the dependency list.
       /// @return optional with a copy of the dependency.
-      [[nodiscard]] std::optional<antler::project::dependency> dependency(const std::string& name) { 
+      [[nodiscard]] std::optional<antler::project::dependency> find_dependency(const std::string& name) { 
          auto itr = m_dependencies.find(name);
          if (itr == m_dependencies.end())
             return std::nullopt;
@@ -132,6 +131,40 @@ enum class type_t : uint8_t {
       /// @return true if the name is valid, false otherwise.
       [[nodiscard]] inline static bool is_valid_name(std::string_view name) { 
          return !name.empty() && std::regex_match(name.data(), std::regex("[a-zA-z][_a-zA-Z0-9]*")); 
+      }
+
+      /// Serialization function from version to yaml node
+      [[nodiscard]] inline yaml::node_t to_yaml() const noexcept { 
+         // conjoin all the strings with a ';' between each
+         const auto& to_str = [&](const auto& opts) {
+            std::string ret = {};
+            for (auto itr = opts.begin(); itr != opts.end(); ++itr) {
+               ret += *itr;
+               if (itr != opts.end()-1)
+                  ret += ";";
+            }
+            return ret;
+         };
+
+         yaml::node_t n;
+         //TODO we will need to readdress when adding support for tests
+         n["name"] = m_name;
+         n["lang"] = m_language;
+         n["compile_options"] = to_str(compile_options());
+         n["link_options"] = to_str(link_options());
+         for (const auto& [k,v] : dependencies()) {
+            n["depends"].push_back(v);
+         }
+         return n;
+      }
+
+      /// Deserialization function from yaml node to version
+      [[nodiscard]] inline bool from_yaml(const yaml::node_t& n) noexcept {
+         return ANTLER_EXPECT_YAML(n, "name", name, std::string) &&
+                ANTLER_EXPECT_YAML(n, "lang", language, std::string) &&
+                ANTLER_TRY_YAML(n, "compile_options", compile_options, std::string) &&
+                ANTLER_TRY_YAML(n, "link_options", link_options, std::string) &&
+                ANTLER_TRY_YAML_ALL(n, "depends", upsert_dependency, antler::project::dependency);
       }
 
    private:
@@ -151,52 +184,6 @@ enum class type_t : uint8_t {
 } // namespace antler::project
 
 
-// TODO in the future use something like meta_refl to simply reflect
-// the objects and one overload in manifest
-/// Overloads for our datatype conversions
-namespace YAML {
-   template<typename Tag>
-   struct convert<antler::project::object<Tag>> {
-      static Node encode(const antler::project::object<Tag>& o) {
-         const auto& to_str = [&](const auto& opts) {
-            std::string ret = "";
-            for (const auto& o : opts) {
-               ret += o + ";";
-            }
-            ret[ret.size()-1] = '\0'; // trim off last ;
-            return ret;
-         };
-
-         Node n;
-         //TODO we will need to readdress when adding support for tests
-         n["name"] = std::string(o.name());
-         n["lang"] = std::string(o.language());
-         n["compile_options"] = std::string("");
-         n["compile_options"] = to_str(o.compile_options());
-         n["link_options"] = to_str(o.link_options());
-         for (const auto& [k,v] : o.dependencies())
-            n["depends"].push_back(v);
-         return n;
-      }
-
-      static bool decode(const YAML::Node& n, antler::project::object<Tag>& o) {
-         using dep_map = typename antler::project::object<Tag>::dependencies_t;
-         try {
-            o.name(n["name"].as<std::string>());
-            o.language(n["lang"].as<std::string>());
-            o.compile_options(n["compile_options"].as<std::string>()); 
-            o.link_options(n["link_options"].as<std::string>());
-            for (auto d : n["depends"])
-               o.upsert_dependency(d.as<antler::project::dependency>());
-         } catch(const YAML::Exception& ex) {
-            antler::system::print_error(ex);
-            return false;
-         }
-         return true;
-      }
-   };
-}
-
 namespace std {
    template <typename Tag>
    struct hash<antler::project::object<Tag>> {
@@ -205,3 +192,6 @@ namespace std {
       }
    };
 }
+
+ANTLER_YAML_CONVERSIONS(antler::project::app_t);
+ANTLER_YAML_CONVERSIONS(antler::project::lib_t);

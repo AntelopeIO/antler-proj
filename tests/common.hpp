@@ -6,6 +6,7 @@
 #include <iostream>
 #include <string_view>
 
+#include <antler/project/manifest.hpp>
 #include <antler/project/project.hpp>
 
 inline bool remove_file(std::string_view fn) { return std::filesystem::remove_all(fn); }
@@ -16,13 +17,9 @@ inline bool load_project(std::string_view fn, antler::project::project& proj) {
       return false;
    }
 
-   auto po = antler::project::project::parse(p);
-   
-   if (po) {
-      proj = *po;
-      return true;
-   }
-   return false;
+   antler::project::manifest m{p};
+   proj = m.to_project();
+   return true;
 }
 
 static antler::project::project create_project() {

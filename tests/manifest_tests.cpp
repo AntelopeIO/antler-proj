@@ -17,9 +17,7 @@ TEST_CASE("Testing manifest") {
    manifest m;
    m.set(YAML::Node{proj});
 
-   manifest m2 = {"example.yml"};
+   manifest m2 = {"."};
 
    project proj2 = m2.to_project();
-
-   m.write("example2.yml");
 }

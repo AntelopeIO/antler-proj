@@ -6,7 +6,6 @@ add_library(antler-project
    cmake_templates.cpp
    dependency.cpp 
    location.cpp 
-   #project-populate.cpp 
    project.cpp
    #version_constraint.cpp 
 )

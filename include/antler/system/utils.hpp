@@ -9,7 +9,6 @@
 
 #include <magic_enum.hpp>
 #include <bluegrass/cturtle.hpp>
-#include <bluegrass/meta.hpp>
 
 namespace antler::system {
    namespace detail {
@@ -87,9 +86,17 @@ namespace antler::system {
          return ".c";
    }
 
+   inline static std::string language_spec(std::string_view l) {
+      std::string lan = to_upper(std::string(l));
+      if (lan == "CPP" || lan == "C++" || lan == "CXX")
+         return "CXX";
+      else
+         return "C";
+   }
+
    template <typename Ex>
    inline static void print_error(Ex&& ex) {
-      std::cerr << "manifest error at pos: " << ex.mark.pos << " line: " << ex.mark.line << ", column: " << ex.mark.column << std::endl;
+      std::cerr << "yaml error at pos: " << ex.mark.pos << " line: " << ex.mark.line << ", column: " << ex.mark.column << std::endl;
       std::cerr << "   Message: " << ex.msg << std::endl;
    }
 

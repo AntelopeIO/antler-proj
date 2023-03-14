@@ -38,12 +38,12 @@ TEST_CASE("Testing project") {
    proj.upsert(std::move(apps[2]));
    proj.upsert(std::move(apps[3]));
 
-   REQUIRE(proj.name() == "test_proj");
-   REQUIRE(proj.version() == version{1, 3, 4});
-   REQUIRE(proj.version().to_string() == "1.3.4");
+   CHECK(proj.name() == "test_proj");
+   CHECK(proj.version() == version{1, 3, 4});
+   CHECK(proj.version().to_string() == "1.3.4");
 
-   REQUIRE(proj.apps().size() == 4);
-   REQUIRE(proj.libs().size() == 3);
+   CHECK(proj.apps().size() == 4);
+   CHECK(proj.libs().size() == 3);
 }
 
 
@@ -52,23 +52,26 @@ TEST_CASE("Testing project yaml conversion") {
 
    project proj = create_project();
 
-   
-   std::string psv = "project: test_proj\n"
-                          "version: 1.3.4";
+   auto node = proj.to_yaml();
 
-   auto nn = YAML::Load(psv);
+   project proj2;
 
-   std::cout << "NN " << nn << std::endl;
-
-   YAML::Node node;
-   node = proj;
-
-   //project proj2 = node["test"].as<project>();
+   CHECK(proj2.from_yaml(node));
 
 
 
-   //REQUIRE(proj.name() == proj2.name());
-   //REQUIRE(proj.version() == proj2.version());
-   //REQUIRE(proj.apps().size() == proj2.apps().size());
-   //REQUIRE(proj.libs().size() == proj2.libs().size());
+   CHECK(proj.name() == proj2.name());
+   CHECK(proj.version() == proj2.version());
+
+
+   CHECK(proj.apps().size() == proj2.apps().size());
+   CHECK(proj.libs().size() == proj2.libs().size());
+
+   for (const auto& [k, app] : proj.apps()) {
+      CHECK(proj2.app_exists(app.name()));
+   }
+
+   for (const auto& [k, lib] : proj.libs()) {
+      CHECK(proj2.lib_exists(lib.name()));
+   }
 }

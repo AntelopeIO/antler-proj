@@ -54,28 +54,19 @@ void project::path(const std::filesystem::path& path) noexcept {
 }
 
 
-bool project::sync(std::ostream& es) noexcept {
+bool project::sync() noexcept {
 
    if (m_path.empty()) {
-      es << "No path to write to.\n";
+      system::error_log("Path: {0} is a valid path to write to.", m_path.string());
       return false;
    }
 
 
    try {
-
-      // Open the file.
-      std::ofstream out(m_path);
-      if (!out.is_open()) {
-         es << "Problem opening " << m_path << "\n";
-         return false;
-      }
-      // Print this project to the file.
-      print(out);
-      out.flush();
+      yaml::write(m_path / manifest_name, to_yaml());
    }
    catch(std::exception& e) {
-      es << "Exception: " << e.what() << "\n";
+      system::error_log("Exception during syncing : {0}", e.what());
       return false;
    }
 
@@ -145,6 +136,7 @@ bool project::has_valid_dependencies(std::ostream& errs) const noexcept {
    return test_deps(m_apps) && test_deps(m_libs); // && test_deps(m_tests);
 }
 
+/*
 void project::print(std::ostream& os) const noexcept {
    // Add a header.
    os << magic_comment << "\n";
@@ -156,5 +148,6 @@ void project::print(std::ostream& os) const noexcept {
       << "\n\n";
    os << to_yaml();
 }
+*/
 
 } // namespace antler::project

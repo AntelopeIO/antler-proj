@@ -10,6 +10,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/constants.hpp.in
 add_executable(unit_tests
                main.cpp
                cmake_tests.cpp
+               dependency_tests.cpp
                manifest_tests.cpp
                object_tests.cpp
                project_tests.cpp
@@ -25,3 +26,4 @@ target_link_libraries(unit_tests antler-project Catch2::Catch2)
 catch_discover_tests(unit_tests)
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/example.yml DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/project.yml DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

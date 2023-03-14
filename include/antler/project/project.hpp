@@ -4,6 +4,7 @@
 
 #include <filesystem>
 #include <optional>
+#include <fstream>
 #include <iostream>
 #include <sstream>
 
@@ -167,39 +168,11 @@ public:
    [[nodiscard]] bool has_valid_dependencies(std::ostream& error_stream = std::cerr) const noexcept;
 
 
-   /// Print the yaml object to a stream.
-   /// @param os  The ostream to print to.
-   void print(std::ostream& os) const noexcept;
-
-   /// @return yaml string representation of this object.
-   [[nodiscard]] std::string to_yaml() const noexcept {
-      YAML::Node node;
-      node["project"] = *this;
-      std::stringstream ss;
-      ss << node;
-      return ss.str();
-   }
-
-   /// Write the file to disk.
-   /// @note path() must be set.
-   /// @param error_stream  The stream to print failure reports to.
-   /// @return true for success; false for failure.
-   bool sync(std::ostream& error_stream = std::cerr) noexcept;
-
    /// Populate the directory by generating files.
    /// @param replace  The should replace during population.
    /// @param error_stream  The stream to print failure reports to.
    /// @return true for success; false for failure.
    [[nodiscard]] bool populate(bool replace = true, std::ostream& error_stream = std::cerr) noexcept;
-
-
-   /// Factory function.
-   /// @note The returned project may not be valid. The only guarantee is that parsing did not fail.
-   /// @note see is_valid() to test validity.
-   /// @param path  The location of the project.yaml file or the path containing it.
-   /// @param error_stream  The stream to print failure reports to.
-   /// @return std::optional containing a project if parsing succeeded.
-   [[nodiscard]] static std::optional<project> parse(const std::filesystem::path& path, std::ostream& error_stream = std::cerr);
 
    /// Initialize the directories
    /// @param path  The location of the project.yaml file or the path containing it.
@@ -213,6 +186,28 @@ public:
    /// @return true if the project file was found and is a regular file; otherwise, false.
    [[nodiscard]] static bool update_path(std::filesystem::path& path) noexcept;
 
+   /// Serialization function from version to yaml node
+   [[nodiscard]] inline yaml::node_t to_yaml() const noexcept { 
+      yaml::node_t node;
+      node["project"] = m_name;
+      node["version"] = m_ver;
+      for (const auto& [k,v] : apps())
+         node["apps"].push_back(v);
+      for (const auto& [k,v] : libs())
+         node["libs"].push_back(v);
+      return node; 
+   }
+
+   /// Deserialization function from yaml node to version
+   [[nodiscard]] inline bool from_yaml(const yaml::node_t& n) noexcept {
+      return ANTLER_EXPECT_YAML(n, "project", name, std::string) &&
+             ANTLER_EXPECT_YAML(n, "version", version, antler::project::version) &&
+             ANTLER_TRY_YAML_ALL(n, "apps", upsert, antler::project::app_t) &&
+             ANTLER_TRY_YAML_ALL(n, "libs", upsert, antler::project::lib_t);
+   }
+
+   bool sync() noexcept;
+
 private:
 
    std::filesystem::path m_path;   ///< path to the project.yaml file.
@@ -225,42 +220,4 @@ private:
 
 } // namespace antler::project
 
-
-// TODO in the future use something like meta_refl to simply reflect
-// the objects and one overload in manifest
-/// Overloads for our datatype conversions
-namespace YAML {
-   template<>
-   struct convert<antler::project::project> {
-      static Node encode(const antler::project::project& p) {
-         Node n;
-         //TODO we will need to readdress when adding support for test objects
-         n["project"] = std::string(p.name());
-         n["version"] = p.version();
-         for (const auto& [k,v] : p.apps())
-            n["apps"].push_back(v);
-         for (const auto& [k,v]: p.libs())
-            n["libraries"].push_back(v);
-         return n;
-      }
-
-      static bool decode(const YAML::Node& n, antler::project::project& p) {
-         using apps_map = antler::project::app_t::map_t;
-         using libs_map = antler::project::lib_t::map_t;
-
-         try {
-            p.name(n["project"].as<std::string>());
-            p.version(n["version"].as<antler::project::version>());
-            for (auto app : n["apps"])
-               p.upsert(app.as<antler::project::app_t>());
-            for (auto lib : n["libraries"])
-               p.upsert(lib.as<antler::project::app_t>());
-         } catch(const YAML::Exception& ex) {
-            antler::system::print_error(ex);
-            return false;
-         }
-         return true;
-      }
-   };
-}
-
+ANTLER_YAML_CONVERSIONS(antler::project::project);

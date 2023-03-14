@@ -11,6 +11,7 @@
 #include <filesystem>
 
 #include "version.hpp"
+#include "yaml.hpp"
 #include "../system/utils.hpp"
 
 
@@ -123,7 +124,27 @@ public:
    /// @return true indicates the values passed in are a valid combination.
    [[nodiscard]] static bool validate_location(std::string_view loc, std::string_view tag, std::string_view rel, std::string_view hash,
          std::ostream& os=std::cerr);
-   
+
+   /// Serialization function from version to yaml node
+   [[nodiscard]] inline yaml::node_t to_yaml() const noexcept { 
+      yaml::node_t node;
+      node["name"] = m_name;
+      node["location"] = m_loc;
+      node["tag"] = m_tag_or_commit;
+      node["release"] = m_rel;
+      node["hash"] = m_hash;
+      return node; 
+   }
+
+   /// Deserialization function from yaml node to version
+   [[nodiscard]] inline bool from_yaml(const yaml::node_t& n) noexcept {
+      return ANTLER_EXPECT_YAML(n, "name",  name, std::string) &&
+             ANTLER_TRY_YAML(n, "location", location, std::string) &&
+             ANTLER_TRY_YAML(n, "tag", tag, std::string) &&
+             ANTLER_TRY_YAML(n, "release", release, std::string) &&
+             ANTLER_TRY_YAML(n, "hash", hash, std::string);
+   }
+
 private:
    std::string m_name;          ///< Name of the dependency.
    std::string m_loc;           ///< Location of the dep: local or remote archive, github repo (https: or org shorthand)
@@ -135,40 +156,6 @@ private:
 
 } // namespace antler::project
 
-// TODO in the future use something like meta_refl to simply reflect
-// the objects and one overload in manifest
-/// Overloads for our datatype conversions
-namespace YAML {
-   template<>
-   struct convert<antler::project::dependency> {
-      static Node encode(const antler::project::dependency& o) {
-         Node n;
-         //TODO we will need to readdress when adding support for tests
-         n["name"] = std::string(o.name());
-         n["location"] = std::string(o.location());
-         n["tag"] = std::string(o.tag());
-         n["release"] = std::string(o.release());
-         n["hash"] = std::string(o.hash());
-
-         return n;
-      }
-
-      static bool decode(const YAML::Node& n, antler::project::dependency& d) {
-         try {
-            d.name(n["name"].as<std::string>());
-            d.location(n["location"].as<std::string>());
-            d.tag(n["tag"].as<std::string>());
-            d.release(n["release"].as<std::string>());
-            d.hash(n["hash"].as<std::string>());
-         } catch(const YAML::Exception& ex) {
-            antler::system::print_error(ex);
-            return false;
-         }
-         return true;
-      }
-   };
-}
-
 namespace std {
    template <>
    struct hash<antler::project::dependency> {
@@ -177,3 +164,5 @@ namespace std {
       }
    };
 }
+
+ANTLER_YAML_CONVERSIONS(antler::project::dependency);
