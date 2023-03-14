@@ -1,0 +1,14 @@
+#pragma once
+
+#include <cstdint>
+#include <string_view>
+
+namespace antler::system {
+   struct version {
+      constexpr static inline uint32_t major() { return @PROJECT_VERSION_MAJOR@; }
+      constexpr static inline uint32_t minor() { return @PROJECT_VERSION_MINOR@; }
+      constexpr static inline uint32_t patch() { return @PROJECT_VERSION_PATCH@; }
+      constexpr static inline std::string_view tweak() { return "@PROJECT_VERSION_tweak@"; }
+      constexpr static inline std::string_view full() { return "@PROJECT_VERSION@"; }
+   };
+}

@@ -1,0 +1,35 @@
+project: "antelope_system_contract"
+version: "1.0.0"
+
+libraries:
+apps:
+   - name: "sys_contract"
+     lang: "C++"
+     depends:
+        - name: "core"
+        - name: "something"
+        - name: "fast_math/math"
+          from: "https://github.com/larryk85/fast_math"
+          version: 3.0.1
+        - name: "SomeLibrary/lib"
+          from: "AntelopeIO/SomeLibrary"
+          version: 1.0.2
+   - name: "other"
+     #lang: "https://github.com/JavaJava/Java"
+     lang: "Java"
+     depends:
+        - name: "JavaLib/JavaLib"
+          from: "https://github.com/JavaJava/JavaLib"
+          version: 10.3.4
+tests:
+   - name: "main_tests"
+     depends:
+        - name: "core"
+        - name: "something"
+     command: "./main_tests"
+   - name: "functional_tests"
+     depends:
+        - name: "sys_contract"
+        - name: "Catch2/Catch2"
+          from: "catchorg/Catch2"
+     command: "./functional_tests -verbose=0"
