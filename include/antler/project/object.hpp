@@ -19,6 +19,7 @@ namespace antler::project {
       using list_t = std::vector<object>;
       using map_t  = std::unordered_map<std::string, object>;
       using dependencies_t = std::unordered_map<std::string, dependency>;
+      using tag_t  = Tag;
 
    public:
       /// Object constructor for app and lib types.

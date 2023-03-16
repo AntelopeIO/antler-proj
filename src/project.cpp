@@ -63,7 +63,8 @@ bool project::sync() noexcept {
 
 
    try {
-      yaml::write(m_path / manifest_name, to_yaml());
+      yaml::write(m_path / project::manifest_name, to_yaml());
+      system::info_log("Wrote project manifest to {0}.", m_path.string());
    }
    catch(std::exception& e) {
       system::error_log("Exception during syncing : {0}", e.what());

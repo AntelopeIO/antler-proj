@@ -9,7 +9,7 @@ include( ./common.cmake REQUIRED )
 add_subdirectory( external )
 add_subdirectory( include )
 add_subdirectory( src )
-#add_subdirectory( tools )
+add_subdirectory( tools )
 
 
 option(PEDANTIC_BUILD "Pedantic builds" On)

@@ -18,19 +18,21 @@ namespace antler::project {
 
    /// @brief struct to encapsulate a CMakeLists.txt file
    struct cmake_lists {
-      constexpr inline static std::string_view cmake_lists_fn = "CMakeLists.txt";
+      constexpr inline static std::string_view filename = "CMakeLists.txt";
 
       /// @brief constructor
       /// @param p base path for where this CMakeLists.txt will reside
       cmake_lists(std::filesystem::path p)
-         : path(p / cmake_lists_fn),
-           outs(path) {
+         : path(p / filename) {
          std::filesystem::create_directories(p);
-         system::debug_log("cmake_lists(std::filesystem::path) constructed.");
-         system::debug_log("path = {0} ", path.string());
+         outs.open(path);
+         ANTLER_CHECK(outs.is_open(), "Error creating/opening CMakeLists.txt at {0}", path.string());
+         system::debug_log("cmake_lists constructed at {0}.", path.string());
       }
 
       ~cmake_lists() { outs.close(); }
+
+      inline std::filesystem::path base_path() const noexcept { return path.parent_path(); }
 
       /// @brief stream operator insertion overload
       /// @tparam T type of object will be inserted
@@ -42,6 +44,8 @@ namespace antler::project {
          return outs;
       }
 
+      inline void flush() { outs.flush(); }
+
       std::filesystem::path path;
       std::ofstream outs;
    };
@@ -52,9 +56,9 @@ namespace antler::project {
          constexpr inline static uint16_t minimum_major = 3;
          constexpr inline static uint16_t minimum_minor = 11;
          constexpr inline static std::string_view build_dir_name  = "build";
-         constexpr inline static std::string_view apps_dir_name   = "build";
-         constexpr inline static std::string_view libs_dir_name   = "build";
-         constexpr inline static std::string_view tests_dir_name  = "build";
+         constexpr inline static std::string_view apps_dir_name   = "apps";
+         constexpr inline static std::string_view libs_dir_name   = "libs";
+         constexpr inline static std::string_view tests_dir_name  = "tests";
 
          // `mustache` templates for the cmake
          static km::mustache add_subdirectory_template;
@@ -64,7 +68,7 @@ namespace antler::project {
          static km::mustache target_include_template;
          static km::mustache target_link_libs_template;
          static km::mustache entry_template;
-         static km::mustache add_action_template;
+         static km::mustache add_contract_template;
          static km::mustache add_library_template;
 
          cmake(const project& proj)
@@ -72,8 +76,8 @@ namespace antler::project {
             base_path(proj.path().parent_path() / build_dir_name),
             base_lists(base_path),
             apps_lists(base_path / apps_dir_name),
-            libs_lists(base_path / apps_dir_name),
-            tests_lists(base_path / apps_dir_name) {
+            libs_lists(base_path / libs_dir_name),
+            tests_lists(base_path / tests_dir_name) {
             system::debug_log("cmake(const project&) constructed");
             system::debug_log("project name = {0}", proj.name());
          }
@@ -117,11 +121,14 @@ namespace antler::project {
    
          template <typename Stream, typename Tag>
          inline void emit_object(Stream& s, const object<Tag>& obj) {
-            km::mustache& temp = std::is_same_v<Tag, app_t> ? add_action_template : add_library_template;
+            km::mustache& temp = std::is_same_v<Tag, app_tag> ? add_contract_template : add_library_template;
 
             s << temp.render(datum{"obj_name", obj.name()}
                                   ("target_name", target_name(obj))
                                   ("obj_source", std::string(obj.name())+system::extension(obj.language())));
+            
+            s << target_include_template.render(datum{"target_name", target_name(obj)}
+                                                     ("obj_name", obj.name()));
 
             for (const auto& o : obj.compile_options()) {
                s << target_compile_template.render(datum{"target_name", target_name(obj)}
@@ -145,7 +152,8 @@ namespace antler::project {
          void emit_objects(Stream& s, std::string_view dir, Objs&& objs) {
             for (const auto& [k, obj] : objs) {
                emit_add_subdirectory(s, dir, obj.name());
-               emit_object(s, obj);
+               cmake_lists obj_lists(s.base_path() / obj.name());
+               emit_object(obj_lists, obj);
             }
          }
 
@@ -154,9 +162,7 @@ namespace antler::project {
          }
 
          void emit() {
-            if (!proj) {
-               throw std::runtime_error("internal failure, proj is null");
-            }
+            ANTLER_CHECK(proj, "internal failure, proj is null");
 
             emit_preamble(base_lists);
             emit_entry(base_lists);
@@ -166,6 +172,11 @@ namespace antler::project {
 
             emit_objects(apps_lists, ".", proj->apps());
             emit_objects(libs_lists, "../libs", proj->libs());
+
+            base_lists.flush();
+            apps_lists.flush();
+            libs_lists.flush();
+            tests_lists.flush();
          }
 
       private:

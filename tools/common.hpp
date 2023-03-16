@@ -7,14 +7,16 @@
 #include <antler/project/project.hpp>
 
 namespace antler {
-   using proj_t = std::optional<antler::project::project>;
 
-   inline proj_t load_project(const std::filesystem::path& path) {
+   inline project::project load_project(const std::filesystem::path& path) {
       auto p = std::filesystem::canonical(std::filesystem::path(path));
-      if (!antler::project::project::update_path(p)) {
-         std::cerr << "path either did not exist or no `project.yaml` file could be found." << std::endl;
-         return std::nullopt;
-      }
-      return antler::project::project::parse(p);
+      ANTLER_CHECK(project::project::update_path(p),
+         "path either did not exist or no `project.yml` file cound be found.");
+      project::project proj;
+      ANTLER_CHECK(proj.from_yaml(project::yaml::load(path/project::project::manifest_name)),
+         "error while loading project.yml file"); 
+      
+      proj.path(p);
+      return proj;
    }
 }

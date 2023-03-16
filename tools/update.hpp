@@ -12,15 +12,15 @@
 namespace antler {
    struct update_project {
 
-      template <antler::project::object::type_t Ty>
+      template <typename Obj>
       bool update_obj(antler::project::project& proj, CLI::App& app) {
          if (obj_name.empty()) {
-            std::cerr << "Name is empty" << std::endl;
+            system::error_log("Object name is empty");
             return false;
          }
 
          try {
-            auto& obj = proj.object(obj_name);
+            auto& obj = proj.object<typename Obj::tag_t>(obj_name);
             const auto* lang_opt = app.get_option_no_throw("language");
             const auto* copts_opt = app.get_option_no_throw("compile_options");
             const auto* lopts_opt = app.get_option_no_throw("link_options");
@@ -33,32 +33,37 @@ namespace antler {
                obj.compile_options(copts);
             if (!lopts_opt->empty())
                obj.link_options(lopts);
-
-            std::cout << "Updating object: " << obj_name << "\n"
-                      << "language: " << obj.language() << "\n"
-                      << "compile options: " << copts << "\n"
-                      << "link options: " << lopts << std::endl;
-
+            
+            system::info_log("Updating object: {0}\n"
+                             "language: {1}\n"
+                             "compile options: {2}\n"
+                             "link options: {3}\n",
+                             obj_name,
+                             obj.language(),
+                             copts,
+                             lopts);
+             
             return true;
          } catch(...) {
-            std::cerr << "Object: " << obj_name << " does not exist." << std::endl;
+            system::error_log("Object {0} does not exist in the project", obj_name);
          }
          return false;
       }
 
-      inline bool update_app(antler::project::project& proj) { return update_obj<antler::project::object::type_t::app>(proj, *app_subcommand); }
-      inline bool update_lib(antler::project::project& proj) { return update_obj<antler::project::object::type_t::lib>(proj, *lib_subcommand); }
-      inline bool update_test(antler::project::project& proj) { return update_obj<antler::project::object::type_t::test>(proj, *test_subcommand); }
+      inline bool update_app(antler::project::project& proj) { return update_obj<antler::project::app_t>(proj, *app_subcommand); }
+      inline bool update_lib(antler::project::project& proj) { return update_obj<antler::project::lib_t>(proj, *lib_subcommand); }
+      //inline bool update_test(antler::project::project& proj) { return update_obj<antler::project::test_t>(proj, *test_subcommand); }
 
-      bool update_dependency(antler::project::project& proj, std::string_view obj_n) {
+      template <typename Obj>
+      bool update_dependency(antler::project::project& proj, const std::string& obj_n) {
          const auto* loc_opt = dep_subcommand->get_option_no_throw("location");
          const auto* tag_opt = dep_subcommand->get_option_no_throw("tag");
          const auto* rel_opt = dep_subcommand->get_option_no_throw("release");
          const auto* dig_opt = dep_subcommand->get_option_no_throw("hash");
 
          try {
-            auto& obj = proj.object(obj_n);
-            auto  dep = obj.dependency(dep_name);
+            auto& obj = proj.object<typename Obj::tag_t>(obj_n);
+            auto  dep = obj.find_dependency(dep_name);
 
             if (!loc_opt->empty())
                dep->location(loc);
@@ -71,46 +76,41 @@ namespace antler {
 
             if (dep) {
                if (!proj.validate_dependency(*dep)) {
-                  std::cerr << "Dependency: " << dep_name << " is invalid." << std::endl;
+                  system::error_log("Invalid dependency: {0}\n", dep_name);
                   return false;
                }
-               std::cout << "Updating dependency: " << dep_name << " for object: " << obj.name() << std::endl;
+               system::info_log("Updating dependency: {0} for object: {1}", dep_name, obj.name());
                obj.upsert_dependency(std::move(*dep));
                return true;
             } else {
-               std::cerr << "Dependency: " << dep_name << " not found in: " << obj_name << std::endl;
+               system::error_log("Dependency {0} not found in object {1", dep_name, obj_name);
             }
          } catch(...) {
-            std::cerr << "Object: " << obj_name << " not found in project." << std::endl;
+            system::error_log("Object {0} does not exist in the project", obj_name);
          }
          return false;
       }
 
-      bool update_dependency(antler::project::project& proj) {
-         const auto* obj_opt = dep_subcommand->get_option_no_throw("object");
-         if (!obj_opt->empty()) {
-            return update_dependency(proj, obj_name);
-         } else {
-            const auto& update_dep = [&](auto dep, auto& objs) {
-               for (auto& o : objs) {
-                  if (o.dependency_exists(dep_name)) {
-                     update_dependency(proj, o.name());
-                  }
+      void update_dependency_for_all(antler::project::project& proj) {
+         const auto& update_dep = [&](auto dep, auto& objs) {
+            for (auto& [k, o] : objs) {
+               using obj_t = std::decay_t<decltype(o)>;
+               if (o.dependency_exists(dep_name)) {
+                  update_dependency<obj_t>(proj, o.name());
                }
-            };
+            }
+         };
 
-            // Get all the objects and their names.
-            update_dep(dep_name, proj.apps());
-            update_dep(dep_name, proj.libs());
-            update_dep(dep_name, proj.tests());
-         }
-         return true;
+         // Get all the objects and their names.
+         update_dep(dep_name, proj.apps());
+         update_dep(dep_name, proj.libs());
+         //update_dep(dep_name, proj.tests());
       }
 
       update_project(CLI::App& app) {
          path = std::filesystem::current_path().string();
          subcommand = app.add_subcommand("update", "Update an app, dependency, library or test to your project.");
-         subcommand->add_option("-p, path", path, "This must be the path to the `project.yml` or the path containing it.");
+         subcommand->add_option("-p, path", path, "This must be the path to the `project.yml` or the path containing it.")->default_val(".");
 
          app_subcommand = subcommand->add_subcommand("app", "Remove app from the project.");
          app_subcommand->add_option("-n, name", obj_name, "The name of the app to remove.")->required();
@@ -143,46 +143,49 @@ namespace antler {
          try {
             auto proj = load_project(path);
 
-            if (!proj) {
-               return -1;
-            }
-
             if (*app_subcommand) {
-               update_app(*proj);
+               update_app(proj);
             } else if (*lib_subcommand) {
-               update_lib(*proj);
+               update_lib(proj);
             } else if (*dep_subcommand) {
-               update_dependency(*proj);
+               if (!obj_name.empty()) {
+                  if (proj.app_exists(obj_name))
+                     update_dependency<antler::project::app_t>(proj, obj_name);
+                  else if (proj.lib_exists(obj_name))
+                     update_dependency<antler::project::lib_t>(proj, obj_name);
+               } else {
+                  update_dependency_for_all(proj);
+               }
             /* TODO Add back after this release when we have the testing framework finished
             } else if (*test_subcommand) {
                update_test(*proj);
             */
             } else {
-               std::cerr << "Need to supply either dep/app/lib/test after `add`" << std::endl;
+               system::error_log("Need to supply either a dep/app/lib/test after `update`");
                return -1;
             }
 
-            proj->sync();
+            proj.sync();
          } catch (...) {
-            std::cerr << "Path <" << path << "> does not exist" << std::endl;
+            system::error_log("Path {0} does not exist", path);
          }
          return 0;
       }
       
-      CLI::App*   subcommand;
-      CLI::App*   app_subcommand;
-      CLI::App*   dep_subcommand;
-      CLI::App*   lib_subcommand;
-      CLI::App*   test_subcommand;
-      std::string path;
-      std::string obj_name;
-      std::string dep_name;
-      std::string lang;
-      std::string copts;
-      std::string lopts;
-      std::string loc;
-      std::string tag;
-      std::string release;
-      std::string digest;
+      CLI::App*   subcommand = nullptr;
+      CLI::App*   app_subcommand = nullptr;
+      CLI::App*   dep_subcommand = nullptr;
+      CLI::App*   lib_subcommand = nullptr;
+      CLI::App*   test_subcommand = nullptr;
+      std::string path = "";
+      std::string obj_name = "";
+      std::string dep_name = "";
+      std::string lang = "";
+      std::string copts = "";
+      std::string lopts = "";
+      std::string loc = "";
+      std::string tag = "";
+      std::string release = "";
+      std::string digest = "";
    };
 } // namespace antler

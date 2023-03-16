@@ -1,6 +1,7 @@
 /// @copyright See `LICENSE` in the root directory of this project.
 
 #include <antler/project/location.hpp>
+#include <antler/system/utils.hpp>
 
 #include <cstring>
 #include <filesystem>
@@ -35,8 +36,7 @@ struct curl {
    inline curl() {
       curl_global_init(CURL_GLOBAL_ALL);
       curl_obj = curl_easy_init();
-      if (!curl_obj)
-         throw std::runtime_error("internal error, curl not initialized");
+      ANTLER_CHECK(curl_obj, "internal failure, curl_easy_init() failed");
    }
 
    ~curl() {
@@ -63,10 +63,7 @@ struct curl {
       curl_easy_setopt(curl_obj, CURLOPT_WRITEDATA, &buff);
 
       auto res = curl_easy_perform(curl_obj);
-      if (res) {
-         std::cerr << "Failure: " << curl_easy_strerror(res) << std::endl;
-         throw std::runtime_error("internal curl failure");
-      }
+      ANTLER_CHECK(!res, "internal failure, curl_easy_perform() failed with error {0}", curl_easy_strerror(res));
       return buff;
    }
 

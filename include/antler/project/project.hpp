@@ -29,10 +29,9 @@ public:
    // constructors
    project() = default;
    project(const std::filesystem::path& p) 
-      : m_path(p) {
+      : m_path(std::filesystem::canonical(p)) {
       system::debug_log("project(const std::filesystem::path&) called with path : {0}" , p.string());
-      if (!from_yaml(yaml::load(p / manifest_name)))
-         throw std::runtime_error("project can't be created from path"); 
+      ANTLER_CHECK(from_yaml(yaml::load((m_path/manifest_name).string())), "project can't be created from path");
    }
    project(const std::filesystem::path& path, std::string_view name, std::string_view version_raw) :
       m_path(path), m_name(name), m_ver(version_raw) {
@@ -131,7 +130,7 @@ public:
    /// @param type  If type is other than any, the search is limited to that single type.
    /// @return vector with copies of the objects.
    template <typename Tag>
-   [[nodiscard]] auto& object(std::string_view name) {
+   [[nodiscard]] auto& object(const std::string& name) {
       const auto& get = [](auto nm, auto& c) -> auto& {
          auto itr = c.find(nm);
          return itr->second;

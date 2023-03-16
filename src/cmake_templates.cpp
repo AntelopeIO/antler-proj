@@ -2,7 +2,7 @@
 
 namespace antler::project {
 
-km::mustache cmake::add_subdirectory_template = {"add_subirectory(${CMAKE_SOURCE_DIR}/{{path}})\n\n"};
+km::mustache cmake::add_subdirectory_template = {"add_subdirectory(${CMAKE_SOURCE_DIR}/{{path}})\n\n"};
 
 km::mustache cmake::preamble_template = {"# Generated with {{tool}}, modify at your own risk\n"
                                          "cmake_minimum_required(VERSION {{major}}.{{minor}})\n"
@@ -29,14 +29,15 @@ km::mustache cmake::entry_template = {"include(ExternalProject)\n"
                                       "   {{proj}}_project\n"
                                       "   SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/apps\n"
                                       "   BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/{{proj}}\n"
-                                      "   CMAKE_ARGS -DCMAKE_TOOCHAIN_FILE=${CDT_ROOT}/lib/cmake/cdt/CDTWasmToolchain.cmake\n"
+                                      "   CMAKE_ARGS -DCMAKE_TOOLCHAIN_FILE=${CDT_ROOT}/lib/cmake/cdt/CDTWasmToolchain.cmake\n"
                                       "   UPDATE_COMMAND \"\"\n"
                                       "   PATCH_COMMAND \"\"\n"
                                       "   TEST_COMMAND \"\"\n"
+                                      "   INSTALL_COMMAND \"\"\n"
                                       "   BUILD_ALWAYS 1\n"
                                       ")\n\n"};
 
-km::mustache cmake::add_action_template = {"add_contract({{obj_name}} {{target_name}} ${CMAKE_SOURCE_DIR}/../../apps/{{obj_name}}/{{obj_source}})\n\n"};
+km::mustache cmake::add_contract_template = {"add_contract({{obj_name}} {{target_name}} ${CMAKE_SOURCE_DIR}/../../apps/{{obj_name}}/{{obj_source}})\n\n"};
 km::mustache cmake::add_library_template = {"add_library({{target_name}} ${CMAKE_SOURCE_DIR}/../../libs/{{obj_name}}/{{obj_source}})\n\n"};
                                            
 } // namespace antler::project

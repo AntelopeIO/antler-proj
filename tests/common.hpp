@@ -17,6 +17,7 @@ inline bool load_project(std::string_view fn, antler::project::project& proj) {
       return false;
    }
 
+   proj.path(p);
    return proj.from_yaml(yaml::load(p/project::manifest_name));
 }
 
