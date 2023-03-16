@@ -7,7 +7,6 @@
 #include <unordered_set>
 #include <vector>
 
-#include <magic_enum.hpp>
 #include <bluegrass/cturtle.hpp>
 
 namespace antler::system {
@@ -47,19 +46,6 @@ namespace antler::system {
       for (auto& c : s)
          c = toupper(c);
       return s;
-   }
-
-   template <typename Enum, typename = std::enable_if_t<std::is_enum_v<Enum>>>
-   inline static std::string_view to_string(Enum e) { return magic_enum::enum_name(e); }
-
-   template <typename Enum, typename = std::enable_if_t<std::is_enum_v<Enum>>>
-   inline static Enum from_string(std::string_view s) { 
-      auto sv = magic_enum::enum_cast<Enum>(s);
-      if (sv) {
-         return *sv;
-      } else {
-         return Enum::error;
-      }
    }
 
    inline static int32_t execute(std::string_view prog) {
@@ -107,9 +93,6 @@ namespace antler::system {
 
 
 } // namespace antler::system
-
-// expose all enum operators
-using namespace magic_enum::ostream_operators;
 
 #define ANTLER_CHECK(PRED, MSG, ...)                             \
    if (!(LIKELY(!!(PRED)))) {                                    \

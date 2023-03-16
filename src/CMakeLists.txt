@@ -15,11 +15,9 @@ target_include_directories(antler-project PUBLIC ../include
                                                  ${CMAKE_SOURCE_DIR}/external/Mustache
                                                  ${CURL_INCLUDE_DIRS}
 )
-target_link_libraries(antler-project PUBLIC magic_enum 
-                                            mustache
+target_link_libraries(antler-project PUBLIC mustache
                                             nlohmann_json::nlohmann_json 
                                             yaml-cpp::yaml-cpp
                                             bluegrass::cturtle
-                                            bluegrass::meta_refl
                                             ${CURL_LIBRARIES})
 set_property(TARGET antler-project PROPERTY CXX_STANDARD 17)

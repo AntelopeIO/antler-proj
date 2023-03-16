@@ -25,3 +25,5 @@ catch_discover_tests(unit_tests)
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/example.yml DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/)
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/project.yml DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
+add_subdirectory(fuzz)
