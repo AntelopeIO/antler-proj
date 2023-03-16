@@ -105,7 +105,14 @@ namespace antler::system {
    using bluegrass::cturtle::warn_log;
    using bluegrass::cturtle::error_log;
 
+
 } // namespace antler::system
 
 // expose all enum operators
 using namespace magic_enum::ostream_operators;
+
+#define ANTLER_CHECK(PRED, MSG, ...)                             \
+   if (!(LIKELY(!!(PRED)))) {                                    \
+      system::error_log(MSG, ##__VA_ARGS__ );                    \
+      throw std::runtime_error{fmt::format(MSG, ##__VA_ARGS__)}; \
+   }

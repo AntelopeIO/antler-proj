@@ -11,12 +11,10 @@ add_executable(unit_tests
                main.cpp
                cmake_tests.cpp
                dependency_tests.cpp
-               manifest_tests.cpp
                object_tests.cpp
                project_tests.cpp
                init_tests.cpp
-               #string_from.cpp
-               #version_constraint_tests.cpp 
+               version_constraint_tests.cpp 
                version_tests.cpp
 )
 

@@ -76,29 +76,29 @@ bool project::sync() noexcept {
 
 bool project::update_path(std::filesystem::path& path) noexcept {
 
-   std::error_code sec;
-
    std::filesystem::path search_path = path;
    if (search_path.empty())
       search_path = std::filesystem::current_path();
    else if (search_path.filename().extension() == ".yaml" || search_path.filename().extension() == ".yml") {
       // The user passed in an *.yaml file, we just report if it exists as a regular file.
-      return std::filesystem::is_regular_file(search_path, sec);
+      return std::filesystem::is_regular_file(search_path);
    }
 
    for (;;) {
-      if (std::filesystem::exists(search_path / "project.yaml", sec)) {
+      if (std::filesystem::exists(search_path / "project.yaml")) {
          path = search_path / "project.yaml";
          return true;
       }
-      if (std::filesystem::exists(search_path / "project.yml", sec)) {
+      if (std::filesystem::exists(search_path / "project.yml")) {
          path = search_path / "project.yml";
          return true;
       }
       if (search_path.empty() || search_path == "/")
-         break;
+         return false;
+
       search_path = search_path.parent_path();
    }
+   
    return false;
 }
 

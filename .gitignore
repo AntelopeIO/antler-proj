@@ -4,3 +4,7 @@ CMakeLists.txt.user
 
 settings.json
 checks.json
+
+tests/Testing/*
+
+.vscode/*

@@ -7,6 +7,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <stdexcept>
 
 
 #include "object.hpp"
@@ -27,9 +28,17 @@ public:
                                                                "#   Any changes made to this file will be lost when the tool updates this project.";
    // constructors
    project() = default;
-   project(const std::filesystem::path&);
+   project(const std::filesystem::path& p) 
+      : m_path(p) {
+      system::debug_log("project(const std::filesystem::path&) called with path : {0}" , p.string());
+      if (!from_yaml(yaml::load(p / manifest_name)))
+         throw std::runtime_error("project can't be created from path"); 
+   }
    project(const std::filesystem::path& path, std::string_view name, std::string_view version_raw) :
-      m_path(path), m_name(name), m_ver(version_raw) {}
+      m_path(path), m_name(name), m_ver(version_raw) {
+      system::debug_log("project(const std::filesystem::path&, std::string_view, std::string_view) called with path : {0}, name : {1}, version : {2}"
+         , path.string(), name, version_raw); 
+   }
 
    /// Get the project name.
    /// @return  The name of the project.

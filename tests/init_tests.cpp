@@ -1,6 +1,6 @@
 /// @copyright See `LICENSE` in the root directory of this project.
 
-#include <antler/project/manifest.hpp>
+#include <antler/project/project.hpp>
 
 #include <catch2/catch.hpp>
 
@@ -8,24 +8,23 @@
 
 TEST_CASE("Testing init subcommand") {
    using namespace antler::project;
+   
+   project proj = {"./foo", "foo", "v1.0.0"};
 
-   {
-      project proj = {std::filesystem::path("./foo") / antler::project::project::manifest_name, "foo", "v1.0.0"};
+   remove_file("./foo");
+   REQUIRE(proj.init_dirs("./foo"));
 
-      remove_file("./foo");
-      REQUIRE(proj.init_dirs(std::filesystem::path("./foo")));
+   proj.sync();
 
-      manifest m;
 
-      m.set(proj.to_yaml());
+   project proj2{"./foo"};
 
-      m.write("./foo");
+   CHECK(proj2.name() == "foo");
+   CHECK(proj2.version() == version{"v1.0.0"});
 
-      manifest m2{"./foo"};
-
-      project proj2 = m2.to_project();
-
-      CHECK(proj2.name() == "foo");
-      CHECK(proj2.version() == version{"v1.0.0"});
-   }
+   CHECK(std::filesystem::exists("./foo"));
+   CHECK(std::filesystem::exists("./foo/apps"));
+   CHECK(std::filesystem::exists("./foo/libs"));
+   CHECK(std::filesystem::exists("./foo/include"));
+   CHECK(std::filesystem::exists("./foo/ricardian"));
 }

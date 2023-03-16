@@ -7,7 +7,7 @@ add_library(antler-project
    dependency.cpp 
    location.cpp 
    project.cpp
-   #version_constraint.cpp 
+   version_constraint.cpp 
 )
 
 target_include_directories(antler-project PUBLIC ../include 
