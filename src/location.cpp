@@ -4,7 +4,6 @@
 #include <antler/system/utils.hpp>
 
 #include <cstring>
-#include <filesystem>
 #include <iostream>
 #include <stdexcept>
 
