@@ -4,7 +4,6 @@
 
 #include <antler/project/project.hpp>
 
-#include <filesystem> // path
 #include <stdexcept>
 #include <string_view>
 

@@ -4,7 +4,6 @@
 
 #include <antler/project/project.hpp>
 
-#include <filesystem> // path
 #include <fstream>
 #include <stdexcept>
 #include <string_view>
@@ -22,9 +21,9 @@ namespace antler::project {
 
       /// @brief constructor
       /// @param p base path for where this CMakeLists.txt will reside
-      cmake_lists(std::filesystem::path p)
+      cmake_lists(system::fs::path p)
          : path(p / filename) {
-         std::filesystem::create_directories(p);
+         system::fs::create_directories(p);
          outs.open(path);
          ANTLER_CHECK(outs.is_open(), "Error creating/opening CMakeLists.txt at {0}", path.string());
          system::debug_log("cmake_lists constructed at {0}.", path.string());
@@ -32,7 +31,7 @@ namespace antler::project {
 
       ~cmake_lists() { outs.close(); }
 
-      inline std::filesystem::path base_path() const noexcept { return path.parent_path(); }
+      inline system::fs::path base_path() const noexcept { return path.parent_path(); }
 
       /// @brief stream operator insertion overload
       /// @tparam T type of object will be inserted
@@ -46,7 +45,7 @@ namespace antler::project {
 
       inline void flush() { outs.flush(); }
 
-      std::filesystem::path path;
+      system::fs::path path;
       std::ofstream outs;
    };
 
@@ -89,7 +88,7 @@ namespace antler::project {
          }
 
          template <typename Stream>
-         inline void emit_add_subdirectory(Stream& s, std::filesystem::path path, std::string_view name) noexcept { 
+         inline void emit_add_subdirectory(Stream& s, system::fs::path path, std::string_view name) noexcept { 
             s << add_subdirectory_template.render(datum{"path", (path / name).string()});
          }
 
@@ -207,7 +206,7 @@ namespace antler::project {
          };
 
          const project* proj = nullptr; // non-owning pointer to project
-         std::filesystem::path base_path;
+         system::fs::path base_path;
          cmake_lists           base_lists;
          cmake_lists           apps_lists;
          cmake_lists           libs_lists;

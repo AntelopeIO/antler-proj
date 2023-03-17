@@ -8,7 +8,6 @@
 #include <vector>
 #include <iostream>
 #include <utility> // std::pair
-#include <filesystem>
 
 #include "version.hpp"
 #include "yaml.hpp"
@@ -22,7 +21,7 @@ class dependency {
 public:
    using list_t = std::vector<dependency>; ///< Alias for the list type.
 
-   using patch_list_t = std::vector<std::filesystem::path>; ///< Alias for the patch file list type.
+   using patch_list_t = std::vector<system::fs::path>; ///< Alias for the patch file list type.
 
 public:
    // use default constructors, copy and move constructors and assignments
@@ -103,10 +102,10 @@ public:
    /// Add a new file to the patch list.
    /// @note this should be in a location relative to the `project.yaml` file.
    /// @param path  The path to the patch file to add.
-   void patch_add(const std::filesystem::path& path) noexcept;
+   void patch_add(const system::fs::path& path) noexcept;
    /// @note this should be in a location relative to the `project.yaml` file.
    /// @param path  The path to the patch file to remove.
-   void patch_remove(const std::filesystem::path& path) noexcept;
+   void patch_remove(const system::fs::path& path) noexcept;
 
    /// Test to see if the dependency is valid.
    /// @return true if dependency is an archive, github repo, or local and is reachable

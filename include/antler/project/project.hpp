@@ -2,7 +2,6 @@
 
 /// @copyright See `LICENSE` in the root directory of this project.
 
-#include <filesystem>
 #include <optional>
 #include <fstream>
 #include <iostream>
@@ -28,14 +27,14 @@ public:
                                                                "#   Any changes made to this file will be lost when the tool updates this project.";
    // constructors
    project() = default;
-   project(const std::filesystem::path& p) 
-      : m_path(std::filesystem::canonical(p)) {
-      system::debug_log("project(const std::filesystem::path&) called with path : {0}" , p.string());
+   project(const system::fs::path& p) 
+      : m_path(system::fs::canonical(p)) {
+      system::debug_log("project(const system::fs::path&) called with path : {0}" , p.string());
       ANTLER_CHECK(from_yaml(yaml::load((m_path/manifest_name).string())), "project can't be created from path");
    }
-   project(const std::filesystem::path& path, std::string_view name, std::string_view version_raw) :
+   project(const system::fs::path& path, std::string_view name, std::string_view version_raw) :
       m_path(path), m_name(name), m_ver(version_raw) {
-      system::debug_log("project(const std::filesystem::path&, std::string_view, std::string_view) called with path : {0}, name : {1}, version : {2}"
+      system::debug_log("project(const system::fs::path&, std::string_view, std::string_view) called with path : {0}, name : {1}, version : {2}"
          , path.string(), name, version_raw); 
    }
 
@@ -48,10 +47,10 @@ public:
 
    /// Get the path to the project. This is the actual `project.yaml` file, not the containing directory.
    /// @return  The path to the project file.
-   [[nodiscard]] std::filesystem::path path() const noexcept;
+   [[nodiscard]] system::fs::path path() const noexcept;
    /// Set the path to the project. This is the actual `project.yaml` file, not the containing directory.
    /// @param path  The new path to the project file.
-   void path(const std::filesystem::path& path) noexcept;
+   void path(const system::fs::path& path) noexcept;
 
    /// Get this project's version info.
    /// @return  The version information.
@@ -186,13 +185,13 @@ public:
    /// @param path  The location of the project.yaml file or the path containing it.
    /// @param error_stream  The stream to print failure reports to.
    /// @return true for success; false indidates failure.
-   [[nodiscard]] static bool init_dirs(const std::filesystem::path& path, std::ostream& error_stream = std::cerr) noexcept;
+   [[nodiscard]] static bool init_dirs(const system::fs::path& path, std::ostream& error_stream = std::cerr) noexcept;
 
    /// Search this and directories above for `project.yaml` file.
    /// @note if path extension is `.yaml` no directory search is performed, instead return value indicating existence of path a regular file.
    /// @param path  This is the search path to begin with; if the project file was found, it is updated to the path to that file.
    /// @return true if the project file was found and is a regular file; otherwise, false.
-   [[nodiscard]] static bool update_path(std::filesystem::path& path) noexcept;
+   [[nodiscard]] static bool update_path(system::fs::path& path) noexcept;
 
    /// Serialization function from version to yaml node
    [[nodiscard]] inline yaml::node_t to_yaml() const noexcept { 
@@ -218,7 +217,7 @@ public:
 
 private:
 
-   std::filesystem::path m_path;   ///< path to the project.yaml file.
+   system::fs::path m_path;   ///< path to the project.yaml file.
    std::string m_name;             ///< The project name.
    antler::project::version m_ver; ///< The version information for this project.
    app_t::map_t m_apps;            ///< Map of applications.

@@ -9,7 +9,6 @@
 #include <iostream>
 #include <utility> // std::pair
 #include <fstream>
-#include <filesystem>
 
 #include "../system/utils.hpp"
 
@@ -19,9 +18,9 @@ namespace antler::project {
    struct yaml {
       using node_t = YAML::Node;
 
-      inline static node_t load(const std::filesystem::path& path) { return YAML::LoadFile(path.string()); }
+      inline static node_t load(const system::fs::path& path) { return YAML::LoadFile(path.string()); }
 
-      inline static void write(std::filesystem::path path, const node_t& node) {
+      inline static void write(system::fs::path path, const node_t& node) {
          std::ofstream out(path);
          out << node;
          out.close();
