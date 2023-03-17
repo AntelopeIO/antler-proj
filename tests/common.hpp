@@ -2,7 +2,6 @@
 
 /// @copyright See `LICENSE` in the root directory of this project.
 
-#include <filesystem>
 #include <iostream>
 #include <string_view>
 
