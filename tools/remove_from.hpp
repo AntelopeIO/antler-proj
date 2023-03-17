@@ -67,7 +67,7 @@ namespace antler {
       }
 
       remove_from_project(CLI::App& app) {
-         path = std::filesystem::current_path().string();
+         path = system::fs::current_path().string();
          subcommand = app.add_subcommand("remove", "Add an app, dependency, library or test to your project.");
          subcommand->add_option("-p, path", path, "This must be the path to the `project.yml` or the path containing it.")->default_val(".");
 

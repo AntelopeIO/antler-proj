@@ -19,27 +19,27 @@ namespace antler {
       }
 
       bool should_repopulate() {
-         auto proj = std::filesystem::path(path) / project::project::manifest_name;
-         auto build = std::filesystem::path(path) / "build" / project::cmake_lists::filename;
+         auto proj = system::fs::path(path) / project::project::manifest_name;
+         auto build = system::fs::path(path) / "build" / project::cmake_lists::filename;
 
-         auto last_manifest_time = std::filesystem::last_write_time(proj);
+         auto last_manifest_time = system::fs::last_write_time(proj);
 
-         if (!std::filesystem::exists(build)) {
+         if (!system::fs::exists(build)) {
             return true;
          }
 
-         auto last_pop_time      = std::filesystem::last_write_time(build);
+         auto last_pop_time      = system::fs::last_write_time(build);
 
          return last_pop_time < last_manifest_time;
       }
 
       int32_t configure() noexcept {
-         auto build_dir = std::filesystem::path(path) / "build";
+         auto build_dir = system::fs::path(path) / "build";
          auto bin_dir = build_dir / "antler-bin";
 
          std::cout << "CONFDIR " << build_dir << " " << bin_dir << std::endl;
 
-         std::filesystem::create_directory(bin_dir);
+         system::fs::create_directory(bin_dir);
          std::string cmake_cmd = "cmake -S " + build_dir.string() + " -B " + bin_dir.string();
 
          return system::execute("cmake -S " + build_dir.string() + " -B " + bin_dir.string()); //cmake_cmd);
@@ -47,18 +47,18 @@ namespace antler {
 
 
       int32_t build() noexcept {
-         auto bin_dir = std::filesystem::path(path) / "build" / "antler-bin";
+         auto bin_dir = system::fs::path(path) / "build" / "antler-bin";
 
          std::cout << "BIN " << bin_dir << std::endl;
 
-         std::filesystem::create_directory(bin_dir);
+         system::fs::create_directory(bin_dir);
          std::string make_cmd = "cmake --build " + bin_dir.string();
 
          return system::execute(make_cmd);
       }
 
       void move_artifacts(const project::project& proj) noexcept {
-         namespace sf = std::filesystem;
+         namespace sf = system::fs;
          auto build_dir = sf::path(path) / "build";
          auto bin_dir = build_dir / "antler-bin";
 
@@ -70,8 +70,8 @@ namespace antler {
             auto to_wasm = build_dir /  sf::path(app_nm+".wasm");
             auto to_abi = build_dir / sf::path(app_nm+".abi");
 
-            std::filesystem::copy(from_wasm, to_wasm);
-            std::filesystem::copy(from_abi, to_abi);
+            system::fs::copy(from_wasm, to_wasm);
+            system::fs::copy(from_abi, to_abi);
 
             system::info_log("{0} and {1} have been created.", to_wasm.string(), to_abi.string());
          }

@@ -50,7 +50,7 @@ bool dependency::is_archive() const noexcept {
 }
 
 
-void dependency::patch_add(const std::filesystem::path& path) noexcept {
+void dependency::patch_add(const system::fs::path& path) noexcept {
    // Only add if it doesn't already exist.
    auto i = std::find(m_patchfiles.begin(), m_patchfiles.end(), path);
    if (i != m_patchfiles.end())
@@ -65,7 +65,7 @@ const dependency::patch_list_t& dependency::patch_files() const noexcept {
 }
 
 
-void dependency::patch_remove(const std::filesystem::path& path) noexcept {
+void dependency::patch_remove(const system::fs::path& path) noexcept {
 
    auto i = std::find(m_patchfiles.begin(), m_patchfiles.end(), path);
    if (i != m_patchfiles.end())

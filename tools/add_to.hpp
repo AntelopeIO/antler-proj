@@ -64,8 +64,8 @@ namespace antler {
 
          auto obj = Obj(obj_name, lang, copts, lopts);
          auto path = proj.path().parent_path();
-         std::filesystem::create_directory(path / project::detail::dir<Obj>() / obj_name);
-         std::filesystem::create_directory(path / std::filesystem::path("include") / obj_name);
+         system::fs::create_directory(path / project::detail::dir<Obj>() / obj_name);
+         system::fs::create_directory(path / system::fs::path("include") / obj_name);
          project::source<Obj>::create_source_file(path, obj);
          project::source<Obj>::create_specification_file(path, obj);
 
@@ -140,7 +140,7 @@ namespace antler {
       }
 
       add_to_project(CLI::App& app) {
-         path = std::filesystem::current_path().string();
+         path = system::fs::current_path().string();
          subcommand = app.add_subcommand("add", "Add an app, dependency, library or test to your project.");
          subcommand->add_option("-p, path", path, "This is the root path to create the project in.")->default_val(".");
 

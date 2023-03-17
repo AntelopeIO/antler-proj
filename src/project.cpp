@@ -10,12 +10,12 @@
 namespace antler::project {
 
 //--- alphabetic --------------------------------------------------------------------------------------------------------
-bool project::init_dirs(const std::filesystem::path& path, std::ostream& error_stream) noexcept {
+bool project::init_dirs(const system::fs::path& path, std::ostream& error_stream) noexcept {
 
    std::error_code sec;
 
    // Create the root directory.
-   std::filesystem::create_directories(path, sec);
+   system::fs::create_directories(path, sec);
    if (sec) {
       error_stream << path << " could not be created: " << sec << "\n";
       return false;
@@ -23,9 +23,9 @@ bool project::init_dirs(const std::filesystem::path& path, std::ostream& error_s
 
    // Create the directory structure.
    {
-      const std::vector<std::filesystem::path> files = { "apps", "include", "ricardian", "libs", "tests" };
+      const std::vector<system::fs::path> files = { "apps", "include", "ricardian", "libs", "tests" };
       for (const auto& fn : files) {
-         std::filesystem::create_directory(path/fn, sec);
+         system::fs::create_directory(path/fn, sec);
          if (sec) {
             error_stream << (path/fn) << " could not be created: " << sec << "\n";
             return false;
@@ -44,12 +44,12 @@ void project::name(std::string_view s) noexcept {
    m_name = s;
 }
 
-std::filesystem::path project::path() const noexcept {
+system::fs::path project::path() const noexcept {
    return m_path;
 }
 
 
-void project::path(const std::filesystem::path& path) noexcept {
+void project::path(const system::fs::path& path) noexcept {
    m_path = path;
 }
 
@@ -75,22 +75,22 @@ bool project::sync() noexcept {
 }
 
 
-bool project::update_path(std::filesystem::path& path) noexcept {
+bool project::update_path(system::fs::path& path) noexcept {
 
-   std::filesystem::path search_path = path;
+   system::fs::path search_path = path;
    if (search_path.empty())
-      search_path = std::filesystem::current_path();
+      search_path = system::fs::current_path();
    else if (search_path.filename().extension() == ".yaml" || search_path.filename().extension() == ".yml") {
       // The user passed in an *.yaml file, we just report if it exists as a regular file.
-      return std::filesystem::is_regular_file(search_path);
+      return system::fs::is_regular_file(search_path);
    }
 
    for (;;) {
-      if (std::filesystem::exists(search_path / "project.yaml")) {
+      if (system::fs::exists(search_path / "project.yaml")) {
          path = search_path / "project.yaml";
          return true;
       }
-      if (std::filesystem::exists(search_path / "project.yml")) {
+      if (system::fs::exists(search_path / "project.yml")) {
          path = search_path / "project.yml";
          return true;
       }

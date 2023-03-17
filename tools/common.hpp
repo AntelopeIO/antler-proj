@@ -8,8 +8,8 @@
 
 namespace antler {
 
-   inline project::project load_project(const std::filesystem::path& path) {
-      auto p = std::filesystem::canonical(std::filesystem::path(path));
+   inline project::project load_project(const system::fs::path& path) {
+      auto p = system::fs::canonical(system::fs::path(path));
       ANTLER_CHECK(project::project::update_path(p),
          "path either did not exist or no `project.yml` file cound be found.");
       project::project proj;

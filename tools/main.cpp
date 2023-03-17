@@ -51,7 +51,7 @@ struct runner {
 int main(int argc, char** argv) {
    // using this as we will alias antler-proj to cdt-proj for the 
    // next release of CDT.
-   const auto app_name = std::filesystem::path(argv[0]).filename().string();
+   const auto app_name = system::fs::path(argv[0]).filename().string();
 
    CLI::App app{"Antelope Smart Contract Project Management Tool", app_name};
 
