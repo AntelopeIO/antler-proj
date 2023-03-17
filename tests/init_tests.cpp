@@ -22,9 +22,9 @@ TEST_CASE("Testing init subcommand") {
    CHECK(proj2.name() == "foo");
    CHECK(proj2.version() == version{"v1.0.0"});
 
-   CHECK(system::fs::exists("./foo"));
-   CHECK(system::fs::exists("./foo/apps"));
-   CHECK(system::fs::exists("./foo/libs"));
-   CHECK(system::fs::exists("./foo/include"));
-   CHECK(system::fs::exists("./foo/ricardian"));
+   CHECK(antler::system::fs::exists("./foo"));
+   CHECK(antler::system::fs::exists("./foo/apps"));
+   CHECK(antler::system::fs::exists("./foo/libs"));
+   CHECK(antler::system::fs::exists("./foo/include"));
+   CHECK(antler::system::fs::exists("./foo/ricardian"));
 }
