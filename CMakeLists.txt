@@ -6,15 +6,16 @@ project("ANTLER Project Tools " VERSION 1.0.0)
 
 include( ./common.cmake REQUIRED )
 
-add_subdirectory( external )
-add_subdirectory( include )
-add_subdirectory( src )
-add_subdirectory( tools )
 
 
 option(ANTLER_PROJ_PEDANTIC_BUILD "Pedantic builds" On)
 option(ANTLER_PROJ_BUILD_TESTS "Build and run the tests." On)
 option(ANTLER_PROJ_TIDY_CHECKS "Uses clang-tidy in building." On)
+
+add_subdirectory( external )
+add_subdirectory( include )
+add_subdirectory( src )
+add_subdirectory( tools )
 
 if(ANTLER_PROJ_BUILD_TESTS)
   enable_testing()
