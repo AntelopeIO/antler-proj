@@ -19,5 +19,6 @@ target_link_libraries(antler-project PUBLIC mustache
                                             nlohmann_json::nlohmann_json 
                                             yaml-cpp::yaml-cpp
                                             bluegrass::cturtle
-                                            ${CURL_LIBRARIES})
+                                            ${CURL_LIBRARIES}
+                                            -lstdc++fs)
 set_property(TARGET antler-project PROPERTY CXX_STANDARD 17)

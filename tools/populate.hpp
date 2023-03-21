@@ -17,18 +17,16 @@ namespace antler {
       }
 
       int32_t exec() {
-         try {
-            auto proj = load_project(path);
+         auto proj = load_project(path);
 
-            project::cmake emitter(proj);
+         project::cmake emitter(proj);
 
-            emitter.emit();
+         emitter.emit();
 
-            system::info_log("Project population was successful!");
-            return 0;
-         } catch (...) {
-            return -1;
-         }
+         ANTLER_CHECK(proj.populate_dependencies(), "failed to populate dependencies");
+
+         system::info_log("Project population was successful!");
+         return 0;
       }
       
       CLI::App*   subcommand = nullptr;

@@ -16,6 +16,7 @@ namespace antler {
       inline build_project(CLI::App& app) {
          subcommand = app.add_subcommand("build", "Build a project.");
          subcommand->add_option("-p, path", path, "This is the path to the root of the project.")->default_val(".");
+         subcommand->add_option("-j, --jobs", jobs, "This is the path to the root of the project.")->default_val(1);
       }
 
       bool should_repopulate() {
@@ -37,24 +38,18 @@ namespace antler {
          auto build_dir = system::fs::path(path) / "build";
          auto bin_dir = build_dir / "antler-bin";
 
-         std::cout << "CONFDIR " << build_dir << " " << bin_dir << std::endl;
-
          system::fs::create_directory(bin_dir);
-         std::string cmake_cmd = "cmake -S " + build_dir.string() + " -B " + bin_dir.string();
 
-         return system::execute("cmake -S " + build_dir.string() + " -B " + bin_dir.string()); //cmake_cmd);
+         return system::execute("cmake", {"-S", build_dir.string(), "-B", bin_dir.string()});
       }
 
 
       int32_t build() noexcept {
          auto bin_dir = system::fs::path(path) / "build" / "antler-bin";
 
-         std::cout << "BIN " << bin_dir << std::endl;
-
          system::fs::create_directory(bin_dir);
-         std::string make_cmd = "cmake --build " + bin_dir.string();
 
-         return system::execute(make_cmd);
+         return system::execute("cmake", {"-j", std::to_string(jobs), "--build", bin_dir.string()});
       }
 
       void move_artifacts(const project::project& proj) noexcept {
@@ -78,34 +73,31 @@ namespace antler {
       }
 
       int32_t exec() {
-         try {
-            auto proj = load_project(path);
+         auto proj = load_project(path);
 
-            if (should_repopulate()) {
-               project::cmake emitter(proj);
-               emitter.emit();
+         if (should_repopulate()) {
+            project::cmake emitter(proj);
+            emitter.emit();
+            ANTLER_CHECK(proj.populate_dependencies(jobs), "failed to populate dependencies");
 
-               if (auto rv = configure(); rv != 0) {
-                  system::error_log("Configuring project build failed.");
-                  return rv;
-               }
-            }
-
-            if ( auto rv = build(); rv != 0) {
-               system::error_log("Building the project failed.");
+            if (auto rv = configure(); rv != 0) {
+               system::error_log("Configuring project build failed.");
                return rv;
             }
-
-            move_artifacts(proj);
-
-            return 0;
-         } catch (const std::runtime_error& e) {
-            system::error_log("Error: {0}", e.what());
-            return -1;
          }
+
+         if ( auto rv = build(); rv != 0) {
+            system::error_log("Building the project failed.");
+            return rv;
+         }
+
+         move_artifacts(proj);
+
+         return 0;
       }
       
       CLI::App*   subcommand = nullptr;
       std::string path = "";
+      uint32_t    jobs = 1;
    };
 } // namespace antler

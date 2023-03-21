@@ -140,35 +140,31 @@ namespace antler {
       }
 
       int32_t exec() {
-         try {
-            auto proj = load_project(path);
+         auto proj = load_project(path);
 
-            if (*app_subcommand) {
-               update_app(proj);
-            } else if (*lib_subcommand) {
-               update_lib(proj);
-            } else if (*dep_subcommand) {
-               if (!obj_name.empty()) {
-                  if (proj.app_exists(obj_name))
-                     update_dependency<antler::project::app_t>(proj, obj_name);
-                  else if (proj.lib_exists(obj_name))
-                     update_dependency<antler::project::lib_t>(proj, obj_name);
-               } else {
-                  update_dependency_for_all(proj);
-               }
-            /* TODO Add back after this release when we have the testing framework finished
-            } else if (*test_subcommand) {
-               update_test(*proj);
-            */
+         if (*app_subcommand) {
+            update_app(proj);
+         } else if (*lib_subcommand) {
+            update_lib(proj);
+         } else if (*dep_subcommand) {
+            if (!obj_name.empty()) {
+               if (proj.app_exists(obj_name))
+                  update_dependency<antler::project::app_t>(proj, obj_name);
+               else if (proj.lib_exists(obj_name))
+                  update_dependency<antler::project::lib_t>(proj, obj_name);
             } else {
-               system::error_log("Need to supply either a dep/app/lib/test after `update`");
-               return -1;
+               update_dependency_for_all(proj);
             }
-
-            proj.sync();
-         } catch (...) {
-            system::error_log("Path {0} does not exist", path);
+         /* TODO Add back after this release when we have the testing framework finished
+         } else if (*test_subcommand) {
+            update_test(*proj);
+         */
+         } else {
+            system::error_log("Need to supply either a dep/app/lib/test after `update`");
+            return -1;
          }
+
+         proj.sync();
          return 0;
       }
       

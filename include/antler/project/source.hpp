@@ -64,7 +64,7 @@ namespace antler::project {
          std::string ext = system::extension(obj.language());
          p /= system::fs::path("libs") / name / (name+ext);
          std::ofstream src{p.c_str()};
-         src << "#include <eosio/print.h>\n\n";
+         src << "#include <cstdio>\n\n";
          src << "/// Add your code here for the library\n";
          src << std::endl;
          src.close();

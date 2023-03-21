@@ -12,17 +12,17 @@ add_subdirectory( src )
 add_subdirectory( tools )
 
 
-option(PEDANTIC_BUILD "Pedantic builds" On)
-option(BUILD_TESTS "Build and run the tests." On)
-option(TIDY_CHECKS "Uses clang-tidy in building." On)
+option(ANTLER_PROJ_PEDANTIC_BUILD "Pedantic builds" On)
+option(ANTLER_PROJ_BUILD_TESTS "Build and run the tests." On)
+option(ANTLER_PROJ_TIDY_CHECKS "Uses clang-tidy in building." On)
 
-if(BUILD_TESTS)
+if(ANTLER_PROJ_BUILD_TESTS)
   enable_testing()
   add_subdirectory( tests )
 endif()
 
 # Clang-tidy support
-if (TIDY_CHECKS)
+if (ANTLER_PROJ_TIDY_CHECKS)
   find_program(CLANG_TIDY_EXE NAMES "clang-tidy" REQUIRED)
   set(CLANG_TIDY_COMMAND "${CLANG_TIDY_EXE}" "-checks=*,modernize-*")
 endif()

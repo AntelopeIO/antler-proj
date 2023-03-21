@@ -2,6 +2,8 @@
 
 #include <antler/project/project.hpp>
 #include <antler/system/version.hpp>
+#include <antler/project/net_utils.hpp>
+#include <antler/project/location.hpp>
 
 #include <iostream>
 #include <fstream>
@@ -54,13 +56,12 @@ void project::path(const system::fs::path& path) noexcept {
 }
 
 
-bool project::sync() noexcept {
+bool project::sync() {
 
    if (m_path.empty()) {
       system::error_log("Path: {0} is a valid path to write to.", m_path.string());
       return false;
    }
-
 
    try {
       yaml::write(m_path / project::manifest_name, to_yaml());
@@ -137,18 +138,64 @@ bool project::has_valid_dependencies(std::ostream& errs) const noexcept {
    return test_deps(m_apps) && test_deps(m_libs); // && test_deps(m_tests);
 }
 
-/*
-void project::print(std::ostream& os) const noexcept {
-   // Add a header.
-   os << magic_comment << "\n";
-   os << comment_preamble << "\n";
-   os << "#   generated with v" << system::version::full() << std::endl;
+bool project::populate_dependency(const dependency& d, uint32_t jobs) {
+   using namespace antler::project::location;
+   system::fs::path depends_dir = m_path / dependencies_dir;
+   system::debug_log("populating dependency {0} from {1}", d.name(), d.location());
+   std::string tag = d.tag();
+   
+   if (m_deps.find(d.location()) != m_deps.end())
+      return true;
 
-   os << "#\n"
-      << "# This file was auto-generated. Be aware antler-proj may discard added comments.\n"
-      << "\n\n";
-   os << to_yaml();
+   m_deps.emplace(d.location());
+   if (is_reachable(d.location())) {
+      if (is_github_repo(d.location())) {
+         if (d.tag().empty()) {
+            tag = "main";
+         }
+         return clone_git_repo(d.location(), tag, jobs, depends_dir / d.name());
+      } else if (is_github_shorthand(d.location())) {
+         std::string org = std::string{github::get_org(d.location())};
+         std::string repo = std::string{github::get_repo(d.location())};
+
+         if (d.tag().empty()) {
+            tag = get_github_default_branch(org, repo);
+         }
+         system::debug_log("Cloning {0} with branch {1}", d.location(), tag);
+         return clone_github_repo(org, repo, tag, jobs, depends_dir / d.name());
+      }
+   }
+   return false;
 }
-*/
+
+bool project::populate_dependencies(uint32_t jobs) {
+   system::fs::path depends_dir = m_path / dependencies_dir;
+
+   system::fs::create_directories(depends_dir);
+
+   // set the main project as a dependency
+   m_deps.emplace(m_name);
+
+   ANTLER_CHECK(system::fs::exists(depends_dir), "internal failure, dependencies directory was not created {0}", depends_dir.string());
+
+   const auto& pop_deps = [&](auto& objs) {
+      for (const auto& [_, o] : objs) {
+         for (const auto& [_, d] : o.dependencies()) {
+            if (!populate_dependency(d, jobs))
+               return false;
+            project proj(depends_dir / d.name());
+            system::debug_log("Dependency loaded {0}", proj.name());
+            if (!proj.populate_dependencies(jobs)) {
+               return false;
+            }
+         }
+      }
+      return true;
+   };
+
+   if (!pop_deps(m_apps))
+      return false;
+   return pop_deps(m_libs);
+}
 
 } // namespace antler::project

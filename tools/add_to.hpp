@@ -63,14 +63,14 @@ namespace antler {
          }
 
          auto obj = Obj(obj_name, lang, copts, lopts);
-         auto path = proj.path().parent_path();
+         auto path = proj.path();
          system::fs::create_directory(path / project::detail::dir<Obj>() / obj_name);
          system::fs::create_directory(path / system::fs::path("include") / obj_name);
          project::source<Obj>::create_source_file(path, obj);
          project::source<Obj>::create_specification_file(path, obj);
 
          proj.upsert(std::move(obj));
-         system::info_log("name: {0}\n"
+         system::info_log("\nname: {0}\n"
                           "language: {1}\n"
                           "compile options: {2}\n"
                           "link options: {3}",
@@ -119,11 +119,11 @@ namespace antler {
             obj.upsert_dependency(std::move(dep));
 
             // We have values, so query the user if they want to apply.
-            system::info_log("Object name (to update): {0}"
-                             "Dependency name: {1}"
-                             "Dependency location: {2}"
-                             "tag/commit hash: {3}"
-                             "release version: {4}"
+            system::info_log("\nObject name (to update): {0}\n"
+                             "Dependency name: {1}\n"
+                             "Dependency location: {2}\n"
+                             "tag/commit hash: {3}\n"
+                             "release version: {4}\n"
                              "SHA256 hash: {5}",
                              obj_name,
                              dep_name,
@@ -172,34 +172,30 @@ namespace antler {
       }
 
       int32_t exec() {
-         try {
-            auto proj = load_project(path);
+         auto proj = load_project(path);
 
-            if (*app_subcommand) {
-               add_app(proj);
-            } else if (*lib_subcommand) {
-               add_lib(proj);
-            } else if (*dep_subcommand) {
-               if (proj.app_exists(obj_name)) {
-                  add_dependency<antler::project::app_t>(proj);
-               } else if (proj.lib_exists(obj_name)) {
-                  add_dependency<antler::project::lib_t>(proj);
-               } else {
-                  system::error_log("Object {0} does not exist in project.", obj_name);
-               }
-            /* TODO Add back after this release when we have the testing framework finished
-            } else if (*test_subcommand) {
-               add_test(*proj);
-            */
+         if (*app_subcommand) {
+            ANTLER_CHECK(add_app(proj), "failed to add app");
+         } else if (*lib_subcommand) {
+            ANTLER_CHECK(add_lib(proj), "failed to add lib");
+         } else if (*dep_subcommand) {
+            if (proj.app_exists(obj_name)) {
+               ANTLER_CHECK(add_dependency<antler::project::app_t>(proj), "failed to add dependency");
+            } else if (proj.lib_exists(obj_name)) {
+               ANTLER_CHECK(add_dependency<antler::project::lib_t>(proj), "failed to add dependency");
             } else {
-               system::error_log("Need to supply either dep/app/lib/test after `add`");
-               return -1;
+               system::error_log("Object {0} does not exist in project.", obj_name);
             }
-
-            proj.sync();
-         } catch (const std::runtime_error& e) {
-            system::error_log("Path {0} does not exist : {1}", path, e.what());
+         /* TODO Add back after this release when we have the testing framework finished
+         } else if (*test_subcommand) {
+            add_test(*proj);
+         */
+         } else {
+            system::error_log("Need to supply either dep/app/lib/test after `add`");
+            return -1;
          }
+
+         proj.sync();
          return 0;
       }
       

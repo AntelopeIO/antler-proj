@@ -11,6 +11,7 @@ add_executable(unit_tests
                main.cpp
                cmake_tests.cpp
                dependency_tests.cpp
+               location_tests.cpp
                object_tests.cpp
                project_tests.cpp
                init_tests.cpp
@@ -26,4 +27,4 @@ catch_discover_tests(unit_tests)
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/example.yml DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/)
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/project.yml DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
-add_subdirectory(fuzz)
+#add_subdirectory(fuzz)

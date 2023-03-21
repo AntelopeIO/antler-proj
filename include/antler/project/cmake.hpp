@@ -72,7 +72,7 @@ namespace antler::project {
 
          cmake(const project& proj)
             : proj(&proj),
-            base_path(proj.path().parent_path() / build_dir_name),
+            base_path(proj.path() / build_dir_name),
             base_lists(base_path),
             apps_lists(base_path / apps_dir_name),
             libs_lists(base_path / libs_dir_name),

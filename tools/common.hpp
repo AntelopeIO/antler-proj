@@ -11,10 +11,9 @@ namespace antler {
       ANTLER_CHECK(project::project::update_path(p),
          "path either did not exist or no `project.yml` file cound be found.");
       project::project proj;
-      ANTLER_CHECK(proj.from_yaml(project::yaml::load(path/project::project::manifest_name)),
+      ANTLER_CHECK(proj.from_yaml(project::yaml::load(p)),
          "error while loading project.yml file"); 
-      
-      proj.path(p);
+      proj.path(p.parent_path());
       return proj;
    }
 }

@@ -57,7 +57,7 @@ public:
 
    /// Get the location field of this dependency.
    /// @return the from location of this dependency.
-   [[nodiscard]] inline std::string_view location() const noexcept { return m_loc; }
+   [[nodiscard]] inline const std::string& location() const noexcept { return m_loc; }
    /// Set the location field of this dependency.
    /// @param s  The new from location of this dependency.
    void location(std::string s) noexcept { m_loc = std::move(s); }
@@ -72,7 +72,7 @@ public:
 
    /// Get the github tag/commit hash.
    /// @return github tag/commit hash.
-   [[nodiscard]] std::string_view tag() const noexcept;
+   [[nodiscard]] const std::string& tag() const noexcept;
    /// Set github tag/commit hash.
    /// @param s  The new github tag/commit hash.
    void tag(std::string_view s) noexcept;
@@ -123,6 +123,8 @@ public:
    /// @return true indicates the values passed in are a valid combination.
    [[nodiscard]] static bool validate_location(std::string_view loc, std::string_view tag, std::string_view rel, std::string_view hash,
          std::ostream& os=std::cerr);
+   
+   [[nodiscard]] bool retrieve();
 
    /// Serialization function from version to yaml node
    [[nodiscard]] inline yaml::node_t to_yaml() const noexcept { 

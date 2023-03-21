@@ -107,7 +107,7 @@ void dependency::set(std::string_view name, std::string_view loc, std::string_vi
 }
 
 
-std::string_view dependency::tag() const noexcept {
+const std::string& dependency::tag() const noexcept {
    return m_tag_or_commit;
 }
 
@@ -135,7 +135,7 @@ bool dependency::validate_location(std::string_view s) {
    return
       location::is_archive(s)
       || location::is_github_repo(s)
-      || location::is_github_org_repo_shorthand(s)
+      || location::is_github_shorthand(s)
       ;
 }
 
@@ -154,6 +154,10 @@ bool dependency::validate_location(std::string_view loc, std::string_view tag, s
    }
 
    return location::is_reachable(loc);
+}
+
+bool dependency::retrieve() {
+   return false;
 }
 
 } // namespace antler::project

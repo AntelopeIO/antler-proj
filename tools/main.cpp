@@ -65,5 +65,9 @@ int main(int argc, char** argv) {
 
    CLI11_PARSE(app, argc, argv);
 
-   return runner.exec();
+   try {
+      return runner.exec();
+   } catch(...) {
+      return -1;
+   }
 }

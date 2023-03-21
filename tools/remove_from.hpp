@@ -49,20 +49,16 @@ namespace antler {
       template <typename Obj>
       bool remove_dependency(antler::project::project& proj) {
          // Get the object to operate on.
-         try {
-            auto& obj = proj.object<typename Obj::tag_t>(obj_name);
+         auto& obj = proj.object<typename Obj::tag_t>(obj_name);
 
-            if (obj.remove_dependency(dep_name)) {
-               system::info_log("Dependency {0} removed from object {1}.", dep_name, obj_name);
-               return true;
-            } else {
-               system::error_log("Dependency {0} is not a dependency of object {1}.", dep_name, obj_name);
-               return false;
-            }
-         } catch(...) {
-            system::error_log("Object {0} does not exist.", obj_name);
+         if (obj.remove_dependency(dep_name)) {
+            system::info_log("Dependency {0} removed from object {1}.", dep_name, obj_name);
+            return true;
+         } else {
+            system::error_log("Dependency {0} is not a dependency of object {1}.", dep_name, obj_name);
             return false;
          }
+         
          return true;
       }
 
@@ -89,38 +85,35 @@ namespace antler {
       }
 
       int32_t exec() {
-         try {
-            auto proj = load_project(path);
+         auto proj = load_project(path);
 
-            if (*app_subcommand) {
-               remove_app(proj);
-            } else if (*lib_subcommand) {
-               remove_lib(proj);
-            } else if (*dep_subcommand) {
-               if (obj_name.empty()) {
-                  remove_dependency_from_all(proj);
-               } else {
-                  if (proj.app_exists(obj_name)) {
-                     remove_dependency<antler::project::app_t>(proj);
-                  } else if (proj.lib_exists(obj_name)) {
-                     remove_dependency<antler::project::lib_t>(proj);
-                  } else {
-                     system::error_log("Object {0} does not exist.", obj_name);
-                  }
-               }
-            /* TODO Add back after this release when we have the testing framework finished
-            } else if (*test_subcommand) {
-               remove_test(*proj);
-            */
+         if (*app_subcommand) {
+            remove_app(proj);
+         } else if (*lib_subcommand) {
+            remove_lib(proj);
+         } else if (*dep_subcommand) {
+            if (obj_name.empty()) {
+               remove_dependency_from_all(proj);
             } else {
-               system::error_log("Need to supply either dep/app/lib/test after remove");
-               return -1;
+               if (proj.app_exists(obj_name)) {
+                  remove_dependency<antler::project::app_t>(proj);
+               } else if (proj.lib_exists(obj_name)) {
+                  remove_dependency<antler::project::lib_t>(proj);
+               } else {
+                  system::error_log("Object {0} does not exist.", obj_name);
+               }
             }
-
-            proj.sync();
-         } catch (...) {
-            system::error_log("Path {0} does not exist", path);
+         /* TODO Add back after this release when we have the testing framework finished
+         } else if (*test_subcommand) {
+            remove_test(*proj);
+         */
+         } else {
+            system::error_log("Need to supply either dep/app/lib/test after remove");
+            return -1;
          }
+
+         proj.sync();
+         
          return 0;
       }
       

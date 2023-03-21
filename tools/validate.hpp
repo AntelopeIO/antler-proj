@@ -19,25 +19,20 @@ namespace antler {
       }
 
       int32_t exec() {
-         try {
-            auto proj = load_project(path);
-            if (verbose) {
-               std::cout << proj.to_yaml() << std::endl;
-            } else {
-               system::info_log("Valid format for an antler-proj project.yml");
-            }
+         auto proj = load_project(path);
+         if (verbose) {
+            std::cout << proj.to_yaml() << std::endl;
+         } else {
+            system::info_log("Valid format for an antler-proj project.yml");
+         }
 
-            if (!proj.has_valid_dependencies()) {
-               system::error_log("The project contains invalid dependencies");
-               return -1;
-            }
-
-            system::info_log("Valid project dependencies and all are reachable");
-            return 0;
-         } catch(...) {
-            system::error_log("Path {0} does not exist", path);
+         if (!proj.has_valid_dependencies()) {
+            system::error_log("The project contains invalid dependencies");
             return -1;
          }
+
+         system::info_log("Valid project dependencies and all are reachable");
+         return 0;
       }
       
       CLI::App*   subcommand = nullptr;

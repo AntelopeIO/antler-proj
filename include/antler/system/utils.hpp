@@ -50,8 +50,13 @@ namespace antler::system {
       return s;
    }
 
-   inline static int32_t execute(std::string_view prog) {
-      FILE* h = popen(prog.data(), "r");
+   inline static int32_t execute(std::string cmd, const std::vector<std::string>& args) {
+      std::string_view prog = cmd;
+      for (const auto& arg : args) {
+         cmd += " " + arg;
+      }
+
+      FILE* h = popen(cmd.c_str(), "r");
       if (h == nullptr) {
          std::cerr << "internal failure, program " << prog << " not found." << std::endl;
          return -1;
@@ -101,3 +106,5 @@ namespace antler::system {
       system::error_log(MSG, ##__VA_ARGS__ );                    \
       throw std::runtime_error{fmt::format(MSG, ##__VA_ARGS__)}; \
    }
+
+// do not remove line
