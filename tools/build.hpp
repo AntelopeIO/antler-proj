@@ -16,21 +16,7 @@ namespace antler {
          subcommand = app.add_subcommand("build", "Build a project.");
          subcommand->add_option("-p, path", path, "This is the path to the root of the project.")->default_val(".");
          subcommand->add_option("-j, --jobs", jobs, "This is the path to the root of the project.")->default_val(1);
-      }
-
-      bool should_repopulate() {
-         auto proj = system::fs::path(path) / project::project::manifest_name;
-         auto build = system::fs::path(path) / "build" / project::cmake_lists::filename;
-
-         auto last_manifest_time = system::fs::last_write_time(proj);
-
-         if (!system::fs::exists(build)) {
-            return true;
-         }
-
-         auto last_pop_time      = system::fs::last_write_time(build);
-
-         return last_pop_time < last_manifest_time;
+         subcommand->add_flag("-c, --clean", clean, "This will force a clean build.")->default_val(false);
       }
 
       int32_t configure() noexcept {
@@ -79,14 +65,22 @@ namespace antler {
       int32_t exec() {
          auto proj = load_project(path);
 
-         if (should_repopulate()) {
+         bool repopulated = false;
+         if (should_repopulate(proj)) {
+            repopulated = true;
             ANTLER_CHECK(project::populators::get(proj).populate(jobs), "failed to populate dependencies");
 
-            if (auto rv = configure(); rv != 0) {
-               system::error_log("Configuring project build failed.");
-               return rv;
-            }
          }
+
+         if (clean && !repopulated) {
+            system::fs::remove_all(system::fs::path(path) / "build/antler-bin");
+         }
+
+         if (auto rv = configure(); rv != 0) {
+            system::error_log("Configuring project build failed.");
+            return rv;
+         }
+
 
          if (auto rv = build(); rv != 0) {
             system::error_log("Building the project failed.");
@@ -101,5 +95,6 @@ namespace antler {
       CLI::App*   subcommand = nullptr;
       std::string path = "";
       uint32_t    jobs = 1;
+      bool        clean = false;
    };
 } // namespace antler

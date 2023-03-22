@@ -3,6 +3,7 @@
 #include "CLI11.hpp"
 
 #include <antler/project/project.hpp>
+#include <antler/project/cmake.hpp>
 
 namespace antler {
 
@@ -15,5 +16,20 @@ namespace antler {
          "error while loading project.yml file"); 
       proj.path(p.parent_path());
       return proj;
+   }
+
+   bool should_repopulate(project::project& proj) {
+      auto p = proj.path() / project::project::manifest_name;
+      auto build = proj.path() / "build" / project::cmake_lists::filename;
+
+      auto last_manifest_time = system::fs::last_write_time(p);
+
+      if (!system::fs::exists(build)) {
+         return true;
+      }
+
+      auto last_pop_time      = system::fs::last_write_time(build);
+
+      return last_pop_time < last_manifest_time;
    }
 }
