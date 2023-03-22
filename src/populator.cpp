@@ -1,5 +1,6 @@
 #include <antler/project/populator.hpp>
 #include <antler/project/location.hpp>
+#include <antler/project/version_constraint.hpp>
 
 namespace antler::project {
 
@@ -25,7 +26,10 @@ bool populator::populate_dependency(const dependency& d, const project& p, uint3
       }
 
       system::debug_log("Cloning {0} with branch {1}", d.location(), tag);
-      return clone_github_repo(org, repo, tag, jobs, depends_dir/repo);
+      if (system::fs::exists(depends_dir / repo))
+         return pull_git_repo(depends_dir / repo);
+      else
+         return clone_github_repo(org, repo, tag, jobs, depends_dir / repo);
    } else {
       system::error_log("Dependency {0} is not a github shorthand.", d.name());
       return false;
@@ -73,6 +77,14 @@ bool populator::populate_project(project& p, uint32_t jobs) {
                if (!populators::mapping_exists(d)) {
                   system::info_log("Grabbing dependency location {0}", d.location());
                   project next_proj(depends_dir / github::get_repo(d.location()));
+                  
+                  // check that the version we grabbed is what we can work with
+                  if (!d.release().empty()) {
+                     version_constraint vc(d.release());
+                     ANTLER_CHECK(vc.test(next_proj.version()), 
+                         "Project {0} version is too low {1}, given version {2} as a constraint", next_proj.name(), next_proj.version().to_string(), d.release());
+                  }
+
                   populators::add_mapping(d, std::string(next_proj.name()));
                   if (!populate_project(next_proj, jobs))
                      return false;

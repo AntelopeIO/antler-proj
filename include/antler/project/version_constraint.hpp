@@ -103,14 +103,14 @@ namespace antler::project {
          return parse({s.c_str(), s.size()});
       }
 
+      [[nodiscard]] inline bool empty() noexcept { return m_constraints.empty(); }
+
 
    private:
       /// Attempt to parse and load this version from a string. Print warnings and errors to os.
       bool parse(std::string_view s);
 
-      std::pair<relation, std::string_view> parse_inequality(std::string_view s);
       std::pair<version, std::string_view> parse_version(std::string_view s);
-
 
       std::vector<constraint> m_constraints; // The list of constraints.
    };
@@ -119,3 +119,5 @@ namespace antler::project {
 
 } // namespace antler::project
 
+
+ANTLER_YAML_CONVERSIONS(antler::project::version_constraint);

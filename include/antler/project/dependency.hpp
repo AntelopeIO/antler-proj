@@ -99,10 +99,11 @@ public:
 
    /// Get the github release version.
    /// @return The possibly empty release version.
-   [[nodiscard]] std::string_view release() const noexcept;
+   [[nodiscard]] std::string release() const noexcept { return m_rel; }
+
    /// Set the new github release version.
    /// @param s  The new, possibly empty, release version.
-   void release(std::string_view s) noexcept;
+   void release(std::string_view s) noexcept { m_rel = s;}
 
    /// Get the archive or release hash.
    /// @note For commit hash, see tag()

@@ -73,16 +73,6 @@ void dependency::patch_remove(const system::fs::path& path) noexcept {
 }
 
 
-std::string_view dependency::release() const noexcept {
-   return m_rel;
-}
-
-
-void dependency::release(std::string_view s) noexcept {
-   m_rel = s;
-}
-
-
 void dependency::set(std::string nm, std::string_view loc, std::string_view tag, std::string_view rel, std::string_view hash) {
 
    m_name = std::move(nm);

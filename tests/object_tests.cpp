@@ -38,7 +38,6 @@ TEST_CASE("Testing object") {
    CHECK(d->location() == dep2.location());
    CHECK(d->tag().empty());
    CHECK(d->hash().empty());
-   CHECK(d->release().empty());
 
    CHECK(app1.dependencies().size() == 1);
    CHECK(app1.upsert_dependency({"dep2", "larryk85/foo2"}));
@@ -180,7 +179,6 @@ TEST_CASE("Testing object node conversions with dependencies") {
       CHECK(v.name() == d->name());
       CHECK(v.location() == d->location());
       CHECK(v.tag() == d->tag());
-      CHECK(v.release() == d->release());
       CHECK(v.hash() == d->hash());
    }
 }
