@@ -8,3 +8,5 @@ checks.json
 tests/Testing/*
 
 .vscode/*
+
+tools/tests/__pycache__/*
