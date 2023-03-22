@@ -2,7 +2,8 @@
 
 /// @copyright See `LICENSE` in the root directory of this project.
 
-#include <antler/project/project.hpp>
+#include "project.hpp"
+#include "net_utils.hpp"
 
 #include <fstream>
 #include <stdexcept>
@@ -29,6 +30,21 @@ namespace antler::project {
          system::debug_log("cmake_lists constructed at {0}.", path.string());
       }
 
+      cmake_lists(const cmake_lists&) = delete;
+      cmake_lists& operator=(const cmake_lists&) = delete;
+
+      cmake_lists(cmake_lists&& o) {
+         path = std::move(o.path);
+         outs = std::move(o.outs);
+         system::debug_log("cmake_lists moved at {0}.", path.string());
+      }
+      cmake_lists& operator=(cmake_lists&& o) {
+         path = std::move(o.path);
+         outs = std::move(o.outs);
+         system::debug_log("cmake_lists moved at {0}.", path.string());
+         return *this;
+      }
+
       ~cmake_lists() { outs.close(); }
 
       inline system::fs::path base_path() const noexcept { return path.parent_path(); }
@@ -40,6 +56,7 @@ namespace antler::project {
       template<typename T>
       inline std::ostream& operator<<(T&& v) { 
          outs << std::forward<T>(v); 
+         outs.flush();
          return outs;
       }
 
@@ -61,6 +78,7 @@ namespace antler::project {
 
          // `mustache` templates for the cmake
          static km::mustache add_subdirectory_template;
+         static km::mustache add_subdirectory2_template;
          static km::mustache preamble_template;
          static km::mustache project_stub_template;
          static km::mustache target_compile_template;
@@ -80,6 +98,17 @@ namespace antler::project {
             system::debug_log("cmake(const project&) constructed");
             system::debug_log("project name = {0}", proj.name());
          }
+
+         cmake(const cmake&) = delete;
+         cmake(cmake&& o)
+            : proj(o.proj),
+            base_path(std::move(o.base_path)),
+            base_lists(std::move(o.base_lists)),
+            apps_lists(std::move(o.apps_lists)),
+            libs_lists(std::move(o.libs_lists)),
+            tests_lists(std::move(o.tests_lists)) {
+            system::debug_log("cmake(cmake&&) constructed");
+        }
 
          template <typename T>
          inline std::string target_name(T&& obj) {
@@ -106,20 +135,30 @@ namespace antler::project {
          template <typename Stream>
          inline void emit_project_stub(Stream& s) noexcept { s << project_stub_template.render({}); }
 
-         template <typename Stream, typename Tag>
-         inline void emit_dependencies(Stream& s, const object<Tag>& obj) noexcept {
+         template <typename Populators, typename Stream, typename Tag>
+         inline void emit_dependencies(Populators&& pops, Stream& s, const object<Tag>& obj) noexcept {
+            system::debug_log("Object {0}", obj.name());
             for (const auto& [k, dep] : obj.dependencies()) {
-               std::string dep_name = dep.location().empty() ? target_name(dep) : std::string(dep.name());
-               s << target_link_libs_template.render(datum{"target_name", target_name(obj)}
-                                                          ("dep_name", dep_name));
+               system::debug_log("emitting dependencies for {0} at {1}", dep.name(), dep.location().empty() ? "local" : dep.location());
+               if (!dep.location().empty()) {
+                  std::string repo = std::string(github::get_repo(dep.location()));
+                  s << add_subdirectory2_template.render(datum{"src_path", "../../dependencies/"+repo+"/build/apps/"}
+                                                            ("bin_path", repo));
+                  s << target_link_libs_template.render(datum{"target_name", target_name(obj)}
+                                                             ("dep_name", pops.get_mapping(dep)+"-"+dep.name()));
+               } else {
+                  s << target_link_libs_template.render(datum{"target_name", target_name(obj)}
+                                                             ("dep_name", target_name(dep)));
+               }
             }
             s << "\n";
          }
+
          template <typename Stream>
          inline void emit_entry(Stream& s) noexcept { s << entry_template.render(datum{"proj", proj->name()}); }
    
-         template <typename Stream, typename Tag>
-         inline void emit_object(Stream& s, const object<Tag>& obj) {
+         template <typename Pops, typename Stream, typename Tag>
+         inline void emit_object(Pops& pops, Stream& s, const object<Tag>& obj) {
             km::mustache& temp = std::is_same_v<Tag, app_tag> ? add_contract_template : add_library_template;
 
             s << temp.render(datum{"obj_name", obj.name()}
@@ -143,16 +182,16 @@ namespace antler::project {
 
             s << "\n";
 
-            emit_dependencies(s, obj);
+            emit_dependencies(pops, s, obj);
             s << "\n";
          }
 
-         template <typename Stream, typename Objs>
-         void emit_objects(Stream& s, std::string_view dir, Objs&& objs) {
+         template <typename Pops, typename Stream, typename Objs>
+         void emit_objects(Pops& pops, Stream& s, std::string_view dir, Objs&& objs) {
             for (const auto& [k, obj] : objs) {
                emit_add_subdirectory(s, dir, obj.name());
                cmake_lists obj_lists(s.base_path() / obj.name());
-               emit_object(obj_lists, obj);
+               emit_object(pops, obj_lists, obj);
             }
          }
 
@@ -160,7 +199,9 @@ namespace antler::project {
          inline void emit_dependency(Stream& s, const object<Tag>& dep) noexcept {
          }
 
-         void emit() {
+         template <typename Pops>
+         void emit(Pops& pops) {
+            system::info_log("Emitting CMake for project {0}", proj->name());
             ANTLER_CHECK(proj, "internal failure, proj is null");
 
             emit_preamble(base_lists);
@@ -169,8 +210,8 @@ namespace antler::project {
             emit_preamble(apps_lists);
             emit_project_stub(apps_lists);
 
-            emit_objects(apps_lists, ".", proj->apps());
-            emit_objects(libs_lists, "../libs", proj->libs());
+            emit_objects(pops, apps_lists, ".", proj->apps());
+            emit_objects(pops, libs_lists, "../libs", proj->libs());
 
             base_lists.flush();
             apps_lists.flush();
@@ -205,12 +246,12 @@ namespace antler::project {
             km::data data;
          };
 
-         const project* proj = nullptr; // non-owning pointer to project
+         const project*   proj = nullptr; // non-owning pointer to project
          system::fs::path base_path;
-         cmake_lists           base_lists;
-         cmake_lists           apps_lists;
-         cmake_lists           libs_lists;
-         cmake_lists           tests_lists;
+         cmake_lists      base_lists;
+         cmake_lists      apps_lists;
+         cmake_lists      libs_lists;
+         cmake_lists      tests_lists;
    };
 
 } // namespace antler::project

@@ -14,12 +14,12 @@ apps:
     compile_options: -std=c++14;-Mm
     link_options: -ld
     depends:
-      - name: libc
+      - name: test_proj.libc
         location: ""
         tag: ""
         release: ""
         hash: ""
-      - name: bar
+      - name: fm.bar
         location: https://github.com/larryk85/fast_math
         tag: blah
         release: ""
@@ -29,12 +29,12 @@ apps:
     compile_options: -M
     link_options: -flto
     depends:
-      - name: baz
+      - name: leap.baz
         location: https://github.com/antelopeio/leap
         tag: v2.2.2v
         release: ""
         hash: ""
-      - name: foo
+      - name: dune.foo
         location: https://github.com/larryk85/dune
         tag: v13.3
         release: ""
@@ -49,7 +49,7 @@ libs:
     compile_options: ""
     link_options: ""
     depends:
-      - name: baz
+      - name: leap.baz
         location: https://github.com/antelopeio/leap
         tag: v2.2.2v
         release: ""
@@ -59,12 +59,12 @@ libs:
     compile_options: ""
     link_options: ""
     depends:
-      - name: bar
+      - name: fm.bar
         location: https://github.com/larryk85/fast_math
         tag: blah
         release: ""
         hash: ""
-      - name: foo
+      - name: dune.foo
         location: https://github.com/larryk85/dune
         tag: v13.3
         release: ""

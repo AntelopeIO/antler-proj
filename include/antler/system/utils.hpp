@@ -12,6 +12,11 @@
 #include "filesystem.hpp"
 
 namespace antler::system {
+
+   using bluegrass::cturtle::debug_log;
+   using bluegrass::cturtle::info_log;
+   using bluegrass::cturtle::warn_log;
+   using bluegrass::cturtle::error_log;
    namespace detail {
       template<char C>
       constexpr inline bool _is_delim(char c) { return c == C; }
@@ -58,7 +63,7 @@ namespace antler::system {
 
       FILE* h = popen(cmd.c_str(), "r");
       if (h == nullptr) {
-         std::cerr << "internal failure, program " << prog << " not found." << std::endl;
+         system::error_log("internal failure, program {0} not found.", prog);
          return -1;
       }
 
@@ -67,8 +72,24 @@ namespace antler::system {
       std::size_t n;
 
       while ((n = fread(buff.data(), 1, buff.size(), h)) > 0) {
-         fwrite(buff.data(), 1, n, stdout);
+         fwrite(buff.data(), n, 1, stdout);
       }
+
+      return WEXITSTATUS(pclose(h));
+   }
+
+   inline static int32_t execute_quiet(std::string cmd, const std::vector<std::string>& args) {
+      std::string_view prog = cmd;
+      for (const auto& arg : args) {
+         cmd += " " + arg;
+      }
+
+      FILE* h = popen(cmd.c_str(), "r");
+      if (h == nullptr) {
+         system::error_log("internal failure, program {0} not found.", prog);
+         return -1;
+      }
+
       return WEXITSTATUS(pclose(h));
    }
 
@@ -89,15 +110,9 @@ namespace antler::system {
 
    template <typename Ex>
    inline static void print_error(Ex&& ex) {
-      std::cerr << "yaml error at pos: " << ex.mark.pos << " line: " << ex.mark.line << ", column: " << ex.mark.column << std::endl;
-      std::cerr << "   Message: " << ex.msg << std::endl;
+      system::error_log("yaml error at pos: {0} line: {1}, column: {2}", ex.mark.pos, ex.mark.line, ex.mark.column);
+      system::error_log("Error message: {0}", ex.msg);
    }
-
-   using bluegrass::cturtle::debug_log;
-   using bluegrass::cturtle::info_log;
-   using bluegrass::cturtle::warn_log;
-   using bluegrass::cturtle::error_log;
-
 
 } // namespace antler::system
 

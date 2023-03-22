@@ -5,8 +5,7 @@
 
 #include "CLI11.hpp"
 
-#include <antler/project/project.hpp>
-#include <antler/project/cmake.hpp>
+#include <antler/project/populator.hpp>
 
 #include "common.hpp"
 
@@ -37,6 +36,7 @@ namespace antler {
       int32_t configure() noexcept {
          auto build_dir = system::fs::path(path) / "build";
          auto bin_dir = build_dir / "antler-bin";
+         system::info_log("Configuring project...");
 
          system::fs::create_directory(bin_dir);
 
@@ -48,8 +48,9 @@ namespace antler {
          auto bin_dir = system::fs::path(path) / "build" / "antler-bin";
 
          system::fs::create_directory(bin_dir);
+         system::info_log("Building project...");
 
-         return system::execute("cmake", {"-j", std::to_string(jobs), "--build", bin_dir.string()});
+         return system::execute("cmake", {"--build", bin_dir.string(), "-j", std::to_string(jobs)});
       }
 
       void move_artifacts(const project::project& proj) noexcept {
@@ -64,9 +65,12 @@ namespace antler {
 
             auto to_wasm = build_dir /  sf::path(app_nm+".wasm");
             auto to_abi = build_dir / sf::path(app_nm+".abi");
+            
+            sf::remove(to_wasm);
+            sf::remove(to_abi);
 
-            system::fs::copy(from_wasm, to_wasm);
-            system::fs::copy(from_abi, to_abi);
+            sf::copy(from_wasm, to_wasm);
+            sf::copy(from_abi, to_abi);
 
             system::info_log("{0} and {1} have been created.", to_wasm.string(), to_abi.string());
          }
@@ -76,9 +80,7 @@ namespace antler {
          auto proj = load_project(path);
 
          if (should_repopulate()) {
-            project::cmake emitter(proj);
-            emitter.emit();
-            ANTLER_CHECK(proj.populate_dependencies(jobs), "failed to populate dependencies");
+            ANTLER_CHECK(project::populators::get(proj).populate(jobs), "failed to populate dependencies");
 
             if (auto rv = configure(); rv != 0) {
                system::error_log("Configuring project build failed.");
@@ -86,7 +88,7 @@ namespace antler {
             }
          }
 
-         if ( auto rv = build(); rv != 0) {
+         if (auto rv = build(); rv != 0) {
             system::error_log("Building the project failed.");
             return rv;
          }

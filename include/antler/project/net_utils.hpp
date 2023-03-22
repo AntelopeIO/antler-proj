@@ -82,13 +82,22 @@ namespace antler::project {
 
    // object to encapsulate github api
    struct github {
-      inline github() = default;
+      inline github() {
+         has_gh_app = system::execute_quiet("gh", {"--version"}) == 0;
+         system::debug_log("Found and using github app!");
+
+         if (!has_gh_app) {
+            bearer_token = sender.request("https://ghcr.io/token?service=registry.docker.io&scope=repository:AntelopeIO/experimental-binaries:pull");
+            bearer_token = bearer_token.substr(bearer_token.find(":\"")+2);
+            bearer_token = bearer_token.substr(0, bearer_token.size()-3);
+            system::debug_log("Using default bearer token: {0}", bearer_token);
+         } else {
+            bearer_token = system::execute("gh", {"auth", "token"});
+            system::debug_log("Using github app bearer token: {0}", bearer_token);
+         }
+      }
 
       std::string request(std::string_view org, std::string_view repo) {
-         bearer_token = sender.request("https://ghcr.io/token?service=registry.docker.io&scope=repository:AntelopeIO/experimental-binaries:pull");
-         bearer_token = bearer_token.substr(bearer_token.find(":\"")+2);
-         bearer_token = bearer_token.substr(0, bearer_token.size()-3);
-
          std::string url = "https://api.github.com/repos/";
          url += std::string(org) + std::string("/");
          url += repo;
@@ -128,6 +137,8 @@ namespace antler::project {
 
       static std::string_view get_repo(std::string_view s) {
          auto pos = s.find_last_of("/");
+         if (pos == std::string_view::npos)
+            return "";
          return s.substr(pos+1);
       }
 
@@ -137,7 +148,8 @@ namespace antler::project {
       }
 
       curl sender;
-      std::string bearer_token;
+      std::string bearer_token = "";
+      bool has_gh_app          = false;
    };
 
    struct git {

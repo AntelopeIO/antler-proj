@@ -178,19 +178,10 @@ public:
    /// @return true if the project is valid; otherwise, false.
    [[nodiscard]] bool has_valid_dependencies(std::ostream& error_stream = std::cerr) const noexcept;
 
-
-   /// Populate the directory by generating files.
-   /// @return true for success; false for failure.
-   [[nodiscard]] bool populate_dependencies(uint32_t jobs=1);
-
-   /// Populate a particular dependency.
-   /// @return true for success; false for failure.
-   [[nodiscard]] bool populate_dependency(const dependency& dep, uint32_t jobs=1);
-
    /// Initialize the directories
    /// @param path  The location of the project.yaml file or the path containing it.
    /// @param error_stream  The stream to print failure reports to.
-   /// @return true for success; false indidates failure.
+   /// @return true for success; false indicates failure.
    [[nodiscard]] static bool init_dirs(const system::fs::path& path, std::ostream& error_stream = std::cerr) noexcept;
 
    /// Search this and directories above for `project.yaml` file.
@@ -223,12 +214,11 @@ public:
 
 private:
 
-   system::fs::path m_path;   ///< path to the project.yaml file.
+   system::fs::path m_path;        ///< path to the project.yaml file.
    std::string m_name;             ///< The project name.
    antler::project::version m_ver; ///< The version information for this project.
    app_t::map_t m_apps;            ///< Map of applications.
    lib_t::map_t m_libs;            ///< Map of libraries.
-   std::unordered_set<std::string> m_deps; ///< set of dependencies.
    //object::list_t m_tests;         ///< List of tests.
 };
 

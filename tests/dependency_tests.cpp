@@ -7,9 +7,9 @@
 TEST_CASE("Testing dependency validating locations") {
    using namespace antler::project;
 
-   dependency d = {"test", "larryk85/dune", "1.0.0"};
+   dependency d = {"test2", "larryk85/dune", "1.0.0"};
 
-   CHECK(d.name() == "test");
+   CHECK(d.name() == "test2");
    CHECK(d.location() == "larryk85/dune");
 
    CHECK(d.is_valid_location());
@@ -19,11 +19,12 @@ TEST_CASE("Testing dependency validating locations") {
 
    CHECK(!d.is_valid_location());
 
-   d.location("https://github.com/larryk85/cturtle");
-   CHECK(d.is_valid_location());
+   // TODO: reinstate these tests when support for general git repos and archives is added
+   //d.location("https://github.com/larryk85/cturtle");
+   //CHECK(d.is_valid_location());
 
-   d.location("https://github.com/larryk85/does-not-exist");
-   CHECK(!d.is_valid_location());
+   //d.location("https://github.com/larryk85/does-not-exist");
+   //CHECK(!d.is_valid_location());
 }
 
 TEST_CASE("Testing dependency yaml conversions") {
@@ -33,7 +34,6 @@ TEST_CASE("Testing dependency yaml conversions") {
 
    yaml::node_t n = d.to_yaml();
 
-   CHECK(d.name() == n["name"].as<std::string>());
    CHECK(d.location() == n["location"].as<std::string>());
    CHECK(d.tag() == n["tag"].as<std::string>());
 

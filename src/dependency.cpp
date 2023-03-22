@@ -83,9 +83,9 @@ void dependency::release(std::string_view s) noexcept {
 }
 
 
-void dependency::set(std::string_view name, std::string_view loc, std::string_view tag, std::string_view rel, std::string_view hash) {
+void dependency::set(std::string nm, std::string_view loc, std::string_view tag, std::string_view rel, std::string_view hash) {
 
-   m_name = name;
+   m_name = std::move(nm);
 
    m_loc = loc;
 
@@ -140,15 +140,11 @@ bool dependency::validate_location(std::string_view s) {
 }
 
 
-bool dependency::validate_location(std::string_view loc, std::string_view tag, std::string_view rel, std::string_view hash, std::ostream& os) {
+bool dependency::validate_location(std::string_view loc, std::string_view tag, std::string_view rel, std::string_view hash) {
 
    if (!tag.empty()) {
-      if (!rel.empty()) {
-         os << "release AND tag/commit flags are not valid at the same time for location.";
-         return false;
-      }
       if (!hash.empty()) {
-         os << "hash AND tag/commit flags are not valid at the same time for location.";
+         system::warn_log("tag and hash flags are not valid at the same time for location.");
          return false;
       }
    }

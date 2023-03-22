@@ -7,20 +7,23 @@
 TEST_CASE("Testing location clone") {
    using namespace antler::project;
 
-   location::clone_github_repo("antelopeio", "antler-proj", "main", 10, "./foo/foo2");
+   antler::system::fs::remove_all("./foo");
 
+   location::clone_github_repo("antelopeio", "antler-proj", "main", 10, "./foo/foo2");
    CHECK(antler::system::fs::exists("./foo/foo2/.git"));
 
-   location::clone_git_repo("https://github.com/antelopeio/antler-proj", "main", 10, "./foo/bar");
-
-   CHECK(antler::system::fs::exists("./foo/bar/.git"));
+   //location::clone_git_repo("https://github.com/larryk85/cturtle", "main", 10, "./foo/foo3");
+   //CHECK(antler::system::fs::exists("./foo/foo3/.git"));
 }
 
 TEST_CASE("Testing location github REST API requests") {
    using namespace antler::project;
 
-   std::string antler_proj_default_branch = location::get_github_default_branch("antelopeio", "antler-proj");
-   CHECK(antler_proj_default_branch == "main");
+   std::string default_branch = location::get_github_default_branch("antelopeio", "antler-proj");
+   CHECK(default_branch == "main");
+
+   default_branch = location::get_github_default_branch("catchorg", "Catch2");
+   CHECK(default_branch == "devel");
 
    CHECK_THROWS(location::get_github_default_branch("antelopeio", "repo-does-not-exist"));
 }

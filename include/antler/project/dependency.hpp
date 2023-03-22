@@ -26,7 +26,7 @@ public:
 public:
    // use default constructors, copy and move constructors and assignments
    dependency() = default;
-   inline dependency(std::string_view name, std::string_view loc, std::string_view tag="", 
+   inline dependency(const std::string& name, std::string_view loc, std::string_view tag="", 
                      std::string_view rel="", std::string_view hash="") {
       set(name, loc, tag, rel, hash);
    }
@@ -46,14 +46,34 @@ public:
    /// @param tag  This is either the github repo tag or commit hash, commit hash being preferable. This may be empty if rel is populated or loc points to an archive.
    /// @param rel  This is a github repo version. Using a commit hash tag is preferable. This may be empty.
    /// @param hash  If loc points to an archive, this should be populated with the sha256 hash.
-   void set(std::string_view name, std::string_view loc, std::string_view tag, std::string_view rel, std::string_view hash);
+   void set(std::string name, std::string_view loc, std::string_view tag, std::string_view rel, std::string_view hash);
 
    /// Get the dependency name.
    /// @return The name of this dependency.
    [[nodiscard]] inline const std::string& name() const noexcept { return m_name; }
+
+   ///// Get the project name of the dependency.
+   ///// @return The name of the project.
+   //[[nodiscard]] inline const std::string& proj() const noexcept { return m_proj; }
+
    /// Set the dependency name.
    /// @param s  The new name for this dependency.
-   inline void name(std::string s) noexcept { m_name = std::move(s); }
+   inline void name(std::string s) { m_name = std::move(s); }
+   /*
+      const auto& itr = s.find('.', 0);
+      std::string proj = s.substr(0, itr);
+      std::string nm   = s.substr(itr + 1);
+
+      // we only parsed a name
+      if (proj.size() == s.size()) {
+         m_name = std::move(proj);
+      } else {
+         ANTLER_CHECK(proj.size() + nm.size() == s.size()-1, "Invalid dependency name: {}", s );
+         m_proj = std::move(proj);
+         m_name = std::move(nm); 
+      }
+   }
+   */
 
    /// Get the location field of this dependency.
    /// @return the from location of this dependency.
@@ -121,8 +141,7 @@ public:
    /// @param rel  The rel field of a dependency. Empty is valid.
    /// @param hash  The hash field of a dependency. Empty is valid.
    /// @return true indicates the values passed in are a valid combination.
-   [[nodiscard]] static bool validate_location(std::string_view loc, std::string_view tag, std::string_view rel, std::string_view hash,
-         std::ostream& os=std::cerr);
+   [[nodiscard]] static bool validate_location(std::string_view loc, std::string_view tag, std::string_view rel, std::string_view hash);
    
    [[nodiscard]] bool retrieve();
 

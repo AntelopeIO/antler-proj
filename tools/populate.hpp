@@ -19,11 +19,7 @@ namespace antler {
       int32_t exec() {
          auto proj = load_project(path);
 
-         project::cmake emitter(proj);
-
-         emitter.emit();
-
-         ANTLER_CHECK(proj.populate_dependencies(), "failed to populate dependencies");
+         ANTLER_CHECK(project::populators::get(proj).populate(), "failed to populate dependencies");
 
          system::info_log("Project population was successful!");
          return 0;

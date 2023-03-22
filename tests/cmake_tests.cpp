@@ -2,6 +2,7 @@
 
 #include <antler/project/project.hpp>
 #include <antler/project/cmake.hpp>
+#include <antler/project/populator.hpp>
 
 #include <catch2/catch.hpp>
 
@@ -43,20 +44,8 @@ TEST_CASE("Testing cmake emission") {
    cm.emit_project_stub(ss);
 
    constexpr std::string_view project_expected = "find_package(cdt)\n\n"
-                                                 "add_subdirectory(${CMAKE_SOURCE_DIR}/../libs ${CMAKE_CURRENT_BINARY_DIR}/libs)\n"
-                                                 "add_subdirectory(${CMAKE_SOURCE_DIR}/../tests ${CMAKE_CURRENT_BINARY_DIR}/tests)\n\n";
+                                                 "add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../libs ${CMAKE_CURRENT_BINARY_DIR}/libs)\n"
+                                                 "add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../tests ${CMAKE_CURRENT_BINARY_DIR}/tests)\n\n";
 
    REQUIRE( ss.str() == project_expected );
-}
-
-TEST_CASE("Testing more cmake emission") {
-   using namespace antler::project;
-
-   project proj = create_project();
-   
-   proj.path(test_dir);
-   
-   cmake cm(proj);
-
-   cm.emit();
 }
