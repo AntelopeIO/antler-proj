@@ -12,14 +12,14 @@
 namespace antler::project {
 
 //--- alphabetic --------------------------------------------------------------------------------------------------------
-bool project::init_dirs(const system::fs::path& path, std::ostream& error_stream) noexcept {
+bool project::init_dirs(const system::fs::path& path) noexcept {
 
    std::error_code sec;
 
    // Create the root directory.
    system::fs::create_directories(path, sec);
    if (sec) {
-      error_stream << path << " could not be created: " << sec << "\n";
+      system::error_log("Project directories could not be created: {0} at path {1}", sec.message(), path.string());
       return false;
    }
 
@@ -29,7 +29,7 @@ bool project::init_dirs(const system::fs::path& path, std::ostream& error_stream
       for (const auto& fn : files) {
          system::fs::create_directory(path/fn, sec);
          if (sec) {
-            error_stream << (path/fn) << " could not be created: " << sec << "\n";
+            system::error_log("{0} could not be created: {1}", (path/fn).string(), sec.message());
             return false;
          }
       }
@@ -114,21 +114,21 @@ void project::version(const antler::project::version& ver) noexcept {
    m_ver = ver;
 }
 
-bool project::validate_dependency(const dependency& dep, std::ostream& errs) const noexcept {
+bool project::validate_dependency(const dependency& dep) const noexcept {
    if (dep.location().empty()) {
       return lib_exists(dep.name());
    } else if (!dep.is_valid_location()) {
-      errs << "Error dependency: " << dep.name() << " is invalid." << std::endl;
+      system::error_log("Error denpendency: {0} is invalid.", dep.name());
       return false;
    }
    return true;
 }
 
-bool project::has_valid_dependencies(std::ostream& errs) const noexcept {
+bool project::has_valid_dependencies() const noexcept {
    const auto& test_deps = [&](auto objs) {
       for (const auto& [_, o] : objs) {
          for (const auto& [_, d] : o.dependencies()) {
-            if (!validate_dependency(d, errs))
+            if (!validate_dependency(d))
                return false;
          }
       }

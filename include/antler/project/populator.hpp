@@ -68,12 +68,16 @@ namespace antler::project {
 
          static void add_mapping(std::string l, std::string mapping) {
             populators& inst = instance();
-            inst.m_dependency_mapping.emplace(std::move(l), std::move(mapping));
+            auto it = inst.m_dependency_mapping.find(l);
+            if (it == inst.m_dependency_mapping.end()) {
+               inst.m_dependency_mapping.emplace(std::move(l), std::move(mapping));
+            } else {
+               ANTLER_CHECK( mapping == it->second, "Multiple mappings of project name {0}", mapping );
+            }
          }
 
-         static void add_mapping(const dependency& dep, std::string mapping) {
-            populators& inst = instance();
-            inst.m_dependency_mapping.emplace(dep.location(), std::move(mapping));
+         inline static void add_mapping(const dependency& dep, std::string mapping) {
+            add_mapping(dep.location(), std::move(mapping));
          }
 
          static std::string get_mapping(const dependency& dep) {
@@ -92,7 +96,7 @@ namespace antler::project {
       private:
          populators() = default;
          std::unordered_map<std::string_view, populator> m_populators;
-         std::unordered_map<std::string, std::string> m_dependency_mapping;
+         std::unordered_map<std::string, std::string>    m_dependency_mapping;
    };
 
 } // namespace antler::project

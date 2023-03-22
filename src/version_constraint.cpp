@@ -117,7 +117,6 @@ bool version_constraint::parse(std::string_view vc) {
             case '<': {
                   if (vc.size() > 1 && vc[1] == '=') {
                      current_bound->rel = relation::le;
-                     std::cout << "LE " << vc << " " << consume(vc,2) << std::endl;
                      auto [ver, rest] = parse_version(consume(vc, 2));
                      current_bound->ver = ver;
                      vc = rest;
@@ -189,7 +188,6 @@ bool version_constraint::test(const version& ver) const noexcept {
       return true;
    
    const auto& test_bound = [&](auto& b) {
-      std::cout << "TEST " << b.to_string() << " " << ver.to_string() << std::endl;
       switch (b.rel) {
          case relation::lt:
             return ver < b.ver;

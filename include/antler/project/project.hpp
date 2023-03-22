@@ -169,20 +169,17 @@ public:
 
    /// Validate a dependency
    /// @param dep Dependency to check
-   /// @param error_stream  Stream location for printing warnings and errors.
    /// @return true if the project is valid; otherwise, false.
-   [[nodiscard]] bool validate_dependency(const dependency& dep, std::ostream& error_stream = std::cerr) const noexcept;
+   [[nodiscard]] bool validate_dependency(const dependency& dep) const noexcept;
 
    /// Validate the project.
-   /// @param error_stream  Stream location for printing warnings and errors.
    /// @return true if the project is valid; otherwise, false.
-   [[nodiscard]] bool has_valid_dependencies(std::ostream& error_stream = std::cerr) const noexcept;
+   [[nodiscard]] bool has_valid_dependencies() const noexcept;
 
    /// Initialize the directories
    /// @param path  The location of the project.yaml file or the path containing it.
-   /// @param error_stream  The stream to print failure reports to.
    /// @return true for success; false indicates failure.
-   [[nodiscard]] static bool init_dirs(const system::fs::path& path, std::ostream& error_stream = std::cerr) noexcept;
+   [[nodiscard]] static bool init_dirs(const system::fs::path& path) noexcept;
 
    /// Search this and directories above for `project.yaml` file.
    /// @note if path extension is `.yaml` no directory search is performed, instead return value indicating existence of path a regular file.
