@@ -291,8 +291,7 @@ removing the build for now.
         depends:
         - name: "lib1"
         - name: "generic"
-        lang: "C++"
-        version: 1
+
 ```
 
 
