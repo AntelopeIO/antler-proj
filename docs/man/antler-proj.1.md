@@ -28,7 +28,7 @@ Each command has its own help which prints when the command runs with key --help
 
 Below is described a full list of all possible commands and their possible arguments 
 
-**init** command creates a new project. Creating the directory tree, a `project.yaml` file and initialize it.
+**init** command creates a new project. Creating the directory tree, a `project.yaml` file and initializes it.
 
 ``` 
 Command arguments:
@@ -43,7 +43,7 @@ Command arguments:
 **Example: antler-proj init ./project hello_world 0.1**
 
 
-**add** command add an app, dependency, library or test to your project.
+**add** command adds an app, dependency, library or test to your project.
 
 ```
 Command arguments:  
@@ -67,7 +67,7 @@ Command arguments:
 **Example: antler-proj update ./project app**
 
 
-**remove** command remove an app, dependency, library or test to your project.
+**remove** command removes an app, dependency, library or test from your project.
 
 ```
 Command arguments:  
@@ -79,9 +79,9 @@ Command arguments:
 **Example: antler-proj remove ./project app**
 
 
-**populate** command Load existing information about the project starting from the root project.yaml file as it described in chapter `"Loading of a project"` in the User's guide.
+**populate** command loads existing information about the project starting from the root project.yaml file as described in the chapter `"Loading of a project"` in the User's guide.
 
-    Without additional keys it pass through a subtree of each application and check all non local dependencies for updates. 
+    Without additional keys it passes through a subtree of each application and checks all non-local dependencies for updates. 
     Downloads all the updates in a way depending on where it is located.
 
 ```
@@ -96,8 +96,8 @@ Command arguments:
 
     Check all project.yaml files described in the project for updates.
     Download the updated project.yaml files.
-    Do all checks of the project as described in the user's guide.
-    Checks if it is possible to access all dependencies. I.e. if all described local directories of all local dependencies
+    Perform all checks of the project as described in the user's guide.
+    Check if it is possible to access all dependencies. I.e. if all described local directories of all local dependencies
     exist and if it is possible to download all remote dependencies.
 
 ```
@@ -108,7 +108,7 @@ Command arguments:
 ```
 **Example: antler-proj validate ./project**
 
-**build** command do building of all applications described in the project.yaml, their dependencies and tests.
+**build** command builds all applications described in the project.yaml, their dependencies and tests.
 
 ```
 Command arguments:

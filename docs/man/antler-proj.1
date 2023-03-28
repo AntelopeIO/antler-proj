@@ -29,7 +29,7 @@ possible arguments
 .PP
 \f[B]init\f[R] command creates a new project.
 Creating the directory tree, a \f[C]project.yaml\f[R] file and
-initialize it.
+initializes it.
 .IP
 .nf
 \f[C]
@@ -46,7 +46,7 @@ Command arguments:
 .PP
 \f[B]Example: antler\-proj init ./project hello_world 0.1\f[R]
 .PP
-\f[B]add\f[R] command add an app, dependency, library or test to your
+\f[B]add\f[R] command adds an app, dependency, library or test to your
 project.
 .IP
 .nf
@@ -76,8 +76,8 @@ Command arguments:
 .PP
 \f[B]Example: antler\-proj update ./project app\f[R]
 .PP
-\f[B]remove\f[R] command remove an app, dependency, library or test to
-your project.
+\f[B]remove\f[R] command removes an app, dependency, library or test
+from your project.
 .IP
 .nf
 \f[C]
@@ -91,13 +91,13 @@ Command arguments:
 .PP
 \f[B]Example: antler\-proj remove ./project app\f[R]
 .PP
-\f[B]populate\f[R] command Load existing information about the project
-starting from the root project.yaml file as it described in chapter
+\f[B]populate\f[R] command loads existing information about the project
+starting from the root project.yaml file as described in the chapter
 \f[C]\[dq]Loading of a project\[dq]\f[R] in the User\[cq]s guide.
 .IP
 .nf
 \f[C]
-Without additional keys it pass through a subtree of each application and check all non local dependencies for updates. 
+Without additional keys it passes through a subtree of each application and checks all non\-local dependencies for updates. 
 Downloads all the updates in a way depending on where it is located.
 \f[R]
 .fi
@@ -120,8 +120,8 @@ that all data that describes the project is correct.
 \f[C]
 Check all project.yaml files described in the project for updates.
 Download the updated project.yaml files.
-Do all checks of the project as described in the user\[aq]s guide.
-Checks if it is possible to access all dependencies. I.e. if all described local directories of all local dependencies
+Perform all checks of the project as described in the user\[aq]s guide.
+Check if it is possible to access all dependencies. I.e. if all described local directories of all local dependencies
 exist and if it is possible to download all remote dependencies.
 \f[R]
 .fi
@@ -137,7 +137,7 @@ Command arguments:
 .PP
 \f[B]Example: antler\-proj validate ./project\f[R]
 .PP
-\f[B]build\f[R] command do building of all applications described in the
+\f[B]build\f[R] command builds all applications described in the
 project.yaml, their dependencies and tests.
 .IP
 .nf
