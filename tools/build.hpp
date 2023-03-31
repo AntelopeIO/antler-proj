@@ -15,7 +15,7 @@ namespace antler {
       inline build_project(CLI::App& app) {
          subcommand = app.add_subcommand("build", "Build a project.");
          subcommand->add_option("-p, path", path, "This is the path to the root of the project.")->default_val(".");
-         subcommand->add_option("-j, --jobs", jobs, "This is the path to the root of the project.")->default_val(1);
+         subcommand->add_option("-j, --jobs", jobs, "The number of submodules fetched at the same time.")->default_val(1);
          subcommand->add_flag("-c, --clean", clean, "This will force a clean build.")->default_val(false);
       }
 
@@ -51,7 +51,7 @@ namespace antler {
 
             auto to_wasm = build_dir /  sf::path(app_nm+".wasm");
             auto to_abi = build_dir / sf::path(app_nm+".abi");
-            
+
             sf::remove(to_wasm);
             sf::remove(to_abi);
 
@@ -91,7 +91,7 @@ namespace antler {
 
          return 0;
       }
-      
+
       CLI::App*   subcommand = nullptr;
       std::string path = "";
       uint32_t    jobs = 1;
