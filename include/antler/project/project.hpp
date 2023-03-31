@@ -31,7 +31,7 @@ public:
 
    // constructors
    project() = default;
-   project(const system::fs::path& p) 
+   project(const system::fs::path& p)
       : m_path(system::fs::canonical(p)) {
       system::debug_log("project(const system::fs::path&) called with path : {0}" , p.string());
       ANTLER_CHECK(from_yaml(yaml::load((m_path/manifest_name).string())), "project can't be created from path");
@@ -39,7 +39,7 @@ public:
    project(const system::fs::path& path, std::string_view name, std::string_view version_raw) :
       m_path(path), m_name(name), m_ver(version_raw) {
       system::debug_log("project(const system::fs::path&, std::string_view, std::string_view) called with path : {0}, name : {1}, version : {2}"
-         , path.string(), name, version_raw); 
+         , path.string(), name, version_raw);
    }
 
    /// Get the project name.
@@ -87,7 +87,7 @@ public:
          return upsert_app(std::move(obj));
       else if constexpr (std::is_same_v<Tag, lib_tag>)
          return upsert_lib(std::move(obj));
-      //else if constexpr (Ty == object::type_t::test)
+      //else if constexpr (Ty == object::type_t::test) // Re-enable when tests added in.
       //   return upsert_test(std::move(obj));
       else
          throw std::runtime_error("internal failure");
@@ -146,7 +146,7 @@ public:
       } else {
          throw std::runtime_error("internal failure");
       }
-   } 
+   }
 
    /// @return A const ref to the application list.
    [[nodiscard]] inline const app_t::map_t& apps() const noexcept { return m_apps; }
@@ -188,7 +188,7 @@ public:
    [[nodiscard]] static bool update_path(system::fs::path& path) noexcept;
 
    /// Serialization function from version to yaml node
-   [[nodiscard]] inline yaml::node_t to_yaml() const noexcept { 
+   [[nodiscard]] inline yaml::node_t to_yaml() const noexcept {
       yaml::node_t node;
       node["project"] = m_name;
       node["version"] = m_ver;
@@ -196,7 +196,7 @@ public:
          node["apps"].push_back(v);
       for (const auto& [k,v] : libs())
          node["libs"].push_back(v);
-      return node; 
+      return node;
    }
 
    /// Deserialization function from yaml node to version
