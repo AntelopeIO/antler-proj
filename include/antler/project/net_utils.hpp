@@ -19,7 +19,7 @@ namespace antler::project {
       const std::size_t sz = comp.size();
       if (src.size() < sz)
          return false;
-      
+
       return std::memcmp(&src[0] + src.size()-sz, &comp[0], sz) == 0;
    }
 
@@ -27,7 +27,7 @@ namespace antler::project {
       const std::size_t sz = comp.size();
       if (src.size() < sz)
          return false;
-      
+
       return std::memcmp(&src[0], &comp[0], sz) == 0;
    }
 
@@ -77,6 +77,7 @@ namespace antler::project {
          }
       }
 
+   private:
       CURL* curl_obj;
    };
 
@@ -130,7 +131,7 @@ namespace antler::project {
       static std::string_view get_org(std::string_view s) {
          auto sub = s.substr(0, s.find_last_of("/"));
          auto pos = sub.find_last_of("/");
-         return pos == std::string_view::npos ? 
+         return pos == std::string_view::npos ?
                sub :
                sub.substr(pos+1);
       }
@@ -147,6 +148,7 @@ namespace antler::project {
          return sub.size() != s.size() && sub.find_last_of("/") == std::string_view::npos;
       }
 
+   private:
       curl sender;
       std::string bearer_token = "";
       bool has_gh_app          = false;
@@ -156,9 +158,9 @@ namespace antler::project {
       static inline constexpr std::string_view executable = "git";
 
       /// @brief clone a repo from github
-      /// @param org 
-      /// @param repo 
-      /// @param branch 
+      /// @param org
+      /// @param repo
+      /// @param branch
       static bool clone(const std::string& org, const std::string& repo, const std::string& branch, uint32_t jobs, const system::fs::path& dest) {
          int32_t ret = system::execute(std::string(executable), { "clone", "-j", std::to_string(jobs), "--recurse-submodules", "--remote-submodules", "https://github.com/"+org+"/"+repo, "--depth", "1", "--branch", branch, dest.string() });
          system::debug_log("clone for {0}/{1} returned {2}\n", org, repo, ret);
@@ -167,7 +169,7 @@ namespace antler::project {
 
       /// @brief clone a repo from git
       /// @param url
-      /// @param branch 
+      /// @param branch
       static bool clone(const std::string& url, const std::string& branch, uint32_t jobs, const system::fs::path& dest) {
          int32_t ret = system::execute(std::string(executable), { "clone", "-j", std::to_string(jobs), "--recurse-submodules", "--remote-submodules", url, "--depth", "1", "--branch", branch, dest.string() });
          system::debug_log("clone for {0} returned {2}\n", url, ret);
@@ -175,9 +177,9 @@ namespace antler::project {
       }
 
       /// @brief fetch from a repo from github
-      /// @param org 
-      /// @param repo 
-      /// @param branch 
+      /// @param org
+      /// @param repo
+      /// @param branch
       static bool pull(const system::fs::path& src) {
          int32_t ret = system::execute(std::string(executable), { "-C", src.string(), "pull" });
          system::debug_log("pull for {0} returned {2}\n", src.string(), ret);
