@@ -26,14 +26,14 @@ public:
 public:
    // use default constructors, copy and move constructors and assignments
    dependency() = default;
-   inline dependency(const std::string& name, std::string_view loc, std::string_view tag="", 
+   inline dependency(const std::string& name, std::string_view loc, std::string_view tag="",
                      std::string_view rel="", std::string_view hash="") {
       set(name, loc, tag, rel, hash);
    }
 
    dependency(const dependency&) = default;
    dependency(dependency&&) = default;
-   
+
    dependency& operator=(const dependency&) = default;
    dependency& operator=(dependency&&) = default;
 
@@ -52,28 +52,9 @@ public:
    /// @return The name of this dependency.
    [[nodiscard]] inline const std::string& name() const noexcept { return m_name; }
 
-   ///// Get the project name of the dependency.
-   ///// @return The name of the project.
-   //[[nodiscard]] inline const std::string& proj() const noexcept { return m_proj; }
-
    /// Set the dependency name.
    /// @param s  The new name for this dependency.
    inline void name(std::string s) { m_name = std::move(s); }
-   /*
-      const auto& itr = s.find('.', 0);
-      std::string proj = s.substr(0, itr);
-      std::string nm   = s.substr(itr + 1);
-
-      // we only parsed a name
-      if (proj.size() == s.size()) {
-         m_name = std::move(proj);
-      } else {
-         ANTLER_CHECK(proj.size() + nm.size() == s.size()-1, "Invalid dependency name: {}", s );
-         m_proj = std::move(proj);
-         m_name = std::move(nm); 
-      }
-   }
-   */
 
    /// Get the location field of this dependency.
    /// @return the from location of this dependency.
@@ -143,18 +124,18 @@ public:
    /// @param hash  The hash field of a dependency. Empty is valid.
    /// @return true indicates the values passed in are a valid combination.
    [[nodiscard]] static bool validate_location(std::string_view loc, std::string_view tag, std::string_view rel, std::string_view hash);
-   
+
    [[nodiscard]] bool retrieve();
 
    /// Serialization function from version to yaml node
-   [[nodiscard]] inline yaml::node_t to_yaml() const noexcept { 
+   [[nodiscard]] inline yaml::node_t to_yaml() const noexcept {
       yaml::node_t node;
       node["name"] = m_name;
       node["location"] = m_loc;
       node["tag"] = m_tag_or_commit;
       node["release"] = m_rel;
       node["hash"] = m_hash;
-      return node; 
+      return node;
    }
 
    /// Deserialization function from yaml node to version
