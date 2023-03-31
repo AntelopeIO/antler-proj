@@ -8,7 +8,6 @@ include( ./common.cmake REQUIRED )
 
 
 
-option(ANTLER_PROJ_PEDANTIC_BUILD "Pedantic builds" On)
 option(ANTLER_PROJ_BUILD_TESTS "Build and run the tests." On)
 option(ANTLER_PROJ_TIDY_CHECKS "Uses clang-tidy in building." On)
 
