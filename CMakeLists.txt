@@ -32,9 +32,9 @@ endif()
 #
 #  NOTE: This is used due to legacy requirements instead of:
 #    `install(FILE <license files> COMPONENT Documentation DESTINATION share/aproj/licenses)`
-configure_file(LICENSE ${CMAKE_CURRENT_BINARY_DIR}/licenses/LICENSE COPYONLY)
+configure_file(LICENSE licenses/LICENSE COPYONLY)
 file(GLOB license_files licenses/*)
 foreach(full_path IN ITEMS ${license_files})
-	string(REPLACE "${CMAKE_SOURCE_DIR}/" "" file_name ${full_path})
-	#configure_file("${file_name}" "${CMAKE_CURRENT_BINARY_DIR}/${file_name}" COPYONLY)
+   string(REPLACE "${CMAKE_SOURCE_DIR}/" "" file_name ${full_path})
+   configure_file("${full_path}" "${file_name}" COPYONLY)
 endforeach()
