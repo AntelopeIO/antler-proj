@@ -66,11 +66,11 @@ namespace antler::project {
             return instance().m_populators.at(name);
          }
 
-         static void add_mapping(std::string l, std::string mapping) {
+         static void add_mapping(std::string label, std::string mapping) {
             populators& inst = instance();
-            auto it = inst.m_dependency_mapping.find(l);
+            auto it = inst.m_dependency_mapping.find(label);
             if (it == inst.m_dependency_mapping.end()) {
-               inst.m_dependency_mapping.emplace(std::move(l), std::move(mapping));
+               inst.m_dependency_mapping.emplace(std::move(label), std::move(mapping));
             } else {
                ANTLER_CHECK( mapping == it->second, "Multiple mappings of project name {0}", mapping );
             }
@@ -89,8 +89,8 @@ namespace antler::project {
             return instance().m_dependency_mapping.count(dep.location()) > 0;
          }
 
-         static inline void emit_cmake(project& proj) { 
-            populators::get(proj).emit_cmake(instance()); 
+         static inline void emit_cmake(project& proj) {
+            populators::get(proj).emit_cmake(instance());
          }
 
       private:
