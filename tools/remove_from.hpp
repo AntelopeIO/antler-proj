@@ -28,6 +28,7 @@ namespace antler {
 
       inline bool remove_app(antler::project::project& proj) { return remove_obj<antler::project::app_t>(proj); }
       inline bool remove_lib(antler::project::project& proj) { return remove_obj<antler::project::lib_t>(proj); }
+      // TODO reenable remove_test() when test code is completed.
       //inline bool remove_test(antler::project::project& proj) { return remove_obj<antler::project::test_t>(proj); }
 
       bool remove_dependency_from_all(antler::project::project& proj) {
@@ -41,6 +42,7 @@ namespace antler {
          // Get all the objects and their names.
          remove_dep(dep_name, proj.apps());
          remove_dep(dep_name, proj.libs());
+         // TODO reenable call to remove_dep() when test code is completed.
          //remove_dep(dep_name, proj.tests());
 
          return 0;
