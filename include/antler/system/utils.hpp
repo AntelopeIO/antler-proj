@@ -22,9 +22,9 @@ namespace antler::system {
       constexpr inline bool _is_delim(char c) { return c == C; }
 
       template <char C, char... Cs>
-      constexpr inline bool is_delim(char c) { 
+      constexpr inline bool is_delim(char c) {
          if constexpr (sizeof...(Cs))
-            return (C == c) || is_delim<Cs...>(c); 
+            return (C == c) || is_delim<Cs...>(c);
          else
             return C == c;
       }
@@ -72,7 +72,7 @@ namespace antler::system {
       std::size_t n;
 
       while ((n = fread(buff.data(), 1, buff.size(), h)) > 0) {
-         fwrite(buff.data(), n, 1, stdout);
+         fwrite(buff.data(), 1, n, stdout);
       }
 
       return WEXITSTATUS(pclose(h));
