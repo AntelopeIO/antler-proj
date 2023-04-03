@@ -12,6 +12,7 @@ endmacro()
 if (ANTLER_PROJ_BUILD_TESTS)
    enable_testing()
    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/tests/util.py ${CMAKE_CURRENT_BINARY_DIR}/tests/util.py COPYONLY)
+   # TODO renable when add to test code is completed:
    #add_cli_test(add_to_project_tests add_to_tests.py)
    add_cli_test(init_tests init_tests.py)
 endif()
