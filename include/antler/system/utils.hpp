@@ -55,8 +55,8 @@ namespace antler::system {
       return s;
    }
 
-   inline static int32_t execute(std::string cmd, const std::vector<std::string>& args) {
-      std::string_view prog = cmd;
+   inline static int32_t execute(std::string_view prog, const std::vector<std::string>& args) {
+      std::string cmd{prog};
       for (const auto& arg : args) {
          cmd += " " + arg;
       }
@@ -78,8 +78,8 @@ namespace antler::system {
       return WEXITSTATUS(pclose(h));
    }
 
-   inline static int32_t execute_quiet(std::string cmd, const std::vector<std::string>& args) {
-      std::string_view prog = cmd;
+   inline static int32_t execute_quiet(std::string_view prog, const std::vector<std::string>& args) {
+      std::string cmd{prog};
       for (const auto& arg : args) {
          cmd += " " + arg;
       }
