@@ -28,7 +28,7 @@ inline bool is_valid_hash(std::string_view s, size_t byte_count = 32) noexcept {
 namespace antler::project {
 
 
-//--- alphabetic --------------------------------------------------------------------------------------------------------
+
 
 bool dependency::empty_version() const noexcept {
    return m_tag_or_commit.empty() && m_rel.empty();
