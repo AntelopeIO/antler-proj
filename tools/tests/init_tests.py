@@ -10,7 +10,7 @@ def init_project(project_name, version, path):
 
 
 def test_init_project():
-   shutil.rmtree("test0")
+   shutil.rmtree("test0", ignore_errors=True)
    init_project("test0", "v1.0.0", "./test0")
    assert(os.path.isdir("./test0"))
    assert(os.path.isdir("./test0/apps"))
@@ -24,7 +24,7 @@ def test_init_project():
    assert(project["version"] == "1.0.0")
 
 def test_init_project_2():
-   shutil.rmtree("test1")
+   shutil.rmtree("test1", ignore_errors=True)
    init_project("abc", "v1", "./test1")
    assert(os.path.isdir("./test1"))
    assert(os.path.isdir("./test1/apps"))

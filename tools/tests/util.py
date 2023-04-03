@@ -15,9 +15,9 @@ def antler_proj_cmd(args):
 
 def load_project(path):
     with open("./{0}/project.yml".format(path), "r") as f:
-        project = yaml.load(f)
+        project = yaml.safe_load(f)
     return project
-   
+
 def expected_cmd(cmd, expected):
     out, err = run_cmd(cmd)
     if out != expected:
