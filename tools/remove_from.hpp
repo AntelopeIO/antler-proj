@@ -35,7 +35,7 @@ namespace antler {
          const auto& remove_dep = [](auto dep, auto& objs) {
             for (auto& [k, o] : objs) {
                if (o.remove_dependency(dep)) {
-                  std::cout << "Removing dependency: " << dep << " from: " << o.name() << std::endl;
+                  system::info_log("Removing dependency: {0} from: {1}", dep, o.name());
                }
             }
          };
@@ -60,7 +60,7 @@ namespace antler {
             system::error_log("Dependency {0} is not a dependency of object {1}.", dep_name, obj_name);
             return false;
          }
-         
+
          return true;
       }
 
@@ -83,7 +83,7 @@ namespace antler {
          test_subcommand = subcommand->add_subcommand("test", "Remove a test from the project.");
          test_subcommand->add_option("-n, name", dep_name, "The name of the test to remove.")->required();
          */
-         
+
       }
 
       int32_t exec() {
@@ -115,10 +115,10 @@ namespace antler {
          }
 
          proj.sync();
-         
+
          return 0;
       }
-      
+
       CLI::App*   subcommand;
       CLI::App*   app_subcommand;
       CLI::App*   dep_subcommand;
