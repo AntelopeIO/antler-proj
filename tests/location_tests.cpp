@@ -9,11 +9,11 @@ TEST_CASE("Testing location clone") {
 
    antler::system::fs::remove_all("./foo");
 
-   location::clone_github_repo("antelopeio", "antler-proj", "main", 10, "./foo/foo2");
+   CHECK(location::clone_github_repo("antelopeio", "antler-proj", "main", 10, "./foo/foo2"));
    CHECK(antler::system::fs::exists("./foo/foo2/.git"));
 
-   //location::clone_git_repo("https://github.com/larryk85/cturtle", "main", 10, "./foo/foo3");
-   //CHECK(antler::system::fs::exists("./foo/foo3/.git"));
+   CHECK(location::clone_git_repo("https://github.com/larryk85/cturtle", "main", 10, "./foo/foo3"));
+   CHECK(antler::system::fs::exists("./foo/foo3/.git"));
 }
 
 TEST_CASE("Testing location github REST API requests") {
