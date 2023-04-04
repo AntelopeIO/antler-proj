@@ -31,8 +31,6 @@ constexpr uint16_t max_component = std::numeric_limits<uint16_t>::max();
 
 inline const version min_version{};
 inline const version max_version{max_component, max_component, max_component};
-inline const version min_version{};
-inline const version max_version{max_component, max_component, max_component};
 
 /// Trim whitespace from the front and back of string.
 /// @param s  The string to trim
@@ -152,7 +150,7 @@ bool version_constraint::parse(std::string_view vc) {
                }
                break;
             case ',': {
-                  m_constraints.back().upper_bound = bound{};
+                  m_constraints.back().upper_bound = bound();
                   current_bound = &(*m_constraints.back().upper_bound);
                   vc = consume(vc, 1);
                }

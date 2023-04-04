@@ -84,17 +84,19 @@ namespace antler::project {
    // object to encapsulate github api
    struct github {
       inline github() {
-         has_gh_app = system::execute_quiet("gh", {"--version"}) == 0;
-         system::debug_log("Found and using github app!");
+         has_gh_app = (bool)system::execute_quiet("gh", {"--version"});
 
-         if (!has_gh_app) {
+         if (has_gh_app) {
+            system::debug_log("Found and using github app!");
+            const auto& tok = system::execute_quiet("gh", {"auth", "token"});
+            ANTLER_CHECK(tok, "gh auth token failed");
+            bearer_token = *tok;
+            system::debug_log("Using github app bearer token: {0}", bearer_token);
+         } else {
             bearer_token = sender.request("https://ghcr.io/token?service=registry.docker.io&scope=repository:AntelopeIO/experimental-binaries:pull");
             bearer_token = bearer_token.substr(bearer_token.find(":\"")+2);
             bearer_token = bearer_token.substr(0, bearer_token.size()-3);
             system::debug_log("Using default bearer token: {0}", bearer_token);
-         } else {
-            bearer_token = system::execute("gh", {"auth", "token"});
-            system::debug_log("Using github app bearer token: {0}", bearer_token);
          }
       }
 
@@ -162,8 +164,16 @@ namespace antler::project {
       /// @param repo
       /// @param branch
       static bool clone(const std::string& org, const std::string& repo, const std::string& branch, uint32_t jobs, const system::fs::path& dest) {
-         int32_t ret = system::execute(std::string(executable), { "clone", "-j", std::to_string(jobs), "--recurse-submodules", "--remote-submodules", "https://github.com/"+org+"/"+repo, "--depth", "1", "--branch", branch, dest.string() });
+         int32_t ret = system::execute(std::string(executable), { "clone", "-j", std::to_string(jobs), "https://github.com/"+org+"/"+repo, "--depth", "1", "--branch", branch, dest.string() });
          system::debug_log("clone for {0}/{1} returned {2}\n", org, repo, ret);
+         if (ret != 0)
+            return false;
+         ret = system::execute(std::string(executable), { "-C", dest.string(), "submodule", "sync" });
+         system::debug_log("sync for {0}/{1} returned {2}\n", org, repo, ret);
+         if (ret != 0)
+            return false;
+         ret = system::execute(std::string(executable), { "-C", dest.string(), "submodule", "update", "--init", "--recursive" });
+         system::debug_log("submodule update for {0}/{1} returned {2}\n", org, repo, ret);
          return ret == 0;
       }
 
@@ -171,8 +181,16 @@ namespace antler::project {
       /// @param url
       /// @param branch
       static bool clone(const std::string& url, const std::string& branch, uint32_t jobs, const system::fs::path& dest) {
-         int32_t ret = system::execute(std::string(executable), { "clone", "-j", std::to_string(jobs), "--recurse-submodules", "--remote-submodules", url, "--depth", "1", "--branch", branch, dest.string() });
-         system::debug_log("clone for {0} returned {2}\n", url, ret);
+         int32_t ret = system::execute(std::string(executable), { "clone", "-j", std::to_string(jobs), url, "--depth", "1", "--branch", branch, dest.string() });
+         system::debug_log("clone for {0} returned {1}\n", url,ret);
+         if (ret != 0)
+            return false;
+         ret = system::execute(std::string(executable), { "-C", dest.string(), "submodule", "sync" });
+         system::debug_log("sync for {0} returned {1}\n", url, ret);
+         if (ret != 0)
+            return false;
+         ret = system::execute(std::string(executable), { "-C", dest.string(), "submodule", "update", "--init", "--recursive" });
+         system::debug_log("submodule update for {0} returned {1}\n", url, ret);
          return ret == 0;
       }
 

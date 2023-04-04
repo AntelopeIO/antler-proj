@@ -2,6 +2,7 @@
 
 #include <cctype>
 #include <cctype>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -70,10 +71,7 @@ namespace antler::system {
 
       constexpr size_t array_size = 64;
       std::array<char, array_size> buff{};
-      constexpr size_t array_size = 64;
-      std::array<char, array_size> buff{};
 
-      std::size_t n = 0;
       std::size_t n = 0;
 
       while ((n = fread(buff.data(), 1, buff.size(), h)) > 0) {
@@ -83,7 +81,7 @@ namespace antler::system {
       return WEXITSTATUS(pclose(h));
    }
 
-   inline static int32_t execute_quiet(std::string_view prog, const std::vector<std::string>& args) {
+   inline static std::optional<std::string> execute_quiet(std::string_view prog, const std::vector<std::string>& args) {
       std::string cmd{prog};
       for (const auto& arg : args) {
          cmd += " " + arg;
@@ -92,10 +90,20 @@ namespace antler::system {
       FILE* h = popen(cmd.c_str(), "r");
       if (h == nullptr) {
          system::error_log("internal failure, program {0} not found.", prog);
-         return -1;
+         return std::nullopt;
       }
 
-      return WEXITSTATUS(pclose(h));
+      constexpr size_t array_size = 64;
+      std::array<char, array_size> buff{};
+
+      std::size_t n = 0;
+      std::string ret_val = "";
+
+      while ((n = fread(buff.data(), 1, buff.size(), h)) > 0) {
+         ret_val += std::string(buff.data(), n);
+      }
+
+      return WEXITSTATUS(pclose(h)) == 0 ? std::optional<std::string>{ret_val} : std::nullopt;
    }
 
    inline static std::string extension(std::string_view l) {
