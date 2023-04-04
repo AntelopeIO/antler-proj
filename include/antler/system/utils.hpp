@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cctype>
+#include <cctype>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -69,7 +70,10 @@ namespace antler::system {
 
       constexpr size_t array_size = 64;
       std::array<char, array_size> buff{};
+      constexpr size_t array_size = 64;
+      std::array<char, array_size> buff{};
 
+      std::size_t n = 0;
       std::size_t n = 0;
 
       while ((n = fread(buff.data(), 1, buff.size(), h)) > 0) {
