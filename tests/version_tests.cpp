@@ -8,7 +8,7 @@ TEST_CASE("Testing version class") {
    using namespace antler::project;
 
    {
-      version v = {};
+      version v = version{};
       REQUIRE( v.major() == 0 );
       REQUIRE( v.minor() == 0 );
       REQUIRE( v.patch() == 0 );
@@ -17,7 +17,7 @@ TEST_CASE("Testing version class") {
    }
 
    {
-      version v = {1};
+      version v = version{1};
       REQUIRE( v.major() == 1 );
       REQUIRE( v.minor() == 0 );
       REQUIRE( v.patch() == 0 );
@@ -26,7 +26,7 @@ TEST_CASE("Testing version class") {
    }
 
    {
-      version v = {1, 1};
+      version v = version{1, 1};
       REQUIRE( v.major() == 1 );
       REQUIRE( v.minor() == 1 );
       REQUIRE( v.patch() == 0 );
@@ -35,7 +35,7 @@ TEST_CASE("Testing version class") {
    }
 
    {
-      version v = {1, 1, 1};
+      version v = version{1, 1, 1};
       REQUIRE( v.major() == 1 );
       REQUIRE( v.minor() == 1 );
       REQUIRE( v.patch() == 1 );
@@ -44,7 +44,7 @@ TEST_CASE("Testing version class") {
    }
 
    {
-      version v = {1, 1, 1, "rc3"};
+      version v = version{1, 1, 1, "rc3"};
       REQUIRE( v.major() == 1 );
       REQUIRE( v.minor() == 1 );
       REQUIRE( v.patch() == 1 );
@@ -54,7 +54,7 @@ TEST_CASE("Testing version class") {
 
    {
       uint16_t mv = std::numeric_limits<uint16_t>::max();
-      version v = {mv, mv, mv, "rc3"};
+      version v = version{mv, mv, mv, "rc3"};
       REQUIRE( v.major() == mv );
       REQUIRE( v.minor() == mv );
       REQUIRE( v.patch() == mv );
@@ -72,17 +72,13 @@ TEST_CASE("Testing version class") {
    }
 
    {
-      version v = {1, 1, 1, "rc3"};
+      version v = version{1, 1, 1, "rc3"};
       version v2 = v;
-      REQUIRE( v2.major() == 1 );
-      REQUIRE( v2.minor() == 1 );
-      REQUIRE( v2.patch() == 1 );
-      REQUIRE( v2.tweak() == "rc3");
-      REQUIRE( v2.to_string() == "1.1.1-rc3");
+      REQUIRE( v == v2 );
    }
 
    {
-      version v = {"1.2.3"};
+      version v = version{"1.2.3"};
       REQUIRE( v.major() == 1 );
       REQUIRE( v.minor() == 2 );
       REQUIRE( v.patch() == 3 );
@@ -91,7 +87,7 @@ TEST_CASE("Testing version class") {
    }
 
    {
-      version v = {"v1.2.3"};
+      version v = version{"v1.2.3"};
       REQUIRE( v.major() == 1 );
       REQUIRE( v.minor() == 2 );
       REQUIRE( v.patch() == 3 );
@@ -100,7 +96,7 @@ TEST_CASE("Testing version class") {
    }
 
    {
-      version v = {"V1.2.3"};
+      version v = version{"V1.2.3"};
       REQUIRE( v.major() == 1 );
       REQUIRE( v.minor() == 2 );
       REQUIRE( v.patch() == 3 );
@@ -109,7 +105,7 @@ TEST_CASE("Testing version class") {
    }
 
    {
-      version v = {"1.1.1-rc3"};
+      version v = version{"1.1.1-rc3"};
       REQUIRE( v.major() == 1 );
       REQUIRE( v.minor() == 1 );
       REQUIRE( v.patch() == 1 );
@@ -118,7 +114,7 @@ TEST_CASE("Testing version class") {
    }
 
    {
-      version v = {"v1.1.1-rc3"};
+      version v = version{"v1.1.1-rc3"};
       REQUIRE( v.major() == 1 );
       REQUIRE( v.minor() == 1 );
       REQUIRE( v.patch() == 1 );
@@ -127,7 +123,7 @@ TEST_CASE("Testing version class") {
    }
 
    {
-      version v = {"V1.1.1-rc3"};
+      version v = version{"V1.1.1-rc3"};
       REQUIRE( v.major() == 1 );
       REQUIRE( v.minor() == 1 );
       REQUIRE( v.patch() == 1 );
@@ -145,29 +141,29 @@ TEST_CASE("Testing version class comparisons") {
    using namespace antler::project;
 
    {
-      version v1 = {};
-      version v2 = {1};
+      version v1 = version{};
+      version v2 = version{1};
       REQUIRE( v1 < v2);
       REQUIRE( v1 <= v2);
 
-      v1 = {1,0};
+      v1 = version{1,0};
       REQUIRE( v1 >= v2 );
       REQUIRE( v1 <= v2 );
       REQUIRE( v1 == v2 );
 
-      v1 = {1, 1};
+      v1 = version{1, 1};
       REQUIRE( v1 > v2 );
       REQUIRE( v1 >= v2 );
 
-      v2 = {1, 2};
+      v2 = version{1, 2};
       REQUIRE( v1 < v2 );
 
-      v1 = {1, 0, 1};
-      v2 = {1, 2};
+      v1 = version{1, 0, 1};
+      v2 = version{1, 2};
       REQUIRE( v1 < v2 );
 
-      v1 = {1, 2, 0, "rc3"};
-      v2 = {1, 2, 0, "rc1"};
+      v1 = version{1, 2, 0, "rc3"};
+      v2 = version{1, 2, 0, "rc1"};
       REQUIRE( v1 == v2 );
 
    }

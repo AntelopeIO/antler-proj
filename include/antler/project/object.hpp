@@ -39,7 +39,7 @@ namespace antler::project {
          system::debug_log("with name: {0} lang: {1} copts: {2} lopts: {3}", name, lang, copts, lopts);
       }
 
-      
+
       object(const object&) = default;
 
       object& operator=(const object&) = default;
@@ -91,7 +91,7 @@ namespace antler::project {
       /// Update or insert a dependency.
       /// @param dep  The dependency to upsert.
       /// @return true if it is an insert, false if it is an update
-      bool upsert_dependency(antler::project::dependency&& dep) noexcept { 
+      bool upsert_dependency(antler::project::dependency&& dep) noexcept {
          const auto& itr = m_dependencies.find(dep.name());
          bool has_value = itr == m_dependencies.end();
 
@@ -102,7 +102,7 @@ namespace antler::project {
       /// Remove dependency if it exists.
       /// @return true if the dependency was found and removed; otherwise, false (i.e. dependency does not exist)
       inline bool remove_dependency(const std::string& name) noexcept { return m_dependencies.erase(name) > 0; }
-      
+
       /// @return The dependency map.
       [[nodiscard]] inline const dependencies_t& dependencies() const noexcept { return m_dependencies; }
 
@@ -120,7 +120,7 @@ namespace antler::project {
       /// Return the dependency with the matching name.
       /// @param name  The name to search for in the dependency list.
       /// @return optional with a copy of the dependency.
-      [[nodiscard]] std::optional<antler::project::dependency> find_dependency(const std::string& name) { 
+      [[nodiscard]] std::optional<antler::project::dependency> find_dependency(const std::string& name) {
          auto itr = m_dependencies.find(name);
          if (itr == m_dependencies.end())
             return std::nullopt;
@@ -130,12 +130,12 @@ namespace antler::project {
       /// If an object name is valid? I.e. valid C/C++ name.
       /// @param name  The name to check.
       /// @return true if the name is valid, false otherwise.
-      [[nodiscard]] inline static bool is_valid_name(std::string_view name) { 
-         return !name.empty() && std::regex_match(name.data(), std::regex("[a-zA-z][_a-zA-Z0-9]*")); 
+      [[nodiscard]] inline static bool is_valid_name(std::string_view name) {
+         return !name.empty() && std::regex_match(name.data(), std::regex("[a-zA-z][_a-zA-Z0-9]*"));
       }
 
       /// Serialization function from version to yaml node
-      [[nodiscard]] inline yaml::node_t to_yaml() const noexcept { 
+      [[nodiscard]] inline yaml::node_t to_yaml() const noexcept {
          // conjoin all the strings with a ';' between each
          const auto& to_str = [&](const auto& opts) {
             std::string ret = {};

@@ -16,9 +16,6 @@ For now, please see the [Intial Design Document](./docs/project_manager.md) for 
 
 The following tools are required for aproj to work at runtime:
 - CMake v3.11
-- aproj requires [`gh`](https://cli.github.com/). Note that you may need
-to [authenticate](https://cli.github.com/manual/) before this will
-work.
 
 
 ## Build Dependencies
@@ -29,6 +26,10 @@ Building aproj requires the following dependencies:
 
 Additionally we recomend using [ninja build](https://ninja-build.org/) for fast builds.
 
+## Submodules
+
+Make sure your submodules are initialized and updated recursively using the command:
+`git submodule update --init --recursive`
 
 ## Building
 

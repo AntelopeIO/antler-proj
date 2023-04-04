@@ -33,7 +33,7 @@ public:
    /// @param min  Minor version component.
    /// @param pat  Patch version component.
    /// @param tweak  Tweak version component.
-   inline version(uint16_t maj=0, uint16_t min=0, uint16_t pat=0, std::string tweak="")
+   inline explicit version(uint16_t maj=0, uint16_t min=0, uint16_t pat=0, std::string tweak="")
       : major_comp(maj), minor_comp(min), patch_comp(pat), tweak_comp(std::move(tweak)) {}
 
    /// Copy constructor.
@@ -169,8 +169,7 @@ public:
                return 0;
             else if (v1 > v2)
                return 1;
-            else
-               return -1;
+            return -1;
          }
          return c;
       };

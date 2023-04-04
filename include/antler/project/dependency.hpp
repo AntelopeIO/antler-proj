@@ -16,14 +16,13 @@
 
 namespace antler::project {
 
-/// This class models and containts the dependency portion of an ANTLER project.
+/// This class models and contains the dependency portion of an ANTLER project.
 class dependency {
 public:
    using list_t = std::vector<dependency>; ///< Alias for the list type.
 
    using patch_list_t = std::vector<system::fs::path>; ///< Alias for the patch file list type.
 
-public:
    // use default constructors, copy and move constructors and assignments
    dependency() = default;
    inline dependency(const std::string& name, std::string_view loc, std::string_view tag="",
