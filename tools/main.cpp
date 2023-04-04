@@ -1,7 +1,10 @@
 /// @copyright See `LICENSE` in the root directory of this project.
 
 #include <iostream>
-#include <filesystem>
+#include <string>
+#include <string_view>
+#include <memory>
+#include <vector>
 #include <optional>
 #include <tuple>
 
@@ -44,7 +47,7 @@ struct runner {
 int main(int argc, char** argv) {
    // using this as we will alias antler-proj to cdt-proj for the 
    // next release of CDT.
-   const auto app_name = std::filesystem::path(argv[0]).filename().string();
+   const auto app_name = antler::system::fs::path(argv[0]).filename().string();
 
    CLI::App app{"Antelope Smart Contract Project Management Tool", app_name};
 
@@ -59,5 +62,9 @@ int main(int argc, char** argv) {
 
    CLI11_PARSE(app, argc, argv);
 
-   return runner.exec();
+   try {
+      return runner.exec();
+   } catch(...) {
+      return -1;
+   }
 }

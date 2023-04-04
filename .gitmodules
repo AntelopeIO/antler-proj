@@ -1,12 +1,18 @@
-[submodule "external/rapidyaml"]
-	path = external/rapidyaml
-	url = https://github.com/biojppm/rapidyaml
-[submodule "external/magic_enum"]
-	path = external/magic_enum
-	url = https://github.com/Neargye/magic_enum
 [submodule "external/Catch2"]
 	path = external/Catch2
 	url = https://github.com/catchorg/Catch2
 [submodule "external/nlohmann"]
 	path = external/nlohmann
 	url = https://github.com/nlohmann/json
+[submodule "external/yaml-cpp"]
+	path = external/yaml-cpp
+	url = https://github.com/jbeder/yaml-cpp
+[submodule "external/cturtle"]
+	path = external/cturtle
+	url = https://github.com/larryk85/cturtle
+[submodule "external/Mustache"]
+	path = external/Mustache
+	url = https://github.com/kainjow/Mustache
+[submodule "external/fmt"]
+	path = external/fmt
+	url = https://github.com/fmtlib/fmt

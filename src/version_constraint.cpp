@@ -1,13 +1,11 @@
 /// @copyright See `LICENSE` in the root directory of this project.
 
-#include <antler/project/version.hpp>
 #include <antler/project/version_constraint.hpp>
 
+#include <algorithm>
 #include <iostream>
 #include <limits>
-
-#include <boost/algorithm/string.hpp> // boost::split()
-
+#include <regex>
 
 std::ostream& operator<<(std::ostream& os, const std::vector<std::string_view>& v) {
    os << "[";
@@ -26,6 +24,8 @@ namespace antler::project {
 
 
 namespace { // anonymous
+
+static inline std::string_view consume(std::string_view s, std::size_t sz) { return {s.data() + sz, s.size() - sz}; }
 
 constexpr uint16_t max_component = std::numeric_limits<uint16_t>::max();
 
@@ -54,240 +54,163 @@ inline std::string_view trim(std::string_view s) {
 
 //--- constructors/destructor ------------------------------------------------------------------------------------------
 
-version_constraint::version_constraint() = default;
-
-
-version_constraint::version_constraint(std::string_view ver) {
-   load(ver);
-}
-
-
-//--- alphabetic --------------------------------------------------------------------------------------------------------
-
-void version_constraint::clear() {
-   m_raw.clear();
-   m_constraints.clear();
-}
-
-
-bool version_constraint::empty() const noexcept {
-   return m_constraints.empty();
-}
-
-
 bool version_constraint::is_unique() const noexcept {
-   return m_constraints.size() == 1 && m_constraints[0].inclusivity == bounds_inclusivity::unique;
+   return m_constraints.size() == 1 && m_constraints[0].lower_bound.rel == relation::eq;
 }
 
+std::string_view consume_ws(std::string_view s) { 
+   std::size_t i = 0;
+   for (; i < s.size(); ++i) {
+      if (!std::isspace(s[i]))
+         break;
+   }
+   return consume(s, i);
+}
 
-void version_constraint::load(std::string_view sin, std::ostream& os) {
+std::pair<version, std::string_view> version_constraint::parse_version(std::string_view s) {
+   version v;
 
-   // Trim whitespace from both ends and set the raw value. Then clear constraints in preparation for further parsing.
-   m_raw = trim(sin);
-   m_constraints.clear();
+   std::string_view vs = consume_ws(s);
+   int64_t consumed = v.parse(vs);
+   return std::make_pair(v, consume(vs, consumed));
+}
 
-   // But return if s is now empty.
-   if (m_raw.empty())
-      return;
+// simple recursive descent parser for version constraint
+bool version_constraint::parse(std::string_view vc) {
+   std::size_t sanity = 0;
+   std::size_t orig_size = vc.size();
 
-   // Start by splitting on '|'
-   std::vector<std::string> splits;
-   boost::split(splits, m_raw, boost::is_any_of("|;"));
-   for (auto split : splits) {
-      // Now split on ','
-      std::vector<std::string> element;
-      boost::split(element, split, boost::is_any_of(","));
-      if (element.size() == 1) {
-         // If there's only one constraint, we need to decide if it's an upper bound, a lower bound, or unique.
-         auto trimmed_el = trim(element[0]);
-         std::vector<std::string> el_list;
-         boost::split(el_list, trimmed_el, boost::is_any_of(" "));
+   if (vc.empty())
+      return true;
 
-         if (el_list.size() == 1) {
-            // One member MUST be a unique.
-            auto ver_str = std::string(trim(el_list[0]));
+   m_constraints.emplace_back();
+   bound* current_bound = &m_constraints.back().lower_bound;
+   
+   try {
+      while (vc.size() > 0) {
 
-            if(std::isdigit(ver_str[0])) {
-               m_constraints.emplace_back(constraint{ version(ver_str), version(), bounds_inclusivity::unique });
-               continue;
-            }
+         ANTLER_CHECK(sanity < orig_size, "internal failure of version constraint parsing, called with {0}", vc);
 
-            // first char must have been an operation, right?
-            auto first_digit = ver_str.find_first_of("0123456789");
-            if(first_digit != std::string::npos) {
-               el_list.push_back( ver_str.substr(first_digit) );
-               el_list[0] = ver_str.substr(0,first_digit);
-            }
-         }
+         vc = consume_ws(vc);
 
-         if (el_list.size() == 2) {
-            // Two members is a bound.
-            auto op_str = trim(el_list[0]);
-            auto ver_str = trim(el_list[1]);
+         char c = vc[0];
 
-            if (op_str == "<")
-               m_constraints.emplace_back(constraint{ min_version, version(ver_str), bounds_inclusivity::lower }); // inclusive of the min!
-            else if (op_str == "<=")
-               m_constraints.emplace_back(constraint{ min_version, version(ver_str), bounds_inclusivity::both });
-            else if (op_str == ">")
-               m_constraints.emplace_back(constraint{ version(ver_str), max_version, bounds_inclusivity::upper }); // inclusive of the max!
-            else if (op_str == ">=")
-               m_constraints.emplace_back(constraint{ version(ver_str), max_version, bounds_inclusivity::both });
-            else {
-               os << __FILE__ << ":" << __LINE__ << " Failed to decode version_constraint: \"" << sin << "\" Bad op: \"";
-               for (const auto& el : el_list) {
-                  os << el;
+         switch (c) {
+            case 'v':
+            case 'V':
+            case '0':
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9': {
+                  auto [ver, rest] = parse_version(vc);
+                  current_bound->rel = relation::eq;
+                  current_bound->ver = ver;
+                  vc = rest;
                }
-               os << std::endl;
+               break;
+            case '<': {
+                  if (vc.size() > 1 && vc[1] == '=') {
+                     current_bound->rel = relation::le;
+                     auto [ver, rest] = parse_version(consume(vc, 2));
+                     current_bound->ver = ver;
+                     vc = rest;
+                  } else {
+                     current_bound->rel = relation::lt;
+                     auto [ver, rest] = parse_version(consume(vc, 1));
+                     current_bound->ver = ver;
+                     vc = rest;
+                  }
+               }
+               break;
+            case '>': {
+                  if (vc.size() > 1 && vc[1] == '=') {
+                     current_bound->rel = relation::ge;
+                     auto [ver, rest] = parse_version(consume(vc, 2));
+                     current_bound->ver = ver;
+                     vc = rest;
+                  } else {
+                     current_bound->rel = relation::gt;
+                     auto [ver, rest] = parse_version(consume(vc, 1));
+                     current_bound->ver = ver;
+                     vc = rest;
+                  }
+               }
+               break;
+            case ';':
+            case '|': {
+                  m_constraints.emplace_back();
+                  current_bound = &m_constraints.back().lower_bound;
+                  vc = consume(vc, 1);
+               }
+               break;
+            case ',': {
+                  m_constraints.back().upper_bound = bound();
+                  current_bound = &(*m_constraints.back().upper_bound);
+                  vc = consume(vc, 1);
+               }
+               break;
+            default:
+               system::error_log("invalid character {0} in version constraint : {1}", c, vc);
                clear();
-               return;
-            }
-
-            continue;
+               return false;
          }
 
-         os << __FILE__ << ":" << __LINE__ << " Failed to decode version_constraint: \"" << sin << "\" Too many or too few elements in: \"";
-         for (const auto& el : el_list) {
-            os << el;
-         }
-         os << std::endl;
-         clear();
-         return;
+         sanity++;
       }
-
-      if (element.size() == 2) {
-         std::vector<std::string> lower_list;
-         boost::split(lower_list, trim(element[0]), boost::is_any_of(" "));
-         std::vector<std::string> upper_list;
-         boost::split(upper_list, trim(element[1]), boost::is_any_of(" "));
-
-         if (lower_list.size() != 2 || upper_list.size() != 2) {
-            os << __FILE__ << ":" << __LINE__ << " Failed to decode version_constraint: \"" << sin
-               << "\" Too many or too few elements in: \"";
-            for (const auto& e : element) {
-               os << e;
-            }
-            os << std::endl;
-            clear();
-            return;
-         }
-
-         auto lop = trim(lower_list[0]);
-         auto lver = trim(lower_list[1]);
-         auto uop = trim(upper_list[0]);
-         auto uver = trim(upper_list[1]);
-         if (lop == ">") {
-            if (uop == "<") {
-               m_constraints.emplace_back(constraint{ version(lver), version(uver), bounds_inclusivity::none });
-               continue;
-            }
-            if (uop == "<=") {
-               m_constraints.emplace_back(constraint{ version(lver), version(uver), bounds_inclusivity::upper });
-               continue;
-            }
-
-            os << __FILE__ << ":" << __LINE__ << " Failed to decode version_constraint: \"" << sin << "\" Bad upper limit operator in: \"";
-            for (const auto& e : element) {
-               os << e;
-            }
-            os << std::endl;
-            clear();
-            return;
-         }
-
-         if (lop == ">=") {
-            if (uop == "<") {
-               m_constraints.emplace_back(constraint{ version(lver), version(uver), bounds_inclusivity::lower });
-               continue;
-            }
-            if (uop == "<=") {
-               m_constraints.emplace_back(constraint{ version(lver), version(uver), bounds_inclusivity::both });
-               continue;
-            }
-
-            os << __FILE__ << ":" << __LINE__ << " Failed to decode version_constraint: \"" << sin << "\" Bad upper limit operator in: \"";
-            for (const auto& e : element) {
-               os << e;
-            }
-            os << std::endl;
-            clear();
-            return;
-         }
-
-         os << __FILE__ << ":" << __LINE__ << " Failed to decode version_constraint: \"" << sin << "\" Bad lower limit operator in: \"";
-         for (const auto& e : element) {
-            os << e;
-         }
-         os << std::endl;
-         clear();
-         return;
-      }
-
-      os << __FILE__ << ":" << __LINE__ << " Failed to decode version_constraint: \"" << sin << "\" Too many elements in: \"";
-
-      for (const auto& e : element) {
-         os << e;
-      }
-      os << std::endl;
+   } catch (...) {
       clear();
-      return;
+      return false;
    }
+   return true;
 }
 
+std::string version_constraint::to_string() const noexcept {
+   std::string result;
 
-void version_constraint::print(std::ostream& os) const noexcept {
-
-   if (m_constraints.empty()) {
-      os << "unconstrained";
-      return;
-   }
-
-   for (size_t i = 0; i < m_constraints.size(); ++i) {
-      if (i)
-         os << " | ";
-      const auto& a = m_constraints[i];
-      switch (a.inclusivity) {
-         case bounds_inclusivity::none:   os << ">" << a.lower_bound << ", < " << a.upper_bound; break;
-         case bounds_inclusivity::lower:  os << ">=" << a.lower_bound << ", <" << a.upper_bound; break;
-         case bounds_inclusivity::upper:  os << ">" << a.lower_bound << ", <=" << a.upper_bound; break;
-         case bounds_inclusivity::both:   os << ">=" << a.lower_bound << ", <=" << a.upper_bound; break;
-         case bounds_inclusivity::unique: os << a.lower_bound; break;
+   for (auto itr=m_constraints.begin(); itr != m_constraints.end(); ++itr) {
+      result += itr->to_string();
+      if (itr == m_constraints.end() - 1) {
+         result += " | ";
       }
    }
+ 
+   return result;
 }
-
-
-std::string_view version_constraint::raw() const noexcept {
-   return m_raw;
-}
-
 
 bool version_constraint::test(const version& ver) const noexcept {
    if (m_constraints.empty())
       return true;
+   
+   const auto& test_bound = [&](auto& b) {
+      switch (b.rel) {
+         case relation::lt:
+            return ver < b.ver;
+         case relation::le:
+            return ver <= b.ver;
+         case relation::gt:
+            return ver > b.ver;
+         case relation::ge:
+            return ver >= b.ver;
+         case relation::eq:
+            return ver == b.ver;
+         default:
+            return false;
+      }
+   };
 
-   for (const auto& a : m_constraints) {
-      switch (a.inclusivity) {
-         case bounds_inclusivity::none:
-            if (a.lower_bound < ver && ver < a.upper_bound)
-               return true;
-            break;
-         case bounds_inclusivity::lower:
-            if (a.lower_bound <= ver && ver < a.upper_bound)
-               return true;
-            break;
-         case bounds_inclusivity::upper:
-            if (a.lower_bound < ver && ver <= a.upper_bound)
-               return true;
-            break;
-         case bounds_inclusivity::both:
-            if (a.lower_bound <= ver && ver <= a.upper_bound)
-               return true;
-            break;
-         case bounds_inclusivity::unique:
-            if (a.lower_bound == ver)
-               return true;
-            break;
+   for (const auto& cons : m_constraints) {
+      bool lb = test_bound(cons.lower_bound);
+      bool ub = true;
+      if (cons.upper_bound)
+         ub = test_bound(*cons.upper_bound);
+      if (lb && ub) {
+         return true;
       }
    }
    return false;

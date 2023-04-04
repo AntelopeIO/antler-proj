@@ -1,30 +1,15 @@
-#pragma once
-
 /// @copyright See `LICENSE` in the root directory of this project.
 
-#include <iostream>
-#include <string_view>
-
 #include <antler/project/project.hpp>
+#include "common.hpp"
 
-inline bool remove_file(std::string_view fn) { return antler::system::fs::remove_all(fn); }
+#include <catch2/catch.hpp>
 
-inline bool load_project(std::string_view fn, antler::project::project& proj) {
+
+TEST_CASE("Testing project") {
    using namespace antler::project;
-   auto p = antler::system::fs::canonical(antler::system::fs::path(fn));
-   if (!project::update_path(p)) {
-      return false;
-   }
-
-   proj.path(p.parent_path());
-   return proj.from_yaml(yaml::load(p));
-}
-
-static antler::project::project create_project() {
-   using namespace antler::project;
-
-   app_t apps[] = { {"appa", "C", "-M", "-flto"},
-                  {"appb", "C++", "-std=c++14;-Mm", "-ld"},
+   app_t apps[] = { {"appa", "C", "", ""},
+                  {"appb", "C++", "", ""},
                   {"appc", "C++", "", ""},
                   {"appd", "C++", "", ""} };
 
@@ -53,5 +38,40 @@ static antler::project::project create_project() {
    proj.upsert(std::move(apps[2]));
    proj.upsert(std::move(apps[3]));
 
-   return proj;
+   CHECK(proj.name() == "test_proj");
+   CHECK(proj.version() == version{1, 3, 4});
+   CHECK(proj.version().to_string() == "1.3.4");
+
+   CHECK(proj.apps().size() == 4);
+   CHECK(proj.libs().size() == 3);
+}
+
+
+TEST_CASE("Testing project yaml conversion") {
+   using namespace antler::project;
+
+   project proj = create_project();
+
+   auto node = proj.to_yaml();
+
+   project proj2;
+
+   CHECK(proj2.from_yaml(node));
+
+
+
+   CHECK(proj.name() == proj2.name());
+   CHECK(proj.version() == proj2.version());
+
+
+   CHECK(proj.apps().size() == proj2.apps().size());
+   CHECK(proj.libs().size() == proj2.libs().size());
+
+   for (const auto& [k, app] : proj.apps()) {
+      CHECK(proj2.app_exists(app.name()));
+   }
+
+   for (const auto& [k, lib] : proj.libs()) {
+      CHECK(proj2.lib_exists(lib.name()));
+   }
 }

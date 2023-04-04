@@ -13,16 +13,16 @@
 namespace antler {
    struct add_to_project {
 
-      template <antler::project::object::type_t Ty>
+      template <typename Obj>
       bool add_obj(antler::project::project& proj) {
-         if (proj.object_exists(obj_name, Ty)) {
-            std::cerr << "Application " << obj_name << " already exists in project. Can't add.\n\n";
+         if (proj.exists(obj_name)) {
+            system::error_log("Object {0} already exists in project.", obj_name);
             return false;
          }
 
-         if (!project::object::is_valid_name(obj_name)) {
-            std::cerr << "Object name: " << obj_name << " is not a valid name.\n";
-            std::cerr << "Valid names are of the form [a-ZA-Z][_a-zA-Z0-9]+\n";
+         if (!Obj::is_valid_name(obj_name)) {
+            system::error_log("Object name: {0} is not a valid name.", obj_name);
+            system::info_log("Valid names are of the form [a-zA-Z][_a-zA-Z0-9]+");
             return false;
          }
          
@@ -43,10 +43,10 @@ namespace antler {
          };
 
          // we need to produce stub for the app
-         if (Ty == project::object::type_t::app) {
+         if (std::is_same_v<antler::project::app_t, Obj>) {
             if (!is_valid_cpp_lang(lang)) {
-               std::cerr << "Sorry, as of this version only C++ is available. Given : " << lang << "\n";
-               std::cerr << "This restriction will be removed in future releases.\n";
+               system::error_log("Sorry, as of this version only C++ is available. Given : {0}", lang);
+               system::info_log("This restriction will be removed in future releases.");
                return false;
             }
             lang = "CXX";
@@ -56,43 +56,38 @@ namespace antler {
             else if (is_valid_c_lang(lang))
                lang = "C";
             else {
-               std::cerr << "Sorry, as of this version only C or C++ is available. Given : " << lang << "\n";
-               std::cerr << "This restriction will be removed in future releases.\n";
+               system::error_log("Sorry, as of this version only C or C++ is available. Given : {0}", lang);
+               system::info_log("This restriction will be removed in future releases.");
                return false;
             }
          }
 
-         auto obj = antler::project::object(Ty, obj_name, lang, copts, lopts);
-         auto path = proj.path().parent_path();
-         std::filesystem::create_directory(path / project::detail::dir<Ty>() / obj_name);
-         std::filesystem::create_directory(path / std::filesystem::path("include") / obj_name);
-         project::source<Ty>::create_source_file(path, obj);
-         project::source<Ty>::create_specification_file(path, obj);
+         auto obj = Obj(obj_name, lang, copts, lopts);
+         auto path = proj.path();
+         system::fs::create_directory(path / project::detail::dir<Obj>() / obj_name);
+         system::fs::create_directory(path / system::fs::path("include") / obj_name);
+         project::source<Obj>::create_source_file(path, obj);
+         project::source<Obj>::create_specification_file(path, obj);
 
-         proj.upsert<Ty>(std::move(obj));
-         std::cout
-            << '\n'
-            << "name: " << obj_name << '\n'
-            << "language: " << lang << '\n'
-            << "compile options:  " << copts << '\n'
-            << "link options:  " << lopts << '\n'
-            << std::endl;
+         proj.upsert(std::move(obj));
+         system::info_log("\nname: {0}\n"
+                          "language: {1}\n"
+                          "compile options: {2}\n"
+                          "link options: {3}",
+                          obj_name,
+                          lang,
+                          copts,
+                          lopts);
          return true;
       }
 
-      inline bool add_app(antler::project::project& proj) { return add_obj<antler::project::object::type_t::app>(proj); }
-      inline bool add_lib(antler::project::project& proj) { return add_obj<antler::project::object::type_t::lib>(proj); }
+      inline bool add_app(antler::project::project& proj) { return add_obj<antler::project::app_t>(proj); }
+      inline bool add_lib(antler::project::project& proj) { return add_obj<antler::project::lib_t>(proj); }
 
       bool add_test(antler::project::project& proj) {
-         // Check to see if name is a TEST duplicate.
-         if (proj.object_exists(obj_name, antler::project::object::type_t::test)) {
-            // Enform user of the duplicate.
-            std::cerr << "Test " << obj_name << " already exists in project. Can't add.\n\n";
-         } else {
             // Check to see if name is otherwise a duplicate, warn if so.
-            if (proj.object_exists(obj_name))
-               std::cerr << "WARNING: " << obj_name << " already exists in project as app and/or lib.\n\n";
-         }
+         if (proj.exists(obj_name))
+            std::cerr << "WARNING: " << obj_name << " already exists in project as app and/or lib.\n\n";
 
          std::cout
             << '\n'
@@ -102,48 +97,52 @@ namespace antler {
          return true;
       }
 
+      template <typename Obj>
       bool add_dependency(antler::project::project& proj) {
          // Get the object to operate on.
          try {
-            auto& obj = proj.object(obj_name);
+            auto& obj = proj.object<typename Obj::tag_t>(obj_name);
 
             // Get object here and warn user if dep_name already exists.
             if (!dep_name.empty() && obj.dependency_exists(dep_name)) {
-               std::cerr << dep_name << " already exists for " << obj_name << " in project.\n";
+               system::error_log("{0} already exists for in project.", dep_name, obj_name);
                return false;
             }
 
             antler::project::dependency dep;
             dep.set(dep_name, location, tag, release, hash);
             if (!proj.validate_dependency(dep)) {
-               std::cerr << "Dependency: " << dep_name << " is invalid." << std::endl;
+               system::error_log("Dependency: {0} is invalid.", dep_name);
                return false;
             }
                
             obj.upsert_dependency(std::move(dep));
 
             // We have values, so query the user if they want to apply.
-            std::cout
-               << '\n'
-               << "Object name (to update): " << obj_name << '\n'
-               << "Dependency name:         " << dep_name << '\n'
-               << "Dependency location:     " << location << '\n'
-               << "tag/commit hash:         " << tag << '\n'
-               << "release version:         " << release << '\n'
-               << "SHA256 hash:             " << hash << '\n'
-               << std::endl;
+            system::info_log("\nObject name (to update): {0}\n"
+                             "Dependency name: {1}\n"
+                             "Dependency location: {2}\n"
+                             "tag/commit hash: {3}\n"
+                             "release version: {4}\n"
+                             "SHA256 hash: {5}",
+                             obj_name,
+                             dep_name,
+                             location,
+                             tag,
+                             release,
+                             hash);
 
             return true;
          } catch(...) {
-            std::cerr << "Object: " << obj_name << " does not exist." << std::endl;
+            system::error_log("Object {0} does not exist in project.", obj_name);
             return false;
          }
       }
 
       add_to_project(CLI::App& app) {
-         path = std::filesystem::current_path().string();
+         path = system::fs::current_path().string();
          subcommand = app.add_subcommand("add", "Add an app, dependency, library or test to your project.");
-         subcommand->add_option("-p, path", path, "This is the root path to create the project in.");
+         subcommand->add_option("-p, path", path, "This is the root path to create the project in.")->default_val(".");
 
          app_subcommand = subcommand->add_subcommand("app", "Add a new app to your project.");
          app_subcommand->add_option("-n, name", obj_name, "The name of the app to add.")->required();
@@ -173,32 +172,30 @@ namespace antler {
       }
 
       int32_t exec() {
-         try {
-            auto proj = load_project(path);
+         auto proj = load_project(path);
 
-            if (!proj) {
-               return -1;
-            }
-
-            if (*app_subcommand) {
-               add_app(*proj);
-            } else if (*lib_subcommand) {
-               add_lib(*proj);
-            } else if (*dep_subcommand) {
-               add_dependency(*proj);
-            /* TODO Add back after this release when we have the testing framework finished
-            } else if (*test_subcommand) {
-               add_test(*proj);
-            */
+         if (*app_subcommand) {
+            ANTLER_CHECK(add_app(proj), "failed to add app");
+         } else if (*lib_subcommand) {
+            ANTLER_CHECK(add_lib(proj), "failed to add lib");
+         } else if (*dep_subcommand) {
+            if (proj.app_exists(obj_name)) {
+               ANTLER_CHECK(add_dependency<antler::project::app_t>(proj), "failed to add dependency");
+            } else if (proj.lib_exists(obj_name)) {
+               ANTLER_CHECK(add_dependency<antler::project::lib_t>(proj), "failed to add dependency");
             } else {
-               std::cerr << "Need to supply either dep/app/lib/test after `add`" << std::endl;
-               return -1;
+               system::error_log("Object {0} does not exist in project.", obj_name);
             }
-
-            proj->sync();
-         } catch (...) {
-            std::cerr << "Path <" << path << "> does not exist" << std::endl;
+         /* TODO Add back after this release when we have the testing framework finished
+         } else if (*test_subcommand) {
+            add_test(*proj);
+         */
+         } else {
+            system::error_log("Need to supply either dep/app/lib/test after `add`");
+            return -1;
          }
+
+         proj.sync();
          return 0;
       }
       

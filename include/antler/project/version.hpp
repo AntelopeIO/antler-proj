@@ -2,14 +2,19 @@
 
 /// @copyright See `LICENSE` in the root directory of this project.
 
+#include <cmath>
 #include <string>
 #include <string_view>
+#include <sstream>
 #include <iostream>
 #include <optional>
 #include <array>
 #include <memory>
 #include <stdexcept>
 #include "../system/utils.hpp"
+
+#include "yaml.hpp"
+
 
 namespace antler::project {
 
@@ -19,16 +24,16 @@ public:
    using self = version;        ///< Alias for self type.
 
    /// @param ver  A string to create this version with.
-   inline explicit version(std::string_view ver) {
-      if (!from_string(ver, major_comp, minor_comp, patch_comp, tweak_comp))
-         throw std::runtime_error("version malformed");
+   inline version(std::string_view ver) {
+      system::info_log("project.version {0}", ver);
+      ANTLER_CHECK(parse(ver) >= 0, "version malformed");
    }
 
    /// @param maj  Major version component.
    /// @param min  Minor version component.
    /// @param pat  Patch version component.
    /// @param tweak  Tweak version component.
-   inline explicit version(uint16_t maj=0, uint16_t min=0, uint16_t pat=0, std::string tweak="")
+   inline version(uint16_t maj=0, uint16_t min=0, uint16_t pat=0, std::string tweak="")
       : major_comp(maj), minor_comp(min), patch_comp(pat), tweak_comp(std::move(tweak)) {}
 
    /// Copy constructor.
@@ -37,8 +42,7 @@ public:
 
    /// @param ver  A string to create this version with. ver is evaluated to see if it might be a semver.
    inline version& operator=(std::string_view ver) {
-      if (!from_string(ver, major_comp, minor_comp, patch_comp, tweak_comp))
-         throw std::runtime_error("version malformed");
+      ANTLER_CHECK(parse(ver) >= 0, "version malformed");
       return *this;
    }
 
@@ -82,72 +86,78 @@ public:
       return ret;
    }
 
-   [[nodiscard]] static inline bool to_component(uint16_t& c, std::string_view s) {
-      try {
-         if (s[0] == 'v' || s[0] == 'V')
+   [[nodiscard]] static inline int64_t parse_component(uint16_t& c, std::string_view s, bool allow_v = false) {
+      int64_t consumed = 0;
+      if (allow_v) {
+         if (s[0] == 'v' || s[0] == 'V') {
             s = s.substr(1);
+            consumed++;
+         }
+      }
+
+      if (s[0] >= '0' && s[0] <= '9') {
          c = std::atoi(s.data());
-      } catch(const std::invalid_argument&) {
-         std::cerr << "component :" << s << " not a valid component." << std::endl;
-         return false;
-      } catch(const std::out_of_range&) {
-         std::cerr << "component :" << s << " not a valid component." << std::endl;
-         return false;
+         consumed += c == 0 ? 1 : std::log10(c) + 1; ///< get the # of digits
+      } else {
+         system::error_log("invalid version component : {0}", s);
+         throw std::runtime_error("invalid version component");
       }
-      return true;
+
+      return consumed;
    }
 
    /// Create the components of the version from a string.
-   /// @return false if version string is ill-formed.
-   [[nodiscard]] static bool from_string(std::string_view s, uint16_t& maj, uint16_t& min, uint16_t& patch, std::string& tweak) noexcept {
-      maj = 0;
-      min = 0;
-      patch = 0;
-      tweak = "";
-      auto comps = system::split<'.', '-'>(s);
+   /// @return the size of characters consumed from the string, -1 if it failed to parse.
+   int64_t parse(std::string_view s) noexcept {
+      system::debug_log("parsing version : {0}", s);
+      try {
+         int64_t consumed = 0;
 
-      bool ret = true;
+         ANTLER_CHECK(!s.empty(), "expected a non-empty version string");
 
-      switch (comps.size()) {
-         case 4:
-            tweak = comps[3];
-            [[fallthrough]];
-         case 3:
-            ret = to_component(patch, comps[2]);
-            [[fallthrough]];
-         case 2:
-            ret &= to_component(min, comps[1]);
-            [[fallthrough]];
-         case 1:
-            ret &= to_component(maj, comps[0]);
-            return ret;
-         default:
-            std::cerr << "Version string is malformed " << s << std::endl;
-            return false;
+         const auto& component = [&](std::string_view s, uint16_t& comp) {
+            ANTLER_CHECK(!s.empty(), "expected a non-empty version string");
+            return parse_component(comp, s, true);
+         };
+
+         const auto& opt_component = [&](std::string_view s, uint16_t& comp) {
+            if (s.size() > 1 && s[0] == '.') {
+               return component(s.substr(1), comp) + 1;
+            }  
+            return 0L;
+         };
+
+         const auto& tweak_component = [&](std::string_view s, std::string& comp) -> uint64_t {
+            if (s.size() > 1 && s[0] == '-') {
+               ANTLER_CHECK(s.size() > 2, "expected a non-empty version string");
+               comp = s.substr(1);
+               return comp.size() + 1L;
+            }
+            return 0L;
+         };
+
+         const auto& get_component = [&](auto& comp, auto F) {
+            std::decay_t<decltype(comp)> ret = comp;
+            int64_t amt = F(s, ret);
+            ANTLER_CHECK(amt >= 0, "failed to parse component");
+            s = amt >= s.size() ? "" : s.substr(amt);
+            comp = ret;
+            consumed += amt;
+         };
+
+         get_component(major_comp, component);
+         get_component(minor_comp, opt_component);
+         get_component(patch_comp, opt_component);
+         get_component(tweak_comp, tweak_component);
+
+         return consumed;
+      } catch(...) {
+         return -1;
       }
-   }
-
-   /// Create the components of the version from a string.
-   /// @return false if version string is ill-formed.
-   [[nodiscard]] static version from_string(std::string_view s) {
-      version v;
-      if (!from_string(s, v.major_comp, v.minor_comp, v.patch_comp, v.tweak_comp))
-         throw std::runtime_error("invalid version string");
-      return v;
    }
 
    /// @return The string this version was built from.
    [[nodiscard]] inline explicit operator std::string() const noexcept { return to_string(); }
-
-   /// compare the string value of this to rhs. Attempt to use semver rules.
-   /// @param rhs  The version to compare to.
-   /// @return the result of the comparison: eq, lt, gt. If rhs is illformed the return is 1;
-   [[nodiscard]] int64_t compare(std::string_view rhs) const noexcept {
-      version v;
-      if (from_string(rhs, v.major_comp, v.minor_comp, v.patch_comp, v.tweak_comp))
-         return 1;
-      return compare(v);
-   }
 
    /// compare the string value of this to rhs. Attempt to use semver rules. `- suffixes will be ignored`
    /// @param rhs  The version to compare to.
@@ -159,7 +169,6 @@ public:
                return 0;
             else if (v1 > v2)
                return 1;
-            
             return -1;
          }
          return c;
@@ -186,14 +195,25 @@ public:
    /// @return The major component of the version.
    [[nodiscard]] inline std::string_view tweak() const noexcept { return tweak_comp; }
 
+   /// Serialization function from version to yaml node
+   [[nodiscard]] inline yaml::node_t to_yaml() const noexcept { return yaml::node_t{to_string()}; }
+
+   /// Deserialization function from yaml node to version
+   [[nodiscard]] inline bool from_yaml(const yaml::node_t& n) noexcept {
+      std::string s = n.as<std::string>();
+      return parse({s.c_str(), s.size()}) > 0;
+   }
+
 private:
    uint16_t major_comp = 0;
    uint16_t minor_comp = 0;
    uint16_t patch_comp = 0;
-   std::string tweak_comp;
-   std::string raw_str;
+   std::string tweak_comp = "";
 };
+
+   // these don't need to be in global namespace ADL will handle finding the right one
+   inline std::ostream& operator<<(std::ostream& os, const antler::project::version& o) { os << o.to_string(); return os; }
 
 } // namespace antler::project
 
-inline std::ostream& operator<<(std::ostream& os, const antler::project::version& o) { os << o.to_string(); return os; }
+ANTLER_YAML_CONVERSIONS(antler::project::version);

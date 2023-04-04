@@ -5,8 +5,7 @@
 
 #include "CLI11.hpp"
 
-#include <antler/project/project.hpp>
-#include <antler/project/cmake.hpp>
+#include <antler/project/populator.hpp>
 
 #include "common.hpp"
 
@@ -15,51 +14,37 @@ namespace antler {
    struct build_project {
       inline build_project(CLI::App& app) {
          subcommand = app.add_subcommand("build", "Build a project.");
-         subcommand->add_option("-p, path", path, "This is the path to the root of the project.")->required();
-      }
-
-      bool should_repopulate() {
-         auto proj = std::filesystem::path(path) / std::filesystem::path(project::project::manifest_name);
-         auto build = std::filesystem::path(path) / std::filesystem::path("build") / std::filesystem::path(project::cmake::cmake_lists);
-
-         auto last_manifest_time = std::filesystem::last_write_time(proj);
-
-         if (!std::filesystem::exists(build)) {
-            return true;
-         }
-
-         auto last_pop_time      = std::filesystem::last_write_time(build);
-
-         return last_pop_time < last_manifest_time;
+         subcommand->add_option("-p, path", path, "This is the path to the root of the project.")->default_val(".");
+         subcommand->add_option("-j, --jobs", jobs, "The number of submodules fetched at the same time.")->default_val(1);
+         subcommand->add_flag("-c, --clean", clean, "This will force a clean build.")->default_val(false);
       }
 
       int32_t configure() noexcept {
-         auto build_dir = std::filesystem::path(path) / std::filesystem::path("build");
-         auto bin_dir = build_dir / std::filesystem::path("antler-bin");
+         auto build_dir = system::fs::path(path) / "build";
+         auto bin_dir = build_dir / "antler-bin";
+         system::info_log("Configuring project...");
 
-         std::filesystem::create_directory(bin_dir);
-         std::string cmake_cmd = "cmake -S " + build_dir.string() + " -B " + bin_dir.string();
+         system::fs::create_directory(bin_dir);
 
-         return system::execute("cmake -S " + build_dir.string() + " -B " + bin_dir.string()); //cmake_cmd);
+         return system::execute("cmake", {"-S", build_dir.string(), "-B", bin_dir.string()});
       }
 
 
       int32_t build() noexcept {
-         auto bin_dir = std::filesystem::path(path) / std::filesystem::path("build") / std::filesystem::path("antler-bin");
+         auto bin_dir = system::fs::path(path) / "build" / "antler-bin";
 
-         std::filesystem::create_directory(bin_dir);
-         std::string make_cmd = "cmake --build " + bin_dir.string();
+         system::fs::create_directory(bin_dir);
+         system::info_log("Building project...");
 
-         return system::execute(make_cmd);
+         return system::execute("cmake", {"--build", bin_dir.string(), "-j", std::to_string(jobs)});
       }
 
       void move_artifacts(const project::project& proj) noexcept {
-         namespace sf = std::filesystem;
-         auto build_dir = sf::path(path) / sf::path("build");
-         auto bin_dir = build_dir / sf::path("antler-bin");
+         namespace sf = system::fs;
+         auto build_dir = sf::path(path) / "build";
+         auto bin_dir = build_dir / "antler-bin";
 
-         for (const auto& app : proj.apps()) {
-            std::string app_nm = std::string(app.name());
+         for (const auto& [app_nm, app] : proj.apps()) {
             std::string proj_nm = std::string(proj.name());
             auto from_wasm = bin_dir / sf::path(proj.name()) / sf::path(app_nm+"/"+proj_nm+"-"+app_nm+".wasm");
             auto from_abi = bin_dir / sf::path(proj.name()) / sf::path(app_nm+"/"+proj_nm+"-"+app_nm+".abi");
@@ -67,39 +52,49 @@ namespace antler {
             auto to_wasm = build_dir /  sf::path(app_nm+".wasm");
             auto to_abi = build_dir / sf::path(app_nm+".abi");
 
-            std::filesystem::copy(from_wasm, to_wasm);
-            std::filesystem::copy(from_abi, to_abi);
+            sf::remove(to_wasm);
+            sf::remove(to_abi);
+
+            sf::copy(from_wasm, to_wasm);
+            sf::copy(from_abi, to_abi);
+
+            system::info_log("{0} and {1} have been created.", to_wasm.string(), to_abi.string());
          }
       }
 
       int32_t exec() {
          auto proj = load_project(path);
-         if (!proj) {
-            return -1;
+
+         bool repopulated = false;
+         if (should_repopulate(proj)) {
+            repopulated = true;
+            ANTLER_CHECK(project::populators::get(proj).populate(jobs), "failed to populate dependencies");
+
          }
 
-         if (should_repopulate()) {
-            if (!proj->populate()) {
-               std::cerr << "Population of the project failed." << std::endl;
-               return -1;
-            }
-            if (auto rv = configure(); rv != 0) {
-               std::cerr << "Configuring project build failed!" << std::endl;
-               return rv;
-            }
+         if (clean && !repopulated) {
+            system::fs::remove_all(system::fs::path(path) / "build/antler-bin");
          }
 
-         if ( auto rv = build(); rv != 0) {
-            std::cerr << "Building failed!" << std::endl;
+         if (auto rv = configure(); rv != 0) {
+            system::error_log("Configuring project build failed.");
             return rv;
          }
 
-         move_artifacts(*proj);
+
+         if (auto rv = build(); rv != 0) {
+            system::error_log("Building the project failed.");
+            return rv;
+         }
+
+         move_artifacts(proj);
 
          return 0;
       }
-      
-      CLI::App*   subcommand;
-      std::string path;
+
+      CLI::App*   subcommand = nullptr;
+      std::string path = "";
+      uint32_t    jobs = 1;
+      bool        clean = false;
    };
 } // namespace antler

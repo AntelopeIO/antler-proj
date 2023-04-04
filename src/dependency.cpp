@@ -28,11 +28,7 @@ inline bool is_valid_hash(std::string_view s, size_t byte_count = 32) noexcept {
 namespace antler::project {
 
 
-//--- constructors/destructor ------------------------------------------------------------------------------------------
 
-
-
-//--- alphabetic --------------------------------------------------------------------------------------------------------
 
 bool dependency::empty_version() const noexcept {
    return m_tag_or_commit.empty() && m_rel.empty();
@@ -54,27 +50,7 @@ bool dependency::is_archive() const noexcept {
 }
 
 
-std::string_view dependency::location() const noexcept {
-   return m_loc;
-}
-
-
-void dependency::location(std::string_view s) noexcept {
-   m_loc = s;
-}
-
-
-std::string_view dependency::name() const noexcept {
-   return m_name;
-}
-
-
-void dependency::name(std::string_view s) noexcept {
-   m_name = s;
-}
-
-
-void dependency::patch_add(const std::filesystem::path& path) noexcept {
+void dependency::patch_add(const system::fs::path& path) noexcept {
    // Only add if it doesn't already exist.
    auto i = std::find(m_patchfiles.begin(), m_patchfiles.end(), path);
    if (i != m_patchfiles.end())
@@ -89,7 +65,7 @@ const dependency::patch_list_t& dependency::patch_files() const noexcept {
 }
 
 
-void dependency::patch_remove(const std::filesystem::path& path) noexcept {
+void dependency::patch_remove(const system::fs::path& path) noexcept {
 
    auto i = std::find(m_patchfiles.begin(), m_patchfiles.end(), path);
    if (i != m_patchfiles.end())
@@ -97,19 +73,9 @@ void dependency::patch_remove(const std::filesystem::path& path) noexcept {
 }
 
 
-std::string_view dependency::release() const noexcept {
-   return m_rel;
-}
+void dependency::set(std::string nm, std::string_view loc, std::string_view tag, std::string_view rel, std::string_view hash) {
 
-
-void dependency::release(std::string_view s) noexcept {
-   m_rel = s;
-}
-
-
-void dependency::set(std::string_view name, std::string_view loc, std::string_view tag, std::string_view rel, std::string_view hash) {
-
-   m_name = name;
+   m_name = std::move(nm);
 
    m_loc = loc;
 
@@ -117,7 +83,6 @@ void dependency::set(std::string_view name, std::string_view loc, std::string_vi
    m_rel = rel;
    m_hash = hash;
    m_patchfiles.clear();
-
 
    if (!m_tag_or_commit.empty() && !m_rel.empty()) {
       std::cerr << "Unexpectedly have tag AND release. ";
@@ -132,7 +97,7 @@ void dependency::set(std::string_view name, std::string_view loc, std::string_vi
 }
 
 
-std::string_view dependency::tag() const noexcept {
+const std::string& dependency::tag() const noexcept {
    return m_tag_or_commit;
 }
 
@@ -160,25 +125,25 @@ bool dependency::validate_location(std::string_view s) {
    return
       location::is_archive(s)
       || location::is_github_repo(s)
-      || location::is_github_org_repo_shorthand(s)
+      || location::is_github_shorthand(s)
       ;
 }
 
 
-bool dependency::validate_location(std::string_view loc, std::string_view tag, std::string_view rel, std::string_view hash, std::ostream& os) {
+bool dependency::validate_location(std::string_view loc, std::string_view tag, std::string_view rel, std::string_view hash) {
 
    if (!tag.empty()) {
-      if (!rel.empty()) {
-         os << "release AND tag/commit flags are not valid at the same time for location.";
-         return false;
-      }
       if (!hash.empty()) {
-         os << "hash AND tag/commit flags are not valid at the same time for location.";
+         system::warn_log("tag and hash flags are not valid at the same time for location.");
          return false;
       }
    }
 
    return location::is_reachable(loc);
+}
+
+bool dependency::retrieve() {
+   return false;
 }
 
 } // namespace antler::project

@@ -8,9 +8,10 @@
 #include <vector>
 #include <iostream>
 #include <utility> // std::pair
-#include <filesystem>
 
 #include "version.hpp"
+#include "yaml.hpp"
+#include "../system/utils.hpp"
 
 
 namespace antler::project {
@@ -20,14 +21,20 @@ class dependency {
 public:
    using list_t = std::vector<dependency>; ///< Alias for the list type.
 
-   using patch_list_t = std::vector<std::filesystem::path>; ///< Alias for the patch file list type.
+   using patch_list_t = std::vector<system::fs::path>; ///< Alias for the patch file list type.
 
    // use default constructors, copy and move constructors and assignments
    dependency() = default;
-   inline dependency(std::string_view name, std::string_view loc, std::string_view tag="", 
+   inline dependency(const std::string& name, std::string_view loc, std::string_view tag="",
                      std::string_view rel="", std::string_view hash="") {
       set(name, loc, tag, rel, hash);
    }
+
+   dependency(const dependency&) = default;
+   dependency(dependency&&) = default;
+
+   dependency& operator=(const dependency&) = default;
+   dependency& operator=(dependency&&) = default;
 
 
    /// Sets the internal values (regardless of the validity).
@@ -38,21 +45,22 @@ public:
    /// @param tag  This is either the github repo tag or commit hash, commit hash being preferable. This may be empty if rel is populated or loc points to an archive.
    /// @param rel  This is a github repo version. Using a commit hash tag is preferable. This may be empty.
    /// @param hash  If loc points to an archive, this should be populated with the sha256 hash.
-   void set(std::string_view name, std::string_view loc, std::string_view tag, std::string_view rel, std::string_view hash);
+   void set(std::string name, std::string_view loc, std::string_view tag, std::string_view rel, std::string_view hash);
 
    /// Get the dependency name.
    /// @return The name of this dependency.
-   [[nodiscard]] std::string_view name() const noexcept;
+   [[nodiscard]] inline const std::string& name() const noexcept { return m_name; }
+
    /// Set the dependency name.
    /// @param s  The new name for this dependency.
-   void name(std::string_view s) noexcept;
+   inline void name(std::string s) { m_name = std::move(s); }
 
    /// Get the location field of this dependency.
    /// @return the from location of this dependency.
-   [[nodiscard]] std::string_view location() const noexcept;
+   [[nodiscard]] inline const std::string& location() const noexcept { return m_loc; }
    /// Set the location field of this dependency.
    /// @param s  The new from location of this dependency.
-   void location(std::string_view s) noexcept;
+   void location(std::string s) noexcept { m_loc = std::move(s); }
 
    /// Report on the status of this dependencies from field: does it look like an archive?
    /// @return true if location ends in an archive format (e.g. ".tar.gz", ".tgz", etc")
@@ -64,17 +72,18 @@ public:
 
    /// Get the github tag/commit hash.
    /// @return github tag/commit hash.
-   [[nodiscard]] std::string_view tag() const noexcept;
+   [[nodiscard]] const std::string& tag() const noexcept;
    /// Set github tag/commit hash.
    /// @param s  The new github tag/commit hash.
    void tag(std::string_view s) noexcept;
 
    /// Get the github release version.
    /// @return The possibly empty release version.
-   [[nodiscard]] std::string_view release() const noexcept;
+   [[nodiscard]] std::string release() const noexcept { return m_rel; }
+
    /// Set the new github release version.
    /// @param s  The new, possibly empty, release version.
-   void release(std::string_view s) noexcept;
+   void release(std::string_view s) noexcept { m_rel = s;}
 
    /// Get the archive or release hash.
    /// @note For commit hash, see tag()
@@ -94,10 +103,10 @@ public:
    /// Add a new file to the patch list.
    /// @note this should be in a location relative to the `project.yaml` file.
    /// @param path  The path to the patch file to add.
-   void patch_add(const std::filesystem::path& path) noexcept;
+   void patch_add(const system::fs::path& path) noexcept;
    /// @note this should be in a location relative to the `project.yaml` file.
    /// @param path  The path to the patch file to remove.
-   void patch_remove(const std::filesystem::path& path) noexcept;
+   void patch_remove(const system::fs::path& path) noexcept;
 
    /// Test to see if the dependency is valid.
    /// @return true if dependency is an archive, github repo, or local and is reachable
@@ -113,9 +122,29 @@ public:
    /// @param rel  The rel field of a dependency. Empty is valid.
    /// @param hash  The hash field of a dependency. Empty is valid.
    /// @return true indicates the values passed in are a valid combination.
-   [[nodiscard]] static bool validate_location(std::string_view loc, std::string_view tag, std::string_view rel, std::string_view hash,
-         std::ostream& os=std::cerr);
+   [[nodiscard]] static bool validate_location(std::string_view loc, std::string_view tag, std::string_view rel, std::string_view hash);
 
+   [[nodiscard]] bool retrieve();
+
+   /// Serialization function from version to yaml node
+   [[nodiscard]] inline yaml::node_t to_yaml() const noexcept {
+      yaml::node_t node;
+      node["name"] = m_name;
+      node["location"] = m_loc;
+      node["tag"] = m_tag_or_commit;
+      node["release"] = m_rel;
+      node["hash"] = m_hash;
+      return node;
+   }
+
+   /// Deserialization function from yaml node to version
+   [[nodiscard]] inline bool from_yaml(const yaml::node_t& n) noexcept {
+      return ANTLER_EXPECT_YAML(n, "name",  name, std::string) &&
+             ANTLER_TRY_YAML(n, "location", location, std::string) &&
+             ANTLER_TRY_YAML(n, "tag", tag, std::string) &&
+             ANTLER_TRY_YAML(n, "release", release, std::string) &&
+             ANTLER_TRY_YAML(n, "hash", hash, std::string);
+   }
 
 private:
    std::string m_name;          ///< Name of the dependency.
@@ -126,5 +155,15 @@ private:
    patch_list_t m_patchfiles;   ///< List of patch files.
 };
 
-
 } // namespace antler::project
+
+namespace std {
+   template <>
+   struct hash<antler::project::dependency> {
+      std::size_t operator()(const antler::project::dependency& d) const {
+         return std::hash<std::string>{}(d.name());
+      }
+   };
+}
+
+ANTLER_YAML_CONVERSIONS(antler::project::dependency);

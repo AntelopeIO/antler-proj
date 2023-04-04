@@ -1,0 +1,71 @@
+project: test_proj
+version: 1.3.4
+apps:
+  - name: appd
+    lang: CXX
+    compile_options: ""
+    link_options: ""
+  - name: appc
+    lang: CXX
+    compile_options: ""
+    link_options: ""
+  - name: appb
+    lang: CXX
+    compile_options: -std=c++14;-Mm
+    link_options: -ld
+    depends:
+      - name: libc
+        location: ""
+        tag: ""
+        release: ""
+        hash: ""
+      - name: bar
+        location: https://github.com/larryk85/fast_math
+        tag: blah
+        release: ""
+        hash: ""
+  - name: appa
+    lang: C
+    compile_options: -M
+    link_options: -flto
+    depends:
+      - name: baz
+        location: https://github.com/antelopeio/leap
+        tag: v2.2.2v
+        release: ""
+        hash: ""
+      - name: foo
+        location: https://github.com/larryk85/dune
+        tag: v13.3
+        release: ""
+        hash: ""
+libs:
+  - name: libd
+    lang: CXX
+    compile_options: ""
+    link_options: ""
+  - name: libc
+    lang: C
+    compile_options: ""
+    link_options: ""
+    depends:
+      - name: baz
+        location: https://github.com/antelopeio/leap
+        tag: v2.2.2v
+        release: ""
+        hash: ""
+  - name: libb
+    lang: CXX
+    compile_options: ""
+    link_options: ""
+    depends:
+      - name: bar
+        location: https://github.com/larryk85/fast_math
+        tag: blah
+        release: ""
+        hash: ""
+      - name: foo
+        location: https://github.com/larryk85/dune
+        tag: v13.3
+        release: ""
+        hash: ""

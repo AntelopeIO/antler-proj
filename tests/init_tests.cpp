@@ -8,18 +8,23 @@
 
 TEST_CASE("Testing init subcommand") {
    using namespace antler::project;
+   
+   project proj = {"./foo", "foo", "v1.0.0"};
 
-   {
-      project proj = {std::filesystem::path("./foo") / antler::project::project::manifest_name, "foo", "v1.0.0"};
+   remove_file("./foo");
+   REQUIRE(proj.init_dirs("./foo"));
 
-      remove_file("./foo");
-      REQUIRE(proj.init_dirs(std::filesystem::path("./foo")));
+   proj.sync();
 
-      proj.sync();
 
-      REQUIRE(load_project("./foo", proj));
+   project proj2{"./foo"};
 
-      // should fail if directory exists
-      REQUIRE(!proj.init_dirs(std::filesystem::path("./foo")));
-   }
+   CHECK(proj2.name() == "foo");
+   CHECK(proj2.version() == version{"v1.0.0"});
+
+   CHECK(antler::system::fs::exists("./foo"));
+   CHECK(antler::system::fs::exists("./foo/apps"));
+   CHECK(antler::system::fs::exists("./foo/libs"));
+   CHECK(antler::system::fs::exists("./foo/include"));
+   CHECK(antler::system::fs::exists("./foo/ricardian"));
 }
