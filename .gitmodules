@@ -9,7 +9,7 @@
 	url = https://github.com/jbeder/yaml-cpp
 [submodule "external/cturtle"]
 	path = external/cturtle
-	url = https://github.com/larryk85/cturtle
+	url = https://github.com/dimas1185/cturtle
 [submodule "external/Mustache"]
 	path = external/Mustache
 	url = https://github.com/kainjow/Mustache
