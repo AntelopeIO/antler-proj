@@ -7,13 +7,21 @@
 
 namespace antler {
 
+   std::string escape_transform(std::string input) {
+      for(auto i=input.begin(); i != input.end(); ++i) {
+         if(*i == '\\' && i+1 != input.end())
+            i = input.erase(i);
+      }
+      return input;
+   }
+
    inline project::project load_project(const system::fs::path& path) {
       auto p = system::fs::canonical(system::fs::path(path));
       ANTLER_CHECK(project::project::update_path(p),
          "path either did not exist or no `project.yml` file cound be found.");
       project::project proj;
       ANTLER_CHECK(proj.from_yaml(project::yaml::load(p)),
-         "error while loading project.yml file"); 
+         "error while loading project.yml file");
       proj.path(p.parent_path());
       return proj;
    }
