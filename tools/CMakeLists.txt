@@ -15,4 +15,5 @@ if (ANTLER_PROJ_BUILD_TESTS)
    # TODO renable when add to test code is completed:
    #add_cli_test(add_to_project_tests add_to_tests.py)
    add_cli_test(init_tests init_tests.py)
+   add_cli_test(add_and_update add_and_update.py)
 endif()
