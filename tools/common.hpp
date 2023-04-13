@@ -7,8 +7,15 @@
 
 namespace antler {
 
+   /// Remove escape sequence character from input.
+   /// @note This is a SIMPLE algorithm that ONLY removes the first `\` in a 2 charachter sequence.
+   /// @todo Consider implementing more complicated transforms (e.g. convert "\t" to 0x09 or "\xFF" to 0xFF, etc).
+   /// @param input  Input string that may or may not contain escape characters.
+   /// @return The transformed string.
    std::string escape_transform(std::string input) {
       for(auto i=input.begin(); i != input.end(); ++i) {
+         // Only remove this char *if* there is a char following.
+         // Note: erase plus increment effectively steps over the char follwing the erased `\` (e.g. "\\-O2" becomes "\-O2").
          if(*i == '\\' && i+1 != input.end())
             i = input.erase(i);
       }
