@@ -11,7 +11,6 @@
 #include "CLI11.hpp"
 
 #include "add_to.hpp"
-#include "app_version.hpp"
 #include "build.hpp"
 #include "init.hpp"
 #include "populate.hpp"
@@ -19,12 +18,15 @@
 #include "update.hpp"
 #include "validate.hpp"
 
+#include <antler/system/version.hpp>
+
+
 template <typename T, typename V>
 static V depends(V&& v) { return std::forward<V>(v); }
 
 template <typename... Ts>
 struct runner {
-   runner(CLI::App& app) 
+   runner(CLI::App& app)
       : tup(depends<Ts>(app)...) {}
 
    template <std::size_t I=0>
@@ -45,14 +47,22 @@ struct runner {
 };
 
 int main(int argc, char** argv) {
-   // using this as we will alias antler-proj to cdt-proj for the 
+   // using this as we will alias antler-proj to cdt-proj for the
    // next release of CDT.
    const auto app_name = antler::system::fs::path(argv[0]).filename().string();
 
    CLI::App app{"Antelope Smart Contract Project Management Tool", app_name};
 
-   runner<antler::add_to_project, 
-          antler::app_version,
+   // Add version flag with callback here.
+   app.add_flag_callback("-V,--version",
+         [&app]() {
+            std::cout << app.get_name() << " v" << antler::system::version::full() << std::endl;
+            std::exit(0);       // Succesfull exit MUST happen here.
+         },
+         "get the version of antler-proj");
+
+
+   runner<antler::add_to_project,
           antler::build_project,
           antler::init_project,
           antler::populate_project,
