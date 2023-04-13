@@ -25,7 +25,7 @@ namespace antler {
             system::info_log("Valid names are of the form [a-zA-Z][_a-zA-Z0-9]+");
             return false;
          }
-         
+
          // TODO for the next release we will remove the C++ restrictions
          const auto& is_valid_cpp_lang = [](auto l) {
             return l == "cpp" ||
@@ -115,7 +115,7 @@ namespace antler {
                system::error_log("Dependency: {0} is invalid.", dep_name);
                return false;
             }
-               
+
             obj.upsert_dependency(std::move(dep));
 
             // We have values, so query the user if they want to apply.
@@ -147,8 +147,10 @@ namespace antler {
          app_subcommand = subcommand->add_subcommand("app", "Add a new app to your project.");
          app_subcommand->add_option("-n, name", obj_name, "The name of the app to add.")->required();
          app_subcommand->add_option("-l, lang", lang, "Language this app will use.")->required();
-         app_subcommand->add_option("--comp, compile_options", copts, "Options for the compiler for this app.");
-         app_subcommand->add_option("--link, link_options", lopts, "Options for the linker for this app.");
+         app_subcommand->add_option("--comp, compile_options", copts, "Options for the compiler for this app.")
+            ->transform(escape_transform);
+         app_subcommand->add_option("--link, link_options", lopts, "Options for the linker for this app.")
+            ->transform(escape_transform);
 
          lib_subcommand = subcommand->add_subcommand("lib", "Add a new library to your project.");
          lib_subcommand->add_option("-n, name", obj_name, "The name of the library to add.")->required();
@@ -163,7 +165,7 @@ namespace antler {
          dep_subcommand->add_option("-t, tag", tag, "Tag associated with the dependency.");
          dep_subcommand->add_option("-r, release", release, "Release version of the depedency.");
          dep_subcommand->add_option("--digest, hash", hash, "Hash of the dependency.");
-         
+
          /* TODO Add back after this release when we have the testing framework finished
          test_subcommand = subcommand->add_subcommand("test", "Add a new test to the project.");
          test_subcommand->add_option("-n, name", obj_name, "The name of the test to add.")->required();
@@ -198,7 +200,7 @@ namespace antler {
          proj.sync();
          return 0;
       }
-      
+
       CLI::App*   subcommand;
       CLI::App*   app_subcommand;
       CLI::App*   dep_subcommand;

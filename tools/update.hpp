@@ -33,7 +33,7 @@ namespace antler {
                obj.compile_options(copts);
             if (!lopts_opt->empty())
                obj.link_options(lopts);
-            
+
             system::info_log("Updating object: {0}\n"
                              "language: {1}\n"
                              "compile options: {2}\n"
@@ -42,7 +42,7 @@ namespace antler {
                              obj.language(),
                              copts,
                              lopts);
-             
+
             return true;
          } catch(...) {
             system::error_log("Object {0} does not exist in the project", obj_name);
@@ -115,8 +115,10 @@ namespace antler {
          app_subcommand = subcommand->add_subcommand("app", "Remove app from the project.");
          app_subcommand->add_option("-n, name", obj_name, "The name of the app to remove.")->required();
          app_subcommand->add_option("-l, language", lang, "The language of the app.");
-         app_subcommand->add_option("--comp, compile_options", copts, "The compile options used to build the app.");
-         app_subcommand->add_option("--link, link_options", lopts, "The link options used to build the app.");
+         app_subcommand->add_option("--comp, compile_options", copts, "The compile options used to build the app.")
+            ->transform(escape_transform);
+         app_subcommand->add_option("--link, link_options", lopts, "The link options used to build the app.")
+            ->transform(escape_transform);
 
          lib_subcommand = subcommand->add_subcommand("lib", "Remove lib from the project.");
          lib_subcommand->add_option("-n, name", obj_name, "The name of the library to add.")->required();
@@ -136,7 +138,7 @@ namespace antler {
          test_subcommand = subcommand->add_subcommand("test", "Remove a test from the project.");
          test_subcommand->add_option("-n, name", dep_name, "The name of the test to remove.")->required();
          */
-         
+
       }
 
       int32_t exec() {
@@ -167,7 +169,7 @@ namespace antler {
          proj.sync();
          return 0;
       }
-      
+
       CLI::App*   subcommand = nullptr;
       CLI::App*   app_subcommand = nullptr;
       CLI::App*   dep_subcommand = nullptr;
