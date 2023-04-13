@@ -26,13 +26,13 @@ Each command has its own help which prints when the command runs with key --help
 
 **Example: antler-proj init --help**
 
-Below is described a full list of all possible commands and their possible arguments 
+Below is described a full list of all possible commands and their possible arguments
 
 **init** command creates a new project. Creating the directory tree, a `project.yaml` file and initializes it.
 
-``` 
+```
 Command arguments:
-    <path>                      Path to the root of the project. Here a `project.yaml` file will be created 
+    <path>                      Path to the root of the project. Here a `project.yaml` file will be created
     <project_name>              Name of the project
     [version]                   Version of the project. Default version is 0.0.1
     -h,--help                   Print this help message and exit
@@ -46,11 +46,11 @@ Command arguments:
 **add** command adds an app, dependency, library or test to your project.
 
 ```
-Command arguments:  
+Command arguments:
   -h,--help                   Print this help message and exit
   -p <path>                   This must be the path to the `project.yml` or the path containing it.
   [path]                      Path to the root of the project.
-  <app,lib,dep>               Type of an entity to work with 
+  <app,lib,dep>               Type of an entity to work with
 ```
 **Example: antler-proj add ./project app**
 
@@ -58,11 +58,11 @@ Command arguments:
 **update** command updates an app, dependency, library or test to your project.
 
 ```
-Command arguments:  
+Command arguments:
   -h,--help                   Print this help message and exit
   -p <path>                   This must be the path to the `project.yml` or the path containing it.
   [path]                      Path to the root of the project.
-  <app,lib,dep>               Type of an entity to work with 
+  <app,lib,dep>               Type of an entity to work with
 ```
 **Example: antler-proj update ./project app**
 
@@ -70,25 +70,25 @@ Command arguments:
 **remove** command removes an app, dependency, library or test from your project.
 
 ```
-Command arguments:  
+Command arguments:
   -h,--help                   Print this help message and exit
   -p <path>                   This must be the path to the `project.yml` or the path containing it.
   [path]                      Path to the root of the project.
-  <app,lib,dep>               Type of an entity to work with 
+  <app,lib,dep>               Type of an entity to work with
 ```
 **Example: antler-proj remove ./project app**
 
 
 **populate** command loads existing information about the project starting from the root project.yaml file as described in the chapter `"Loading of a project"` in the User's guide.
 
-    Without additional keys it passes through a subtree of each application and checks all non-local dependencies for updates. 
+    Without additional keys it passes through a subtree of each application and checks all non-local dependencies for updates.
     Downloads all the updates in a way depending on where it is located.
 
 ```
 Command arguments:
     -h,--help                   Print this help message and exit
     -p <path>                   This must be the path to the `project.yml` or the path containing it.
-    [path]                      Path to the root of the project.    
+    [path]                      Path to the root of the project.
 ```
 **Example: antler-proj populate ./project**
 
@@ -114,7 +114,7 @@ Command arguments:
 Command arguments:
     -h,--help                   Print this help message and exit
     -p <path>                   This must be the path to the `project.yml` or the path containing it.
-    [path]                      Path to the root of the project.    
+    [path]                      Path to the root of the project.
 ```
 **Example: antler-proj build ./project**
 
@@ -124,6 +124,22 @@ Command arguments:
 
 # EXAMPLES
 
+```
+  antler-proj add app MyApp C++ \\-O2
+  antler-proj add lib MyLib C++ \\-O2 "\-s"
+  antler-proj add dep MyApp MyDep
+  antler-proj build -j3
+  antler-proj init MyProjectName 1.0.0
+  antler-proj populate ./path-to-project
+  antler-proj remove app MyApp
+  antler-proj remove lib MyLib
+  antler-proj remove dep MyDep MyApp
+  antler-proj update app MyApp C++ \\-O2
+  antler-proj update lib MyLib C++ \\-O2 "\-s"
+  antler-proj update dep MyDep -l AntelopeIO/my_dep
+  antler-proj validate
+```
+
 # AUTHORS
 
 # BUGS
@@ -131,5 +147,3 @@ Please submit bug reports online at: <https://github.com/AntelopeIO/antler-proj/
 
 # SEE ALSO
 Full documentation and sources at: <https://github.com/AntelopeIO/antler-proj>
-
-
