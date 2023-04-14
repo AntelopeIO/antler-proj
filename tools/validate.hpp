@@ -15,7 +15,7 @@ namespace antler {
          path = system::fs::current_path().string();
          subcommand = app.add_subcommand("validate", "Validate a project.");
          subcommand->footer(std::string(R"(Examples:)")
-               + "\n\t" + app.get_name() +R"( validate)"
+               + "\n\t" + app.get_name() +R"( validate)");
          subcommand->add_option("-p, path", path, "Path containing the project's yaml file.");
          subcommand->add_flag("-V, --verbose", verbose, "Verbose output.");
 
