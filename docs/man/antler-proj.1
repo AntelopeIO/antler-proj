@@ -15,14 +15,14 @@ tools to help users successfully develop smart contracts.
 .SH COMMANDS
 .PP
 This is a general help text which prints when antler-proj runs without a
-command or with key \[en]help.
+command or with key \[em]help.
 .PP
-\f[B]Example: antler-proj \[en]help\f[R]
+\f[B]Example: antler-proj \[em]help\f[R]
 .PP
 Each command has its own help which prints when the command runs with
-key \[en]help.
+key \[em]help.
 .PP
-\f[B]Example: antler-proj init \[en]help\f[R]
+\f[B]Example: antler-proj init \[em]help\f[R]
 .PP
 Below is described a full list of all possible commands and their
 possible arguments
@@ -158,6 +158,7 @@ Command arguments:
 .nf
 \f[C]
   antler-proj add app MyApp C++ \[rs]\[rs]-O2
+  antler-proj add app -n MyApp -l C++ \[dq]\[rs]-O2 -WError\[dq] \[rs]\[rs]-s
   antler-proj add lib MyLib C++ \[rs]\[rs]-O2 \[dq]\[rs]-s\[dq]
   antler-proj add dep MyApp MyDep
   antler-proj build -j3

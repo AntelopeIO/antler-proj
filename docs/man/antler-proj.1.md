@@ -18,13 +18,13 @@ antler-proj - Antler Project Management System
 
 # COMMANDS
 
-This is a general help text which prints when antler-proj runs without a command or with key --help.
+This is a general help text which prints when antler-proj runs without a command or with key ---help.
 
-**Example: antler-proj --help**
+**Example: antler-proj ---help**
 
-Each command has its own help which prints when the command runs with key --help.
+Each command has its own help which prints when the command runs with key ---help.
 
-**Example: antler-proj init --help**
+**Example: antler-proj init ---help**
 
 Below is described a full list of all possible commands and their possible arguments
 
@@ -126,6 +126,7 @@ Command arguments:
 
 ```
   antler-proj add app MyApp C++ \\-O2
+  antler-proj add app -n MyApp -l C++ "\-O2 -WError" \\-s
   antler-proj add lib MyLib C++ \\-O2 "\-s"
   antler-proj add dep MyApp MyDep
   antler-proj build -j3

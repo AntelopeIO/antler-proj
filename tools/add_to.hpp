@@ -147,7 +147,8 @@ namespace antler {
          app_subcommand = subcommand->add_subcommand("app", "Add a new app to your project.");
          app_subcommand->footer(std::string(R"(Examples:)")
                + "\n\t" + app.get_name() +R"( add app MyApp C++ \\-O2)"
-               + "\n\t" + app.get_name() +R"( add app -p ./path-to-project/ -n MyApp -l C++ --comp -O2)");
+               + "\n\t" + app.get_name() +R"( add app -p ./path-to-project/ -n MyApp -l C++ --comp -O2)"
+               + "\n\t" + app.get_name() +R"( add app -n MyApp -l C++ "\-O2 -WError" \\-s)");
 
          app_subcommand->add_option("-p", path, "Path containing the project's yaml file.");
          app_subcommand->add_option("-n, name", obj_name, "The name of the app to add.")->required();
