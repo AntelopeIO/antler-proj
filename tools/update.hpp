@@ -115,7 +115,7 @@ namespace antler {
          app_subcommand = subcommand->add_subcommand("app", "Update an app in the project.");
          app_subcommand->footer(std::string(R"(Examples:)")
                + "\n\t" + app.get_name() +R"( update app MyApp C++ \\-O2)"
-               + "\n\t" + app.get_name() +R"( ./path-to-project/ update app -n MyApp --comp -O2)");
+               + "\n\t" + app.get_name() +R"( update ./path-to-project/ app -n MyApp --comp -O2)");
          app_subcommand->add_option("-p", path, "Path containing the project's yaml file.");
          app_subcommand->add_option("-n, name", obj_name, "The name of the app to remove.")->required();
          app_subcommand->add_option("-l, language", lang, "The language of the app.");
