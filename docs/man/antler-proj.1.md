@@ -20,11 +20,11 @@ antler-proj - Antler Project Management System
 
 This is a general help text which prints when antler-proj runs without a command or with key ---help.
 
-**Example: antler-proj ---help**
+**Example: `antler-proj --help`**
 
 Each command has its own help which prints when the command runs with key ---help.
 
-**Example: antler-proj init ---help**
+**Example: `antler-proj init --help`**
 
 Below is described a full list of all possible commands and their possible arguments
 
@@ -40,7 +40,7 @@ Command arguments:
     -n <project_name>           The name of the project.
     -v <version>                The version to store in the project file.
 ```
-**Example: antler-proj init ./project hello_world 0.1**
+**Example: `antler-proj init ./project hello_world 0.1`**
 
 
 **add** command adds an app, dependency, library or test to your project.
@@ -52,7 +52,7 @@ Command arguments:
   [path]                      Path to the root of the project.
   <app,lib,dep>               Type of an entity to work with
 ```
-**Example: antler-proj add ./project app**
+**Example: `antler-proj add ./project app`**
 
 
 **update** command updates an app, dependency, library or test to your project.
@@ -64,7 +64,7 @@ Command arguments:
   [path]                      Path to the root of the project.
   <app,lib,dep>               Type of an entity to work with
 ```
-**Example: antler-proj update ./project app**
+**Example: `antler-proj update ./project app`**
 
 
 **remove** command removes an app, dependency, library or test from your project.
@@ -76,7 +76,7 @@ Command arguments:
   [path]                      Path to the root of the project.
   <app,lib,dep>               Type of an entity to work with
 ```
-**Example: antler-proj remove ./project app**
+**Example: `antler-proj remove ./project app`**
 
 
 **populate** command loads existing information about the project starting from the root project.yaml file as described in the chapter `"Loading of a project"` in the User's guide.
@@ -90,7 +90,7 @@ Command arguments:
     -p <path>                   This must be the path to the `project.yml` or the path containing it.
     [path]                      Path to the root of the project.
 ```
-**Example: antler-proj populate ./project**
+**Example: `antler-proj populate ./project`**
 
 **validate** command performs a check of the project to ensure that all data that describes the project is correct.
 
@@ -106,7 +106,7 @@ Command arguments:
     -p <path>                   Path to the root of the project.
     -V,--verbose                Verbose output.
 ```
-**Example: antler-proj validate ./project**
+**Example: `antler-proj validate ./project`**
 
 **build** command builds all applications described in the project.yaml, their dependencies and tests.
 
@@ -116,11 +116,11 @@ Command arguments:
     -p <path>                   This must be the path to the `project.yml` or the path containing it.
     [path]                      Path to the root of the project.
 ```
-**Example: antler-proj build ./project**
+**Example: `antler-proj build ./project`**
 
 
-**version**                     Returns the version of antler-proj application
-**Example: antler-proj version**
+**`--version`**                     Returns the version of antler-proj application
+**Example: `antler-proj --version`**
 
 # EXAMPLES
 
