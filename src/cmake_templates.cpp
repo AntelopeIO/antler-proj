@@ -49,3 +49,4 @@ km::mustache cmake::add_library_template = {
    "add_library({{target_name}} {{open_hack}}{{target_name}}-source})\n\n"};
 
 } // namespace antler::project
+ 

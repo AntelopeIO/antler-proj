@@ -117,7 +117,7 @@ namespace antler::project {
          }
 
          template <typename Stream>
-         inline void emit_add_subdirectory(Stream& s, system::fs::path path, std::string_view name) noexcept {
+         inline void emit_add_subdirectory(Stream& s, system::fs::path path, std::string_view name) noexcept { 
             s << add_subdirectory_template.render(datum{"path", (path / name).string()});
          }
 
@@ -156,7 +156,7 @@ namespace antler::project {
 
          template <typename Stream>
          inline void emit_entry(Stream& s) noexcept { s << entry_template.render(datum{"proj", proj->name()}); }
-
+   
          template <typename Pops, typename Stream, typename Tag>
          inline void emit_object(Pops& pops, Stream& s, const object<Tag>& obj) {
             km::mustache& temp = std::is_same_v<Tag, app_tag> ? add_contract_template : add_library_template;
@@ -221,7 +221,7 @@ namespace antler::project {
          }
 
       private:
-
+         
          // simple helper to clean km::data usage
          struct datum {
             template <typename T>
@@ -232,9 +232,9 @@ namespace antler::project {
             }
 
             template <typename Str, typename T>
-            inline datum(Str&& key, T&& val)
+            inline datum(Str&& key, T&& val) 
                : data(std::forward<Str>(key), fwrd(std::forward<T>(val))) {}
-
+            
             template <typename Str, typename T>
             datum& operator()(Str&& key, T&& val) {
                data.set(std::forward<Str>(key), fwrd(std::forward<T>(val)));
