@@ -87,10 +87,11 @@ bool project::update_path(system::fs::path& path) noexcept {
    }
 
    for (;;) {
-      if (system::fs::exists(search_path / "project.yaml")) {
-         path = search_path / "project.yaml";
+      if (system::fs::exists(search_path / manifest_name)) {
+         path = search_path / manifest_name;
          return true;
       }
+      // alternative manifest name
       if (system::fs::exists(search_path / "project.yml")) {
          path = search_path / "project.yml";
          return true;

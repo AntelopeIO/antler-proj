@@ -25,7 +25,7 @@ def antler_in_proj_cmd(path, args):
 
 def load_project(path):
     """ Load a project.yml file """
-    with open("./{0}/project.yml".format(path), "r") as file_handle:
+    with open("./{0}/project.yaml".format(path), "r") as file_handle:
         project = yaml.safe_load(file_handle)
     return project
 

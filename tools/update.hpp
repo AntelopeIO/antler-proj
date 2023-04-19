@@ -110,7 +110,7 @@ namespace antler {
       update_project(CLI::App& app) {
          path = system::fs::current_path().string();
          subcommand = app.add_subcommand("update", "Update an app, dependency, library or test to your project.");
-         subcommand->add_option("-p, path", path, "This must be the path to the `project.yml` or the path containing it.")->default_val(".");
+         subcommand->add_option("-p, path", path, "This must be the path to the `project.yaml` or the path containing it.")->default_val(".");
 
          app_subcommand = subcommand->add_subcommand("app", "Remove app from the project.");
          app_subcommand->add_option("-n, name", obj_name, "The name of the app to remove.")->required();

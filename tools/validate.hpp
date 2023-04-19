@@ -23,7 +23,7 @@ namespace antler {
          if (verbose) {
             std::cout << proj.to_yaml() << std::endl;
          } else {
-            system::info_log("Valid format for an antler-proj project.yml");
+            system::info_log("Valid format for an antler-proj project.yaml");
          }
 
          if (!proj.has_valid_dependencies()) {

@@ -19,8 +19,7 @@ this format. Additionally, it's human readable, and our project file can
 edited by and advanced user, and text compares (e.g. via github PRs)
 make sense.
 
-Typically, the file is named `project.yaml`, though a more windows
-friendly `.yml` file is supported and the user can directly call out
+Project file name is `project.yaml`, `.yml` file extension is also supported. Also user can directly call out
 any file (e.g. `silly_project_name.txt`) as the project file.
 
 
@@ -86,10 +85,10 @@ All the names are UTF8 strings which may contain multibyte symbols. Max length o
 ### Glossary:
 
 - `Project` is a directory structure which contains the project file
-(`project.yml`) in [YAML format](https://yaml.org/), description of
+(`project.yaml`) in [YAML format](https://yaml.org/), description of
 applications, libraries, test commadnds, and other dependencies.
 
-- `Application` (App) is a binary (usually a smart contract) which is built from the description in the `project.yml`.
+- `Application` (App) is a binary (usually a smart contract) which is built from the description in the `project.yaml`.
 
 - `Test` is a command, binary, or script for testing various parts of the project.
 
@@ -237,7 +236,7 @@ aproj add ./projects/example --app --name app1 --ver "1" --lang "C++" --build "C
 Removed because we are unsure about it for now.
 -->
 
-The system generates a YAML file "project.yml" in format:
+The system generates a YAML file "project.yaml" in format:
 <!--
 removing the build for now.
 
@@ -322,7 +321,7 @@ Creates a subtree for a project in ./projects/example/apps
           └──lib2/
 		└── project.yaml
     ├───tests
-    └───project.yml
+    └───project.yaml
 ```
 
 

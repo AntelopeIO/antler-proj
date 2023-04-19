@@ -48,7 +48,7 @@ Command arguments:
 ```
 Command arguments:  
   -h,--help                   Print this help message and exit
-  -p <path>                   This must be the path to the `project.yml` or the path containing it.
+  -p <path>                   This must be the path to the `project.yaml` or the path containing it.
   [path]                      Path to the root of the project.
   <app,lib,dep>               Type of an entity to work with 
 ```
@@ -60,7 +60,7 @@ Command arguments:
 ```
 Command arguments:  
   -h,--help                   Print this help message and exit
-  -p <path>                   This must be the path to the `project.yml` or the path containing it.
+  -p <path>                   This must be the path to the `project.yaml` or the path containing it.
   [path]                      Path to the root of the project.
   <app,lib,dep>               Type of an entity to work with 
 ```
@@ -72,7 +72,7 @@ Command arguments:
 ```
 Command arguments:  
   -h,--help                   Print this help message and exit
-  -p <path>                   This must be the path to the `project.yml` or the path containing it.
+  -p <path>                   This must be the path to the `project.yaml` or the path containing it.
   [path]                      Path to the root of the project.
   <app,lib,dep>               Type of an entity to work with 
 ```
@@ -87,7 +87,7 @@ Command arguments:
 ```
 Command arguments:
     -h,--help                   Print this help message and exit
-    -p <path>                   This must be the path to the `project.yml` or the path containing it.
+    -p <path>                   This must be the path to the `project.yaml` or the path containing it.
     [path]                      Path to the root of the project.    
 ```
 **Example: antler-proj populate ./project**
@@ -113,7 +113,7 @@ Command arguments:
 ```
 Command arguments:
     -h,--help                   Print this help message and exit
-    -p <path>                   This must be the path to the `project.yml` or the path containing it.
+    -p <path>                   This must be the path to the `project.yaml` or the path containing it.
     [path]                      Path to the root of the project.    
 ```
 **Example: antler-proj build ./project**
