@@ -110,9 +110,13 @@ namespace antler {
       update_project(CLI::App& app) {
          path = system::fs::current_path().string();
          subcommand = app.add_subcommand("update", "Update an app, dependency, library or test to your project.");
-         subcommand->add_option("-p, path", path, "This must be the path to the `project.yml` or the path containing it.")->default_val(".");
+         subcommand->add_option("-p, path", path, "Path containing the project's yaml file.");
 
-         app_subcommand = subcommand->add_subcommand("app", "Remove app from the project.");
+         app_subcommand = subcommand->add_subcommand("app", "Update an app in the project.");
+         app_subcommand->footer(std::string(R"(Examples:)")
+               + "\n\t" + app.get_name() +R"( update app MyApp C++ \\-O2)"
+               + "\n\t" + app.get_name() +R"( update ./path-to-project/ app -n MyApp --comp -O2)");
+         app_subcommand->add_option("-p", path, "Path containing the project's yaml file.");
          app_subcommand->add_option("-n, name", obj_name, "The name of the app to remove.")->required();
          app_subcommand->add_option("-l, language", lang, "The language of the app.");
          app_subcommand->add_option("--comp, compile_options", copts, "The compile options used to build the app.")
@@ -120,13 +124,22 @@ namespace antler {
          app_subcommand->add_option("--link, link_options", lopts, "The link options used to build the app.")
             ->transform(escape_transform);
 
-         lib_subcommand = subcommand->add_subcommand("lib", "Remove lib from the project.");
+         lib_subcommand = subcommand->add_subcommand("lib", "Update a lib in the project.");
+         lib_subcommand->footer(std::string(R"(Examples:)")
+               + "\n\t" + app.get_name() +R"( update lib MyLib C++ \\-O2 "\-s")"
+               + "\n\t" + app.get_name() +R"( update lib MyLib --link -s)");
+         lib_subcommand->add_option("-p", path, "Path containing the project's yaml file.");
          lib_subcommand->add_option("-n, name", obj_name, "The name of the library to add.")->required();
          lib_subcommand->add_option("-l, language", lang, "The language of the lib.");
-         lib_subcommand->add_option("--comp, compile_options", copts, "The compile options used to build the app.");
-         lib_subcommand->add_option("--link, link_options", lopts, "The link options used to build the app.");
+         lib_subcommand->add_option("--comp, compile_options", copts, "The compile options used to build the app.")
+            ->transform(escape_transform);
+         lib_subcommand->add_option("--link, link_options", lopts, "The link options used to build the app.")
+            ->transform(escape_transform);
 
-         dep_subcommand = subcommand->add_subcommand("dep", "Remove a dependency from the project.");
+         dep_subcommand = subcommand->add_subcommand("dep", "Update a dependency in the project.");
+         dep_subcommand->footer(std::string(R"(Examples:)")
+               + "\n\t" + app.get_name() +R"( update dep MyDep -l AntelopeIO/my_dep)");
+         dep_subcommand->add_option("-p", path, "Path containing the project's yaml file.");
          dep_subcommand->add_option("-d, dep", dep_name, "The name of the dependency.")->required();
          dep_subcommand->add_option("-o, object", obj_name, "The name of the object the dependency is attached to.");
          dep_subcommand->add_option("-l, location", loc, "The location of the dependency.");
@@ -136,6 +149,10 @@ namespace antler {
 
          /* TODO Add back after this release when we have the testing framework finished
          test_subcommand = subcommand->add_subcommand("test", "Remove a test from the project.");
+         test_subcommand->footer(std::string(R"(Examples:)")
+               + "\n\t" + app.get_name() +R"( update dep MyDep -l AntelopeIO/my_dep")");
+         test_subcommand->add_option("-p", path, "Path containing the project's yaml file.");
+         test_subcommand->add_option("-p", path, "Path containing the project's yaml file.");
          test_subcommand->add_option("-n, name", dep_name, "The name of the test to remove.")->required();
          */
 

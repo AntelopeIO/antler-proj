@@ -97,6 +97,12 @@ def test_app_update_options():
 
     assert expect_subvalue(load_project(PROJECT_PATH)["apps"], "App3", "compile_options", "-O2")
 
+    # Test for a missing application
+    out, err = antler_in_proj_cmd(PROJECT_PATH, "update app NonexistingApp  --comp \\\\-O1")
+    print(out)
+    print(err)
+    assert "Object NonexistingApp does not exist" in err
+
 
 def test_lib_options():
     """Add a library to the project and test its compile and link options can be updated with flags.
