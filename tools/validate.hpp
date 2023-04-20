@@ -12,8 +12,11 @@
 namespace antler {
    struct validate_project {
       inline validate_project(CLI::App& app) {
+         path = system::fs::current_path().string();
          subcommand = app.add_subcommand("validate", "Validate a project.");
-         subcommand->add_option("-p, path", path, "This is the path to the root of the project.")->default_val(".");
+         subcommand->footer(std::string(R"(Examples:)")
+               + "\n\t" + app.get_name() +R"( validate)");
+         subcommand->add_option("-p, path", path, "Path containing the project's yaml file.");
          subcommand->add_flag("-V, --verbose", verbose, "Verbose output.");
 
       }
@@ -34,9 +37,9 @@ namespace antler {
          system::info_log("Valid project dependencies and all are reachable");
          return 0;
       }
-      
+
       CLI::App*   subcommand = nullptr;
-      std::string path       = "";
+      std::string path;
       bool        verbose    = false;
    };
 } // namespace antler

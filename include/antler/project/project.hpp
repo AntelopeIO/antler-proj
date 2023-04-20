@@ -128,15 +128,16 @@ public:
 
 
    /// Return the first object with the matching name where search order is apps, libs, tests.
-   /// @TODO replace this with a std::vector<antler::project::object>/antler::project::object::list_t to return all the objects
-   /// with matching names.
    /// @param name  The name to search for in the object lists.
    /// @param type  If type is other than any, the search is limited to that single type.
    /// @return vector with copies of the objects.
    template <typename Tag>
    [[nodiscard]] auto& object(const std::string& name) {
+
       const auto& get = [](auto nm, auto& c) -> auto& {
          auto itr = c.find(nm);
+         if(itr == c.end())
+            throw std::out_of_range(nm + " not found");
          return itr->second;
       };
 
