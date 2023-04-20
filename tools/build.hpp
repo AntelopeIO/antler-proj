@@ -13,8 +13,11 @@ namespace antler {
 
    struct build_project {
       inline build_project(CLI::App& app) {
+         path = system::fs::current_path().string();
          subcommand = app.add_subcommand("build", "Build a project.");
-         subcommand->add_option("-p, path", path, "This is the path to the root of the project.")->default_val(".");
+         subcommand->footer(std::string(R"(Examples:)")
+               + "\n\t" + app.get_name() +R"( build -j3)");
+         subcommand->add_option("-p, path", path, "This is the path to the root of the project.");
          subcommand->add_option("-j, --jobs", jobs, "The number of submodules fetched at the same time.")->default_val(1);
          subcommand->add_flag("-c, --clean", clean, "This will force a clean build.")->default_val(false);
       }
@@ -93,7 +96,7 @@ namespace antler {
       }
 
       CLI::App*   subcommand = nullptr;
-      std::string path = "";
+      std::string path;
       uint32_t    jobs = 1;
       bool        clean = false;
    };
