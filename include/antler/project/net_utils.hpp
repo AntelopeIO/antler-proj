@@ -100,11 +100,15 @@ namespace antler::project {
          }
       }
 
-      std::string request(std::string_view org, std::string_view repo) {
+      std::string build_github_url(std::string_view org, std::string_view repo) {
          std::string url = "https://api.github.com/repos/";
          url += std::string(org) + std::string("/");
          url += repo;
-         auto s = sender.authenticated_request(bearer_token, url.c_str());
+         return url;
+      }
+
+      std::string request(std::string_view org, std::string_view repo) {
+         auto s = sender.authenticated_request(bearer_token, build_github_url(org, repo).c_str());
          return s;
       }
 
@@ -122,10 +126,13 @@ namespace antler::project {
             auto js = nlohmann::json::parse(request(s));
             auto msg = js["message"];
             if (!msg.is_null())
-               if (msg == "Not Found")
+               if (msg == "Not Found") {
+                  system::error_log("Cannot find github repo using URL: {0}", build_github_url(get_org(s), get_repo(s)));
                   return false;
+               }
             return true;
          } catch(...) {
+            system::error_log("Unknown error when requesting URL: {0}", build_github_url(get_org(s), get_repo(s)));
             return false;
          }
       }

@@ -118,7 +118,7 @@ bool project::validate_dependency(const dependency& dep) const noexcept {
    if (dep.location().empty()) {
       return lib_exists(dep.name());
    } else if (!dep.is_valid_location()) {
-      system::error_log("Error denpendency: {0} is invalid.", dep.name());
+      system::error_log("Error dependency: {0} is invalid.", dep.name());
       return false;
    }
    return true;

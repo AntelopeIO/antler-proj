@@ -34,7 +34,7 @@ bool is_github_repo(std::string_view s) { return is_github(s) && !is_archive(s);
 
 bool is_reachable(std::string_view l) {
    if (!is_github_shorthand(l)) {
-      system::error_log("In this version of antler-proj only github shorthands are supported. Generalized git repos and archives will be supported in a future version.");
+      system::error_log("In this version of antler-proj only github shorthands (i.e. org/project) are supported. Generalized git repos and archives will be supported in a future version.");
       return false;
    }
 
