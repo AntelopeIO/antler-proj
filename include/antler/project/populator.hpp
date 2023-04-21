@@ -23,7 +23,7 @@ namespace antler::project {
          /// Populate the directory by generating files for build and gathering the dependencies.
          /// @param jobs The number of jobs used to clone or pull dependencies.
          /// @return true for success; false for failure.
-         [[nodiscard]] bool populate(uint32_t jobs=1);
+         [[nodiscard]] bool populate(uint32_t jobs=0);
 
          template <typename P>
          void emit_cmake(P& pops) { emitter.emit(pops); }

@@ -18,7 +18,7 @@ namespace antler {
          subcommand->footer(std::string(R"(Examples:)")
                + "\n\t" + app.get_name() +R"( build -j3)");
          subcommand->add_option("-p, path", path, "This is the path to the root of the project.");
-         subcommand->add_option("-j, --jobs", jobs, "The number of submodules fetched at the same time.")->default_val(1);
+         subcommand->add_option("-j, --jobs", jobs, "The number of submodules fetched at the same time. Default is 0, which means to use git default.")->default_val(0);
          subcommand->add_flag("-c, --clean", clean, "This will force a clean build.")->default_val(false);
       }
 
