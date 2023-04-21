@@ -87,12 +87,13 @@ bool project::update_path(system::fs::path& path) noexcept {
    }
 
    for (;;) {
-      if (system::fs::exists(search_path / "project.yaml")) {
-         path = search_path / "project.yaml";
+      if (system::fs::exists(search_path / manifest_name)) {
+         path = search_path / manifest_name;
          return true;
       }
-      if (system::fs::exists(search_path / "project.yml")) {
-         path = search_path / "project.yml";
+      // alternative manifest name
+      if (system::fs::exists(search_path / manifest_alternative)) {
+         path = search_path / manifest_alternative;
          return true;
       }
       if (search_path.empty() || search_path == "/")
@@ -118,7 +119,7 @@ bool project::validate_dependency(const dependency& dep) const noexcept {
    if (dep.location().empty()) {
       return lib_exists(dep.name());
    } else if (!dep.is_valid_location()) {
-      system::error_log("Error denpendency: {0} is invalid.", dep.name());
+      system::error_log("Error dependency: {0} is invalid.", dep.name());
       return false;
    }
    return true;
