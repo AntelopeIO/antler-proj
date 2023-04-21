@@ -39,14 +39,13 @@ km::mustache cmake::entry_template = {"include(ExternalProject)\n"
                                       "   BUILD_ALWAYS 1\n"
                                       ")\n\n"};
 
-// Note the open_hack value in the following 2 templates. open_hack must be set to "${" as a workaround for Mustache decoding the
+// Note the dollar_brace value in the following 2 templates. dollar_brace must be set to "${" as a workaround for Mustache decoding the
 // wrong pair in "${{{",
 km::mustache cmake::add_contract_template = {
    "file(GLOB {{target_name}}-source ${CMAKE_CURRENT_SOURCE_DIR}/../../../apps/{{obj_name}}/*{{source_ext}})\n"
-   "add_contract({{obj_name}} {{target_name}} {{open_hack}}{{target_name}}-source})\n\n"};
+   "add_contract({{obj_name}} {{target_name}} {{dollar_brace}}{{target_name}}-source})\n\n"};
 km::mustache cmake::add_library_template = {
    "file(GLOB {{target_name}}-source ${CMAKE_CURRENT_SOURCE_DIR}/../../../libs/{{obj_name}}/*{{source_ext}})\n\n"
-   "add_library({{target_name}} {{open_hack}}{{target_name}}-source})\n\n"};
+   "add_library({{target_name}} {{dollar_brace}}{{target_name}}-source})\n\n"};
 
 } // namespace antler::project
- 
