@@ -18,7 +18,7 @@ def test_init_project():
    assert(os.path.isdir("./test0/include"))
    assert(os.path.isdir("./test0/ricardian"))
    assert(os.path.isdir("./test0/libs"))
-   assert(os.path.isfile("./test0/project.yml"))
+   assert(os.path.isfile("./test0/project.yaml") or os.path.isfile("./test0/project.yml"))
 
    project = load_project("./test0")
    assert(project["project"] == "test0")
@@ -32,7 +32,7 @@ def test_init_project_2():
    assert(os.path.isdir("./test1/include"))
    assert(os.path.isdir("./test1/ricardian"))
    assert(os.path.isdir("./test1/libs"))
-   assert(os.path.isfile("./test1/project.yml"))
+   assert(os.path.isfile("./test1/project.yaml") or os.path.isfile("./test1/project.yml"))
 
    project = load_project("./test1")
    assert(project["project"] == "abc")

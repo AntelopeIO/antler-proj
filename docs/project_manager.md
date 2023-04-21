@@ -14,7 +14,7 @@ Github will act as the primary 'repo' for packages to exist.  When listing depen
 3) An optional version can be added with the additional qualifier of greater than '>'
 
 #### Manifest
-Example project.yml:
+Example project.yaml:
 ```yaml
 ---
    project: "antelope_system_contract"
@@ -66,13 +66,13 @@ The directory structure for the project manager system will be as such:
     ├───ricardian
     ├───libs
     ├───tests
-    └───project.yml
+    └───project.yaml
 ```
 ### Convention and Specification
 A strict convention will be used to define packages/projects in terms of directory layout and manifest files.
 
 ### antler-pack --init
-`antler-pack --init` should produce an initial project for the developer with the above given directory structure and project.yml.
+`antler-pack --init` should produce an initial project for the developer with the above given directory structure and project.yaml.
 
 Prompts should be given for:
 - Project name
@@ -97,7 +97,7 @@ Prompts should be given for:
    - dependency location (local or github)
    - dependency version (if location is local then ignore)
 
-With this information a new entry in the `project.yml` will be created.
+With this information a new entry in the `project.yaml` will be created.
 
 ### antler-pack --add-lib
 `antler-pack --add-lib` will allow the user to add a new library to their project given a current project exists.
@@ -110,7 +110,7 @@ Prompts should be given for:
    - dependency location (local or github)
    - dependency version (if location is local then ignore)
 
-With this information a new entry in the `project.yml` will be created.
+With this information a new entry in the `project.yaml` will be created.
 
 ### antler-pack --add-test
 `antler-pack --add-test` will allow the user to add a new test to their project given a current project exists.
@@ -122,7 +122,7 @@ Prompts should be given for:
    - dependency location (local or github)
    - dependency version (if location is local then ignore)
 
-With this information a new entry in the `project.yml` will be created.
+With this information a new entry in the `project.yaml` will be created.
 
 ### antler-pack --add-dependency
 `antler-pack --add-dependency` will allow the user to add a dependency to their project.
@@ -135,7 +135,7 @@ Prompts should be given for:
 - Lib/s names that will use this dependency
 - Test/s names that will use this dependency
 
-With this information the associated app/s and lib/s in the `project.yml` will be updated.
+With this information the associated app/s and lib/s in the `project.yaml` will be updated.
 
 ### antler-pack --remove-dependency
 `antler-pack --remove-dependency` will allow the user to remove a dependency from their project.
@@ -146,7 +146,7 @@ Prompts should be given for:
 - Lib/s to remove the dependency from
 - Test/s to remove the dependency from
 
-With this information the associated app/s and lib/s in the `project.yml` will be updated.
+With this information the associated app/s and lib/s in the `project.yaml` will be updated.
 
 A default value for 'project all' should be given for the prompts to allow the dependency to be removed completely.
 
@@ -158,12 +158,12 @@ Prompts should be given for:
 - New location?
 - New version?
 
-With this information the tool will update the associated `project.yml`.
+With this information the tool will update the associated `project.yaml`.
 
 ### antler-pack --populate
 `antler-pack --populate` should download any dependencies need for the project.
 
-### C++ project.yml parsing library
+### C++ project.yaml parsing library
 The following structures and functions should exist.
 
 ```C++
@@ -210,10 +210,10 @@ class object {
     std::unordered_set<dependency> dependencies;
 };
 
-// main structure for the project.yml file
+// main structure for the project.yaml file
 class project {
   public:
-    // parse a project from a project.yml
+    // parse a project from a project.yaml
     inline project(const char* filename);
     void upsert_app(object&& app) noexcept;
     void upsert_lib(object&& lib) noexcept;
