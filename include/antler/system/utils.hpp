@@ -86,6 +86,7 @@ namespace antler::system {
       for (const auto& arg : args) {
          cmd += " " + arg;
       }
+      cmd += " 2>&1";
 
       FILE* h = popen(cmd.c_str(), "r");
       if (h == nullptr) {

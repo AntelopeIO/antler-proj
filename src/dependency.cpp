@@ -72,12 +72,11 @@ void dependency::patch_remove(const system::fs::path& path) noexcept {
       m_patchfiles.erase(i);
 }
 
-
 void dependency::set(std::string nm, std::string_view loc, std::string_view tag, std::string_view rel, std::string_view hash) {
 
    m_name = std::move(nm);
 
-   m_loc = loc;
+   m_loc = location::normalize(loc);
 
    m_tag_or_commit = tag;
    m_rel = rel;

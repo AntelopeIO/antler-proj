@@ -95,7 +95,11 @@ namespace antler::project {
          const auto& itr = m_dependencies.find(dep.name());
          bool has_value = itr == m_dependencies.end();
 
-         m_dependencies.emplace(dep.name(), std::move(dep));
+         if(!has_value)
+            itr->second = dep;
+         else
+            m_dependencies.emplace(dep.name(), std::move(dep));
+
          return has_value;
       }
 

@@ -4,9 +4,10 @@
 
 #include <catch2/catch.hpp>
 
-TEST_CASE("Testing location clone") {
-   using namespace antler::project;
+using namespace std::literals;
+using namespace antler::project;
 
+TEST_CASE("Testing location clone") {
    antler::system::fs::remove_all("./clone_test");
 
    CHECK(location::clone_github_repo("antelopeio", "antler-proj", "main", 10, "./clone_test/foo2"));
@@ -17,8 +18,6 @@ TEST_CASE("Testing location clone") {
 }
 
 TEST_CASE("Testing location github REST API requests") {
-   using namespace antler::project;
-
    std::string default_branch = location::get_github_default_branch("antelopeio", "antler-proj");
    CHECK(default_branch == "main");
 
@@ -26,4 +25,25 @@ TEST_CASE("Testing location github REST API requests") {
    CHECK(default_branch == "devel");
 
    CHECK_THROWS(location::get_github_default_branch("antelopeio", "repo-does-not-exist"));
+}
+
+TEST_CASE("strip_github_url_to_shorthand") {
+   CHECK(location::strip_github_url_to_shorthand("https://github.com/org/project"sv) == "org/project"sv);
+   CHECK(location::strip_github_url_to_shorthand("https://github.com/org/project/z"sv) == "org/project/z"sv);
+   CHECK(location::strip_github_url_to_shorthand("https://github.com/org"sv) == "org"sv);
+   CHECK_THROWS(location::strip_github_url_to_shorthand("https://github.com"sv));
+   CHECK_THROWS(location::strip_github_url_to_shorthand("https://github.com/"sv));
+   CHECK_THROWS(location::strip_github_url_to_shorthand(""sv));
+}
+
+TEST_CASE("normalize") {
+   CHECK(location::normalize("https://github.com/org/project"sv) == "org/project"sv);
+   CHECK(location::normalize("https://github.com/org/project/z"sv) == "org/project/z"sv);
+   CHECK(location::normalize("https://github.com/org"sv) == "org"sv);
+   CHECK(location::normalize("https://xyz.com"sv) == "https://xyz.com"sv);
+   CHECK(location::normalize(""sv) == ""sv);
+   CHECK(location::normalize("https://github.com"sv) == "https://github.com"sv);
+   CHECK(location::normalize("https://github.comx"sv) == "https://github.comx"sv);
+
+   CHECK_THROWS(location::normalize("https://github.com/"sv));
 }

@@ -9,6 +9,11 @@
 
 namespace antler::project::location {
 
+/// If location is github URL then strips out `https://github.com/` from URL
+/// @param loc Github location - either full URL or shorthand
+/// @return string_view shorthand version of full github URL
+[[nodiscard]] std::string_view normalize(std::string_view loc);
+
 /// @param l  Location to evaluate.
 /// @return true if l looks an archive.
 [[nodiscard]] bool is_archive(std::string_view l);
@@ -16,6 +21,9 @@ namespace antler::project::location {
 /// @param l  Location to evaluate.
 /// @return true if l looks like a github repository.
 [[nodiscard]] bool is_github_repo(std::string_view l);
+/// @param github_url Full github URL with pointing to specific project
+/// @return strips out `https://github.com/` from full URL
+std::string_view strip_github_url_to_shorthand(std::string_view github_url);
 /// @param l  Location to evaluate.
 /// @return true if l looks like an archive from github.
 [[nodiscard]] bool is_github_archive(std::string_view l);

@@ -13,6 +13,7 @@ add_executable(unit_tests
                dependency_tests.cpp
                location_tests.cpp
                object_tests.cpp
+               net_utils_tests.cpp
                project_tests.cpp
                init_tests.cpp
                version_constraint_tests.cpp 
