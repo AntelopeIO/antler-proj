@@ -9,12 +9,8 @@
 #include <stdexcept>
 #include <string_view>
 
-#include <mustache.hpp>
-
 
 namespace antler::project {
-
-   namespace km = kainjow::mustache;
 
    /// @brief struct to encapsulate a CMakeLists.txt file
    struct cmake_lists {
@@ -76,17 +72,17 @@ namespace antler::project {
          constexpr inline static std::string_view libs_dir_name   = "libs";
          constexpr inline static std::string_view tests_dir_name  = "tests";
 
-         // `mustache` templates for the cmake
-         static km::mustache add_subdirectory_template;
-         static km::mustache add_subdirectory2_template;
-         static km::mustache preamble_template;
-         static km::mustache project_stub_template;
-         static km::mustache target_compile_template;
-         static km::mustache target_include_template;
-         static km::mustache target_link_libs_template;
-         static km::mustache entry_template;
-         static km::mustache add_contract_template;
-         static km::mustache add_library_template;
+         // std::format templates for the cmake
+         static std::string_view add_subdirectory_template;
+         static std::string_view add_subdirectory2_template;
+         static std::string_view preamble_template;
+         static std::string_view project_stub_template;
+         static std::string_view target_compile_template;
+         static std::string_view target_include_template;
+         static std::string_view target_link_libs_template;
+         static std::string_view entry_template;
+         static std::string_view add_contract_template;
+         static std::string_view add_library_template;
 
          cmake(const project& proj)
             : proj(&proj),
@@ -118,22 +114,25 @@ namespace antler::project {
 
          template <typename Stream>
          inline void emit_add_subdirectory(Stream& s, system::fs::path path, std::string_view name) noexcept {
-            s << add_subdirectory_template.render(datum{"path", (path / name).string()});
+            s << fmt::format(add_subdirectory_template, (path / name).string());
          }
 
          template <typename Stream>
          inline void emit_preamble(Stream& s) noexcept {
-            s << preamble_template.render(datum{"tool", "antler-proj"}
-                                               ("major", minimum_major)
-                                               ("minor", minimum_minor)
-                                               ("proj_name", proj->name())
-                                               ("proj_major", proj->version().major())
-                                               ("proj_minor", proj->version().minor())
-                                               ("proj_patch", proj->version().patch()));
+            s << fmt::format(preamble_template,
+                             "antler-proj",
+                             minimum_major,
+                             minimum_minor,
+                             proj->name(),
+                             proj->version().major(),
+                             proj->version().minor(),
+                             proj->version().patch());
          }
 
          template <typename Stream>
-         inline void emit_project_stub(Stream& s) noexcept { s << project_stub_template.render({}); }
+         inline void emit_project_stub(Stream& s) noexcept {
+               s << fmt::format(project_stub_template);
+         }
 
          template <typename Populators, typename Stream, typename Tag>
          inline void emit_dependencies(Populators&& pops, Stream& s, const object<Tag>& obj) noexcept {
@@ -142,43 +141,49 @@ namespace antler::project {
                system::debug_log("emitting dependencies for {0} at {1}", dep.name(), dep.location().empty() ? "local" : dep.location());
                if (!dep.location().empty()) {
                   std::string repo = std::string(github::get_repo(dep.location()));
-                  s << add_subdirectory2_template.render(datum{"src_path", "../../dependencies/"+repo+"/build/apps/"}
-                                                            ("bin_path", repo));
-                  s << target_link_libs_template.render(datum{"target_name", target_name(obj)}
-                                                             ("dep_name", pops.get_mapping(dep)+"-"+dep.name()));
+                  s << fmt::format(add_subdirectory2_template,
+                                   "../../dependencies/"+repo+"/build/apps/",
+                                   repo);
+                  s << fmt::format(target_link_libs_template,
+                                   target_name(obj),
+                                   pops.get_mapping(dep)+"-"+dep.name());
                } else {
-                  s << target_link_libs_template.render(datum{"target_name", target_name(obj)}
-                                                             ("dep_name", target_name(dep)));
+                  s << fmt::format(target_link_libs_template,
+                                   target_name(obj),
+                                   target_name(dep));
                }
             }
             s << "\n";
          }
 
          template <typename Stream>
-         inline void emit_entry(Stream& s) noexcept { s << entry_template.render(datum{"proj", proj->name()}); }
+         inline void emit_entry(Stream& s) noexcept { s << fmt::format(entry_template, proj->name()); }
 
          template <typename Pops, typename Stream, typename Tag>
          inline void emit_object(Pops& pops, Stream& s, const object<Tag>& obj) {
-            km::mustache& temp = std::is_same_v<Tag, app_tag> ? add_contract_template : add_library_template;
+            std::string_view temp = std::is_same_v<Tag, app_tag> ? add_contract_template : add_library_template;
 
-            s << temp.render(datum{"obj_name", obj.name()}
-                                  ("target_name", target_name(obj))
-                                  ("source_ext", system::extension(obj.language()))
-                                  ("dollar_brace", "${")); // dollar_brace must be "${" to work around Mustache decoding the wrong pair in "${{{".
+            s << fmt::format(temp,
+                             obj.name(),
+                             target_name(obj),
+                             system::extension(obj.language()));
 
-            s << target_include_template.render(datum{"target_name", target_name(obj)}
-                                                     ("obj_name", obj.name()));
+            s << fmt::format(target_include_template,
+                             target_name(obj),
+                             obj.name());
 
             for (const auto& o : obj.compile_options()) {
-               s << target_compile_template.render(datum{"target_name", target_name(obj)}
-                                                        ("opt", o));
+               s << fmt::format(target_compile_template,
+                                target_name(obj),
+                                o);
             }
 
             s << "\n";
 
             for (const auto& o : obj.link_options()) {
-               s << target_link_libs_template.render(datum{"target_name", target_name(obj)}
-                                                          ("dep_name", o));
+               s << fmt::format(target_link_libs_template,
+                                target_name(obj),
+                                                              o);
             }
 
             s << "\n";
@@ -221,31 +226,6 @@ namespace antler::project {
          }
 
       private:
-
-         // simple helper to clean km::data usage
-         struct datum {
-            template <typename T>
-            decltype(auto) fwrd(T&& val) {
-               std::stringstream ss;
-               ss << std::forward<T>(val);
-               return ss.str();
-            }
-
-            template <typename Str, typename T>
-            inline datum(Str&& key, T&& val)
-               : data(std::forward<Str>(key), fwrd(std::forward<T>(val))) {}
-
-            template <typename Str, typename T>
-            datum& operator()(Str&& key, T&& val) {
-               data.set(std::forward<Str>(key), fwrd(std::forward<T>(val)));
-               return *this;
-            }
-
-            operator km::data() const { return data; }
-            operator km::data&() { return data; }
-
-            km::data data;
-         };
 
          const project*   proj = nullptr; // non-owning pointer to project
          system::fs::path base_path;

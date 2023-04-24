@@ -10,9 +10,6 @@
 [submodule "external/cturtle"]
 	path = external/cturtle
 	url = https://github.com/dimas1185/cturtle
-[submodule "external/Mustache"]
-	path = external/Mustache
-	url = https://github.com/kainjow/Mustache
 [submodule "external/fmt"]
 	path = external/fmt
 	url = https://github.com/fmtlib/fmt
