@@ -22,5 +22,3 @@ add_subdirectory(fmt)
 set(CTURTLE_ENABLE_TESTS OFF CACHE INTERNAL "Skip cturtle tests")
 set(CTURTLE_ENABLE_INSTALL OFF CACHE INTERNAL "Skip cturtle install")
 add_subdirectory(cturtle)
-
-add_subdirectory(Mustache)

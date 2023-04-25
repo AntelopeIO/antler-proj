@@ -1,0 +1,13 @@
+project: foo
+version: 1.0.0
+apps:
+  - name: test
+    lang: CXX
+    compile_options: ""
+    link_options: ""
+#    depends:
+#      - name: ret42
+#        location: larryk85/antler-proj-example-hello
+#        tag: ""
+#        release: ">=1.0"
+#        hash: ""
