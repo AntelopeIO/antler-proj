@@ -21,8 +21,8 @@ namespace antler::project::location {
 /// @param l  Location to evaluate.
 /// @return true if l looks like a github repository.
 [[nodiscard]] bool is_github_repo(std::string_view l);
-/// @param github_url Full github URL with pointing to specific project
-/// @return strips out `https://github.com/` from full URL
+/// @param l  Location to evaluate.
+/// @return true if l looks like an archive from github.
 [[nodiscard]] bool is_github_archive(std::string_view l);
 /// @param l  Location to evaluate.
 /// @return true if l looks like a local file.
