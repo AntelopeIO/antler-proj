@@ -163,8 +163,8 @@ namespace antler::project {
       /// @param org
       /// @param repo
       /// @param branch
-      static bool clone(const std::string& org, const std::string& repo, const std::string& branch, uint32_t jobs, const system::fs::path& dest) {
-         int32_t ret = system::execute(std::string(executable), { "clone", "-j", std::to_string(jobs), "https://github.com/"+org+"/"+repo, "--depth", "1", "--branch", branch, dest.string() });
+      static bool clone(const std::string& org, const std::string& repo, const std::string& branch, const system::fs::path& dest) {
+         int32_t ret = system::execute(std::string(executable), { "clone", "https://github.com/"+org+"/"+repo, "--depth", "1", "--branch", branch, dest.string() });
          system::debug_log("clone for {0}/{1} returned {2}\n", org, repo, ret);
          if (ret != 0)
             return false;
@@ -180,8 +180,8 @@ namespace antler::project {
       /// @brief clone a repo from git
       /// @param url
       /// @param branch
-      static bool clone(const std::string& url, const std::string& branch, uint32_t jobs, const system::fs::path& dest) {
-         int32_t ret = system::execute(std::string(executable), { "clone", "-j", std::to_string(jobs), url, "--depth", "1", "--branch", branch, dest.string() });
+      static bool clone(const std::string& url, const std::string& branch, const system::fs::path& dest) {
+         int32_t ret = system::execute(std::string(executable), { "clone", url, "--depth", "1", "--branch", branch, dest.string() });
          system::debug_log("clone for {0} returned {1}\n", url,ret);
          if (ret != 0)
             return false;

@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <string>
+#include <sys/sysinfo.h>
 
 #include "CLI11.hpp"
 
@@ -18,7 +19,7 @@ namespace antler {
          subcommand->footer(std::string(R"(Examples:)")
                + "\n\t" + app.get_name() +R"( build -j3)");
          subcommand->add_option("-p, path", path, "This is the path to the root of the project.");
-         subcommand->add_option("-j, --jobs", jobs, "The number of submodules fetched at the same time. Default is 0, which means to use git default.")->default_val(0);
+         subcommand->add_option("-j, --jobs", jobs, "The number of jobs to use with cmake. If 0 is specified (default value) antler will use number of available processors.")->default_val(0);
          subcommand->add_flag("-c, --clean", clean, "This will force a clean build.")->default_val(false);
       }
 
@@ -66,12 +67,15 @@ namespace antler {
       }
 
       int32_t exec() {
+         if (!jobs)
+            jobs = get_nprocs();
+         
          auto proj = load_project(path);
 
          bool repopulated = false;
          if (should_repopulate(proj)) {
             repopulated = true;
-            ANTLER_CHECK(project::populators::get(proj).populate(jobs), "failed to populate dependencies");
+            ANTLER_CHECK(project::populators::get(proj).populate(), "failed to populate dependencies");
 
          }
 
@@ -97,7 +101,7 @@ namespace antler {
 
       CLI::App*   subcommand = nullptr;
       std::string path;
-      uint32_t    jobs = 1;
+      uint32_t    jobs = 0;
       bool        clean = false;
    };
 } // namespace antler
