@@ -86,6 +86,7 @@ namespace antler::system {
       for (const auto& arg : args) {
          cmd += " " + arg;
       }
+      //redirect stderr to stdout in case caller wants to parse the error
       cmd += " 2>&1";
 
       FILE* h = popen(cmd.c_str(), "r");
