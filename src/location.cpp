@@ -24,12 +24,12 @@ bool is_archive(std::string_view s) {
 
 constexpr std::string_view github_com = "https://github.com/";
 
-std::string_view normalize(std::string_view loc) {
-   if (is_github_repo(loc)) {
-      return strip_github_url_to_shorthand(loc);
+std::string_view strip_github_com(std::string_view location) {
+   if (is_github_repo(location)) {
+      return location.substr(github_com.size());
    }   
 
-   return loc;
+   return location;
 }
 
 static inline bool is_github(std::string_view s) { return starts_with(s, github_com); }
@@ -41,13 +41,6 @@ bool is_url(std::string_view l) { return curl::is_url(l); }
 bool is_github_shorthand(std::string_view s) { return github::is_shorthand(s); }
 
 bool is_github_repo(std::string_view s) { return is_github(s) && !is_archive(s); }
-
-std::string_view strip_github_url_to_shorthand(std::string_view github_url) {
-   if(github_url.size() <= github_com.size())
-      throw std::out_of_range("URL passed: "+  std::string(github_url) + " should have minimum size of " + std::to_string(github_com.size() + 1));
-   
-   return github_url.substr(github_com.size());
-}
 
 bool is_reachable(std::string_view l) {
    if (!is_github_shorthand(l)) {

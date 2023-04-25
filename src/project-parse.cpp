@@ -161,7 +161,7 @@ template <typename NODE_T>
                os << "Duplicate " << tok << " values in dependency list: " << i.val() << ", " << rv.location() << "\n";
                return {};
             }
-            auto location = normalize(sv_from_csubstr(i.val()));
+            auto location = strip_github_com(sv_from_csubstr(i.val()));
             if (!dependency::validate_location(location)) {
                os << "Invalid location: " << i.val() << "\n";
                return {};

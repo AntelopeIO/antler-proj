@@ -28,7 +28,7 @@ TEST_CASE("Testing object") {
    CHECK(!app1.dependency_exists("dep1"));
    CHECK(!app1.find_dependency("dep1"));
 
-   CHECK(app1.upsert_dependency(std::move(dep1)));
+   CHECK(app1.upsert_dependency(std::move(dep1)) == false);
 
    CHECK(app1.dependency_exists("dep1"));
    const auto& d = app1.find_dependency("dep1");
@@ -40,7 +40,7 @@ TEST_CASE("Testing object") {
    CHECK(d->hash().empty());
 
    CHECK(app1.dependencies().size() == 1);
-   CHECK(app1.upsert_dependency({"dep2", "larryk85/foo2"}));
+   CHECK(app1.upsert_dependency({"dep2", "larryk85/foo2"}) == false);
    CHECK(app1.dependencies().size() == 2);
    CHECK(app1.remove_dependency("dep2"));
 

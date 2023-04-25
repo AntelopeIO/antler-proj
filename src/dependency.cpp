@@ -76,7 +76,7 @@ void dependency::set(std::string nm, std::string_view loc, std::string_view tag,
 
    m_name = std::move(nm);
 
-   m_loc = location::normalize(loc);
+   m_loc = location::strip_github_com(loc);
 
    m_tag_or_commit = tag;
    m_rel = rel;

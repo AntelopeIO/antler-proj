@@ -90,15 +90,18 @@ namespace antler::project {
 
       /// Update or insert a dependency.
       /// @param dep  The dependency to upsert.
-      /// @return true if it is an insert, false if it is an update
+      /// @return false if it is an insert, true if it is an update
       bool upsert_dependency(antler::project::dependency&& dep) noexcept {
          const auto& itr = m_dependencies.find(dep.name());
-         bool has_value = itr == m_dependencies.end();
+         bool has_value = itr != m_dependencies.end();
 
-         if(!has_value)
+         if(has_value) {
             itr->second = dep;
-         else
-            m_dependencies.emplace(dep.name(), std::move(dep));
+         }
+         else {
+            auto name = dep.name();
+            m_dependencies.emplace(std::move(name), std::move(dep));
+         }
 
          return has_value;
       }

@@ -61,7 +61,7 @@ public:
    [[nodiscard]] inline const std::string& location() const noexcept { return m_loc; }
    /// Set the location field of this dependency.
    /// @param s  The new from location of this dependency.
-   void location(std::string s) noexcept { m_loc = location::normalize(std::move(s)); }
+   void location(std::string s) noexcept { m_loc = location::strip_github_com(std::move(s)); }
 
    /// Report on the status of this dependencies from field: does it look like an archive?
    /// @return true if location ends in an archive format (e.g. ".tar.gz", ".tgz", etc")
