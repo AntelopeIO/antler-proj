@@ -9,6 +9,11 @@
 
 namespace antler::project::location {
 
+/// If location is github URL then strips out `https://github.com/` from URL. Otherwise returns input argument.
+/// @param loc Github location - either full URL or shorthand
+/// @return string_view location striped from `https://github.com/`
+[[nodiscard]] std::string_view strip_github_com(std::string_view location);
+
 /// @param l  Location to evaluate.
 /// @return true if l looks an archive.
 [[nodiscard]] bool is_archive(std::string_view l);

@@ -161,11 +161,12 @@ template <typename NODE_T>
                os << "Duplicate " << tok << " values in dependency list: " << i.val() << ", " << rv.location() << "\n";
                return {};
             }
-            if (!dependency::validate_location(sv_from_csubstr(i.val()))) {
+            auto location = strip_github_com(sv_from_csubstr(i.val()));
+            if (!dependency::validate_location(location)) {
                os << "Invalid location: " << i.val() << "\n";
                return {};
             }
-            rv.location(sv_from_csubstr(i.val()));
+            rv.location(location);
          } break;
 
          case token::patch: {

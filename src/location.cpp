@@ -22,7 +22,17 @@ bool is_archive(std::string_view s) {
          ends_with(s, ".tar.zst");
 }
 
-static inline bool is_github(std::string_view s) { return starts_with(s, "https://github.com"); }
+constexpr std::string_view github_com = "https://github.com/";
+
+std::string_view strip_github_com(std::string_view location) {
+   if (is_github_repo(location)) {
+      return location.substr(github_com.size());
+   }   
+
+   return location;
+}
+
+static inline bool is_github(std::string_view s) { return starts_with(s, github_com); }
 
 bool is_github_archive(std::string_view s) { return is_github(s) && is_archive(s); }
 
@@ -34,12 +44,12 @@ bool is_github_repo(std::string_view s) { return is_github(s) && !is_archive(s);
 
 bool is_reachable(std::string_view l) {
    if (!is_github_shorthand(l)) {
-      system::error_log("In this version of antler-proj only github shorthands (i.e. org/project) are supported. Generalized git repos and archives will be supported in a future version.");
+      system::error_log("In this version of antler-proj only github shorthands (i.e. org/project) and github URLs (i.e. https://github.com/org/project) are supported. Archives will be supported in a future version.");
       return false;
    }
 
    return github{}.is_reachable(l);
-   // TODO add support for general git repos and archives
+   // TODO add support for archives
    if (is_github_repo(l) || is_github_shorthand(l)) {
       return github{}.is_reachable(l);
    } else if (is_archive(l) || is_url(l) || is_github_archive(l)) {

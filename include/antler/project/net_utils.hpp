@@ -154,7 +154,7 @@ namespace antler::project {
 
       static inline bool is_shorthand(std::string_view s) {
          auto sub = s.substr(0, s.find_last_of("/"));
-         return sub.size() != s.size() && sub.find_last_of("/") == std::string_view::npos;
+         return s.size() > (sub.size() + 1) && sub.find_last_of("/") == std::string_view::npos;
       }
 
    private:

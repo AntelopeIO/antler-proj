@@ -14,6 +14,7 @@ TEST_CASE("Testing project") {
                   {"appd", "C++", "", ""} };
 
    apps[0].upsert_dependency({"foo", "https://github.com/larryk85/dune", "v13.3"});
+   apps[0].upsert_dependency({"foo", "mikelik/dune", "v13.4"});
    apps[1].upsert_dependency({"bar", "https://github.com/larryk85/fast_math", "blah"});
    apps[0].upsert_dependency({"baz", "https://github.com/antelopeio/leap", "v2.2.2v"});
    apps[1].upsert_dependency({"libc", ""});
@@ -22,7 +23,8 @@ TEST_CASE("Testing project") {
                   {"libc", "C", "", ""},
                   {"libd", "C++", "", ""} };
 
-   libs[0].upsert_dependency({"foo", "https://github.com/larryk85/dune", "v13.3"});
+   libs[0].upsert_dependency({"foo", "https://github.com/larryk85/dune", "main"});
+   libs[0].upsert_dependency({"foo", "mikelik/dune2", "branch"});
    libs[0].upsert_dependency({"bar", "https://github.com/larryk85/fast_math", "blah"});
    libs[1].upsert_dependency({"baz", "https://github.com/antelopeio/leap", "v2.2.2v"});
 
@@ -43,7 +45,11 @@ TEST_CASE("Testing project") {
    CHECK(proj.version().to_string() == "1.3.4");
 
    CHECK(proj.apps().size() == 4);
+   CHECK(proj.apps()["appa"].dependencies()["foo"].location() == "mikelik/dune");
+   CHECK(proj.apps()["appa"].dependencies()["foo"].tag() == "v13.4");
    CHECK(proj.libs().size() == 3);
+   CHECK(proj.libs()["libb"].dependencies()["foo"].location() == "mikelik/dune2");
+   CHECK(proj.libs()["libb"].dependencies()["foo"].tag() == "branch");
 }
 
 

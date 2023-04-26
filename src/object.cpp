@@ -97,7 +97,7 @@ object::type_t object::type() const noexcept {
 
 
 void object::upsert_dependency(antler::project::dependency&& dep) noexcept {
-   // If possible, find a dependency with matching name and reurrn it.
+   // If possible, find a dependency with matching name and return it.
    auto i = std::find_if(m_dependencies.begin(), m_dependencies.end(), [dep](const antler::project::dependency& d) { return d.name() == dep.name(); } );
    if( i == m_dependencies.end() )
       m_dependencies.emplace_back(dep);

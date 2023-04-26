@@ -18,13 +18,6 @@ TEST_CASE("Testing dependency validating locations") {
    CHECK(d.location() == "larryk85/does-not-exist");
 
    CHECK(!d.is_valid_location());
-
-   // TODO: reinstate these tests when support for general git repos and archives is added
-   //d.location("https://github.com/larryk85/cturtle");
-   //CHECK(d.is_valid_location());
-
-   //d.location("https://github.com/larryk85/does-not-exist");
-   //CHECK(!d.is_valid_location());
 }
 
 TEST_CASE("Testing dependency yaml conversions") {
