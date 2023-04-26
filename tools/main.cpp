@@ -74,7 +74,7 @@ int main(int argc, char** argv) {
 
    try {
       return runner.exec();
-   } catch(std::exception& ex) {
+   } catch(const std::exception& ex) {
       antler::system::error_log("{}", ex.what());
       return -1;
    } catch(...) {
