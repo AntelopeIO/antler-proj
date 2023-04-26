@@ -77,8 +77,10 @@ namespace antler::system {
       while ((n = fread(buff.data(), 1, buff.size(), h)) > 0) {
          fwrite(buff.data(), 1, n, stdout);
       }
+     
+      auto rv = pclose(h);
 
-      return WEXITSTATUS(pclose(h));
+      return WEXITSTATUS(rv);
    }
 
    inline static std::optional<std::string> execute_quiet(std::string_view prog, const std::vector<std::string>& args) {
@@ -102,8 +104,10 @@ namespace antler::system {
       while ((n = fread(buff.data(), 1, buff.size(), h)) > 0) {
          ret_val += std::string(buff.data(), n);
       }
+      
+      auto rv = pclose(h);
 
-      return WEXITSTATUS(pclose(h)) == 0 ? std::optional<std::string>{ret_val} : std::nullopt;
+      return WEXITSTATUS(rv) == 0 ? std::optional<std::string>{ret_val} : std::nullopt;
    }
 
    inline static std::string extension(std::string_view l) {

@@ -18,6 +18,5 @@ target_include_directories(antler-project PUBLIC ../include
 target_link_libraries(antler-project PUBLIC nlohmann_json::nlohmann_json
                                             yaml-cpp::yaml-cpp
                                             bluegrass::cturtle
-                                            ${CURL_LIBRARIES}
-                                            -lstdc++fs)
+                                            ${CURL_LIBRARIES})
 set_property(TARGET antler-project PROPERTY CXX_STANDARD 17)
