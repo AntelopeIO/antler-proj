@@ -75,17 +75,25 @@ int main(int argc, char** argv) {
    }
    // This hack fix parsing error handling of an empty command argument. Example: antler-proj build ~/path/proj ""
    catch (CLI::ExtrasError &e) {
-      if (std::string_view{"The following argument was not expected: "} == e.what()) {
-         return app.exit(CLI::ExtrasError("Empty argument is encountered in the command line", e.get_exit_code()));
+      std::string error_message(e.what());
+      CLI::detail::trim(error_message);
+
+      if (error_message == "The following argument was not expected:" ||
+          error_message == "The following arguments were not expected:") {
+         return app.exit(CLI::ExtrasError("Empty argument(s) encountered in the command line.", e.get_exit_code()));
       }
-   }
-   catch (const CLI::ParseError &e) {
+      return app.exit(e);
+   } catch (const CLI::ParseError& e) {
       return app.exit(e);
    }
 
    try {
       return runner.exec();
-   } catch(...) {
+   } catch(const std::exception& ex) {
+      antler::system::error_log("{}", ex.what());
       return -1;
+   } catch(...) {
+      antler::system::error_log("unhandled exception");
+      return -2;
    }
 }
