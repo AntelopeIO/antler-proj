@@ -4,7 +4,6 @@
 #include <string>
 #include <string_view>
 #include <memory>
-#include <vector>
 #include <optional>
 #include <tuple>
 
@@ -26,7 +25,7 @@ static V depends(V&& v) { return std::forward<V>(v); }
 
 template <typename... Ts>
 struct runner {
-   runner(CLI::App& app)
+   explicit runner(CLI::App& app)
       : tup(depends<Ts>(app)...) {}
 
    template <std::size_t I=0>
@@ -60,7 +59,6 @@ int main(int argc, char** argv) {
             std::exit(0);       // Succesfull exit MUST happen here.
          },
          "get the version of antler-proj");
-
 
    runner<antler::add_to_project,
           antler::build_project,
