@@ -26,13 +26,15 @@ static V depends(V&& v) { return std::forward<V>(v); }
 
 template <typename... Ts>
 struct runner {
-   runner(CLI::App& app)
+   explicit runner(CLI::App& app)
       : tup(depends<Ts>(app)...), _app(app) {}
 
    template <std::size_t I=0>
    constexpr inline int exec() {
       if constexpr (I == sizeof...(Ts)) {
-         std::cout << _app.help();
+         std::cout << _app.help() << std::endl
+                   << "Please run one of the subcommands with --help option to get detailed help. "
+                   << "Example: antler-proj init --help" << std::endl;
          return 0;
       } else {
          if (*std::get<I>(tup).subcommand) {
