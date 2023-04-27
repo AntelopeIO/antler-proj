@@ -74,7 +74,8 @@ int main(int argc, char** argv) {
       app.parse(argc, argv);
    }
    // This hack fix parsing error handling of an empty command argument. Example: antler-proj build ~/path/proj ""
-   catch (CLI::ExtrasError& e) {
+   catch (const CLI::ExtrasError& e) {
+
       std::string error_message(e.what());
       CLI::detail::trim(error_message);
 
