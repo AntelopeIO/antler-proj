@@ -27,13 +27,13 @@ static V depends(V&& v) { return std::forward<V>(v); }
 template <typename... Ts>
 struct runner {
    runner(CLI::App& app)
-      : tup(depends<Ts>(app)...) {}
+      : tup(depends<Ts>(app)...), _app(app) {}
 
    template <std::size_t I=0>
    constexpr inline int exec() {
       if constexpr (I == sizeof...(Ts)) {
-         std::cerr << "Please run one of the subcommands available. Use --help to see what is available." << std::endl;
-         return -1;
+         std::cout << _app.help();
+         return 0;
       } else {
          if (*std::get<I>(tup).subcommand) {
             return std::get<I>(tup).exec();
@@ -44,6 +44,9 @@ struct runner {
 
    }
    std::tuple<Ts...> tup;
+
+   private:
+      const CLI::App& _app;
 };
 
 int main(int argc, char** argv) {
