@@ -9,6 +9,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/constants.hpp.in
 
 add_executable(unit_tests
                main.cpp
+               bnfformatter_tests.cpp
                cmake_tests.cpp
                dependency_tests.cpp
                location_tests.cpp
