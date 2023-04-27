@@ -4,7 +4,6 @@
 #include <string>
 #include <string_view>
 #include <memory>
-#include <vector>
 #include <optional>
 #include <tuple>
 
@@ -65,7 +64,6 @@ int main(int argc, char** argv) {
             std::exit(0);       // Succesfull exit MUST happen here.
          },
          "get the version of antler-proj");
-
 
    runner<antler::add_to_project,
           antler::build_project,
