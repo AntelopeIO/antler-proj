@@ -56,7 +56,7 @@ int main(int argc, char** argv) {
    app.add_flag_callback("-V,--version",
          [&app]() {
             std::cout << app.get_name() << " v" << antler::system::version::full() << std::endl;
-            std::exit(0);       // Succesfull exit MUST happen here.
+            std::exit(0);       // Successful exit MUST happen here.
          },
          "get the version of antler-proj");
 
@@ -68,7 +68,23 @@ int main(int argc, char** argv) {
           antler::update_project,
           antler::validate_project> runner{app};
 
-   CLI11_PARSE(app, argc, argv);
+   try {
+      app.parse(argc, argv);
+   }
+   // This hack fix parsing error handling of an empty command argument. Example: antler-proj build ~/path/proj ""
+   catch (const CLI::ExtrasError& e) {
+
+      std::string error_message(e.what());
+      CLI::detail::trim(error_message);
+
+      if (error_message == "The following argument was not expected:" ||
+          error_message == "The following arguments were not expected:") {
+         return app.exit(CLI::ExtrasError("Empty argument(s) encountered in the command line.", e.get_exit_code()));
+      }
+      return app.exit(e);
+   } catch (const CLI::ParseError& e) {
+      return app.exit(e);
+   }
 
    try {
       return runner.exec();
