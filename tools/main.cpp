@@ -34,7 +34,7 @@ struct runner {
          std::cout << _app.help() << std::endl
                    << "Please run one of the subcommands with --help option to get detailed help. "
                    << "Example: antler-proj init --help" << std::endl;
-         return 0;
+         return 1;
       } else {
          if (*std::get<I>(tup).subcommand) {
             return std::get<I>(tup).exec();
