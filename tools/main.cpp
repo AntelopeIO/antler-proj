@@ -53,13 +53,17 @@ int main(int argc, char** argv) {
 
    CLI::App app{"Antelope Smart Contract Project Management Tool", app_name};
 
+   // Explicit help flags:
+   app.set_help_flag("-h,--help","Print this help message and exit.");
+   app.set_help_all_flag("--help-all","Expanded help with subcomands.");
+
    // Add version flag with callback here.
    app.add_flag_callback("-V,--version",
          [&app]() {
             std::cout << app.get_name() << " v" << antler::system::version::full() << std::endl;
             std::exit(0);       // Succesfull exit MUST happen here.
          },
-         "get the version of antler-proj");
+         "Get the version of antler-proj.");
 
 
    runner<antler::add_to_project,
