@@ -2,7 +2,6 @@
 
 #include <iostream>
 #include <string>
-#include <sys/sysinfo.h>
 
 #include "CLI11.hpp"
 
@@ -19,7 +18,7 @@ namespace antler {
          subcommand->footer(std::string(R"(Examples:)")
                + "\n\t" + app.get_name() +R"( build -j3)");
          subcommand->add_option("-p, path", path, "This is the path to the root of the project.");
-         subcommand->add_option("-j, --jobs", jobs, "The number of jobs to use with cmake. If 0 is specified (default value) antler will use number of available processors.")->default_val(0);
+         subcommand->add_option("-j, --jobs", jobs, "The number of jobs to use with cmake build tool. Default is number of CPUs.");
          subcommand->add_flag("-c, --clean", clean, "This will force a clean build.")->default_val(false);
       }
 
@@ -40,7 +39,11 @@ namespace antler {
          system::fs::create_directory(bin_dir);
          system::info_log("Building project...");
 
-         return system::execute("cmake", {"--build", bin_dir.string(), "-j", std::to_string(jobs)});
+         CLI::results_t args = {"--build", bin_dir.string(), "-j"};
+         if (jobs)
+            args.push_back(std::to_string(jobs));
+
+         return system::execute("cmake", std::move(args));
       }
 
       void move_artifacts(const project::project& proj) noexcept {
@@ -67,8 +70,6 @@ namespace antler {
       }
 
       int32_t exec() {
-         if (!jobs)
-            jobs = get_nprocs();
          
          auto proj = load_project(path);
 
