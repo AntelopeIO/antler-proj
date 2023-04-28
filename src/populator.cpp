@@ -4,7 +4,7 @@
 
 namespace antler::project {
 
-bool populator::populate_dependency(const dependency& d, const project& p, uint32_t jobs) {
+bool populator::populate_dependency(const dependency& d, const project& p) {
    using namespace antler::project::location;
    system::fs::path depends_dir = p.path() / p.dependencies_dir;
    system::debug_log("populating dependency {0} from {1}", d.name(), d.location());
@@ -29,7 +29,7 @@ bool populator::populate_dependency(const dependency& d, const project& p, uint3
       if (system::fs::exists(depends_dir / repo))
          return pull_git_repo(depends_dir / repo);
       else
-         return clone_github_repo(org, repo, tag, jobs, depends_dir / repo);
+         return clone_github_repo(org, repo, tag, depends_dir / repo);
    } else {
       system::error_log("Dependency {0} is not a github shorthand.", d.name());
       return false;
@@ -41,7 +41,7 @@ bool populator::populate_dependency(const dependency& d, const project& p, uint3
    //      if (d.tag().empty()) {
    //         tag = "main";
    //      }
-   //      return clone_git_repo(d.location(), tag, jobs, depends_dir / d.name());
+   //      return clone_git_repo(d.location(), tag, depends_dir / d.name());
    //   } else if (is_github_shorthand(d.location())) {
    //      std::string org = std::string{github::get_org(d.location())};
    //      std::string repo = std::string{github::get_repo(d.location())};
@@ -50,13 +50,13 @@ bool populator::populate_dependency(const dependency& d, const project& p, uint3
    //         tag = get_github_default_branch(org, repo);
    //      }
    //      system::debug_log("Cloning {0} with branch {1}", d.location(), tag);
-   //      return clone_github_repo(org, repo, tag, jobs, depends_dir / d.name());
+   //      return clone_github_repo(org, repo, tag, depends_dir / d.name());
    //   }
    //}
    //return false;
 }
 
-bool populator::populate_project(project& p, uint32_t jobs) {
+bool populator::populate_project(project& p) {
    system::fs::path depends_dir = p.path() / p.dependencies_dir;
 
    system::fs::create_directories(depends_dir);
@@ -69,7 +69,7 @@ bool populator::populate_project(project& p, uint32_t jobs) {
    const auto& pop_deps = [&](auto& objs) {
       for (const auto& [_, o] : objs) {
          for (const auto& [_, d] : o.dependencies()) {
-            if (!populate_dependency(d, p, jobs))
+            if (!populate_dependency(d, p))
                return false;
             try {
                if (d.location().empty())
@@ -86,7 +86,7 @@ bool populator::populate_project(project& p, uint32_t jobs) {
                   }
 
                   populators::add_mapping(d, std::string(next_proj.name()));
-                  if (!populate_project(next_proj, jobs))
+                  if (!populate_project(next_proj))
                      return false;
                }
             } catch(...) {
@@ -112,9 +112,9 @@ bool populator::populate_project(project& p, uint32_t jobs) {
 }
 
 
-bool populator::populate(uint32_t jobs) {
+bool populator::populate() {
    populators::add_mapping("", std::string(proj->name())); // add the default empty location to this project mapping
-   return populate_project(*proj, jobs);
+   return populate_project(*proj);
 }
 
 } // namespace antler::project

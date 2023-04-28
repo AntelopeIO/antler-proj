@@ -10,10 +10,10 @@ using namespace antler::project;
 TEST_CASE("Testing location clone") {
    antler::system::fs::remove_all("./clone_test");
 
-   CHECK(location::clone_github_repo("antelopeio", "antler-proj", "main", 10, "./clone_test/foo2"));
+   CHECK(location::clone_github_repo("antelopeio", "antler-proj", "main", "./clone_test/foo2"));
    CHECK(antler::system::fs::exists("./clone_test/foo2/.git"));
 
-   CHECK(location::clone_git_repo("https://github.com/larryk85/cturtle", "main", 10, "./clone_test/foo3"));
+   CHECK(location::clone_git_repo("https://github.com/larryk85/cturtle", "main", "./clone_test/foo3"));
    CHECK(antler::system::fs::exists("./clone_test/foo3/.git"));
 }
 

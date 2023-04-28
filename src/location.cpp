@@ -59,12 +59,12 @@ bool is_reachable(std::string_view l) {
    }
 }
 
-bool clone_github_repo(const std::string& org, const std::string& repo, const std::string& branch, uint32_t jobs, system::fs::path dest) {
-   return git::clone(org, repo, branch, jobs, dest);
+bool clone_github_repo(const std::string& org, const std::string& repo, const std::string& branch, system::fs::path dest) {
+   return git::clone(org, repo, branch, dest);
 }
 
-bool clone_git_repo(const std::string& url, const std::string& branch, uint32_t jobs, system::fs::path dest) {
-   return git::clone(url, branch, jobs, dest);
+bool clone_git_repo(const std::string& url, const std::string& branch, system::fs::path dest) {
+   return git::clone(url, branch, dest);
 }
 
 bool pull_git_repo(system::fs::path src) { return git::pull(src); }
