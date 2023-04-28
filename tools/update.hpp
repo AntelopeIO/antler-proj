@@ -21,10 +21,12 @@ namespace antler {
 
          try {
             auto& obj = proj.object<typename Obj::tag_t>(obj_name);
-            const auto* lang_opt = app.get_option_no_throw("language");
-            const auto* copts_opt = app.get_option_no_throw("compile_options");
-            const auto* lopts_opt = app.get_option_no_throw("link_options");
-
+            const auto* lang_opt = app.get_option_no_throw("-l");
+            ANTLER_CHECK(lang_opt, "null language option pointer");
+            const auto* copts_opt = app.get_option_no_throw("--comp");
+            ANTLER_CHECK(copts_opt, "null compiler options pointer");
+            const auto* lopts_opt = app.get_option_no_throw("--link");
+            ANTLER_CHECK(lopts_opt, "null linker options pointer");
 
             if (!lang_opt->empty())
                obj.language(lang);
@@ -111,50 +113,49 @@ namespace antler {
          path = system::fs::current_path().string();
          subcommand = app.add_subcommand("update", "Update an app, dependency, library or test in your project.");
 
-         subcommand->add_option("-p, path", path, "Path containing the project's yaml file.");
+         subcommand->add_option("-p", path, "Path containing the project's yaml file.")->default_val(".");
 
          app_subcommand = subcommand->add_subcommand("app", "Update an app in the project.");
          app_subcommand->footer(std::string(R"(Examples:)")
                + "\n\t" + app.get_name() +R"( update app MyApp C++ \\-O2)"
                + "\n\t" + app.get_name() +R"( update ./path-to-project/ app -n MyApp --comp -O2)");
-         app_subcommand->add_option("-p", path, "Path containing the project's yaml file.");
-         app_subcommand->add_option("-n, name", obj_name, "The name of the app to remove.")->required();
-         app_subcommand->add_option("-l, language", lang, "The language of the app.");
-         app_subcommand->add_option("--comp, compile_options", copts, "The compile options used to build the app.")
+         app_subcommand->add_option("-p", path, "Path containing the project's yaml file.")->default_val(".");
+         app_subcommand->add_option("-n", obj_name, "The name of the app to remove.")->required();
+         app_subcommand->add_option("-l", lang, "The language of the app.");
+         app_subcommand->add_option("--comp", copts, "The compile options used to build the app.")
             ->transform(escape_transform);
-         app_subcommand->add_option("--link, link_options", lopts, "The link options used to build the app.")
+         app_subcommand->add_option("--link", lopts, "The link options used to build the app.")
             ->transform(escape_transform);
 
          lib_subcommand = subcommand->add_subcommand("lib", "Update a lib in the project.");
          lib_subcommand->footer(std::string(R"(Examples:)")
                + "\n\t" + app.get_name() +R"( update lib MyLib C++ \\-O2 "\-s")"
                + "\n\t" + app.get_name() +R"( update lib MyLib --link -s)");
-         lib_subcommand->add_option("-p", path, "Path containing the project's yaml file.");
-         lib_subcommand->add_option("-n, name", obj_name, "The name of the library to add.")->required();
-         lib_subcommand->add_option("-l, language", lang, "The language of the lib.");
-         lib_subcommand->add_option("--comp, compile_options", copts, "The compile options used to build the app.")
+         lib_subcommand->add_option("-p", path, "Path containing the project's yaml file.")->default_val(".");
+         lib_subcommand->add_option("-n", obj_name, "The name of the library to add.")->required();
+         lib_subcommand->add_option("-l", lang, "The language of the lib.");
+         lib_subcommand->add_option("--comp", copts, "The compile options used to build the app.")
             ->transform(escape_transform);
-         lib_subcommand->add_option("--link, link_options", lopts, "The link options used to build the app.")
+         lib_subcommand->add_option("--link", lopts, "The link options used to build the app.")
             ->transform(escape_transform);
 
          dep_subcommand = subcommand->add_subcommand("dep", "Update a dependency in the project.");
          dep_subcommand->footer(std::string(R"(Examples:)")
                + "\n\t" + app.get_name() +R"( update dep MyDep -l AntelopeIO/my_dep)");
-         dep_subcommand->add_option("-p", path, "Path containing the project's yaml file.");
-         dep_subcommand->add_option("-d, dep", dep_name, "The name of the dependency.")->required();
-         dep_subcommand->add_option("-o, object", obj_name, "The name of the object the dependency is attached to.");
-         dep_subcommand->add_option("-l, location", loc, "The location of the dependency.");
-         auto* tag_opt = dep_subcommand->add_option("-t, tag", tag, "The github tag or commit hash; only valid when LOCATION is a github repository.");
-         dep_subcommand->add_option("-r, release", release, "A github release version.")->excludes(tag_opt);
-         dep_subcommand->add_option("--digest, hash", digest, "SHA256 message digest; only valid when LOCATION gets an archive (i.e. *.tar.gz or similar).");
+         dep_subcommand->add_option("-p", path, "Path containing the project's yaml file.")->default_val(".");
+         dep_subcommand->add_option("-d", dep_name, "The name of the dependency.")->required();
+         dep_subcommand->add_option("-o", obj_name, "The name of the object the dependency is attached to.");
+         dep_subcommand->add_option("-l", loc, "The location of the dependency.");
+         auto* tag_opt = dep_subcommand->add_option("-t", tag, "The github tag or commit hash; only valid when LOCATION is a github repository.");
+         dep_subcommand->add_option("-r", release, "A github release version.")->excludes(tag_opt);
+         dep_subcommand->add_option("--digest", digest, "SHA256 message digest; only valid when LOCATION gets an archive (i.e. *.tar.gz or similar).");
 
          /* TODO Add back after this release when we have the testing framework finished
          test_subcommand = subcommand->add_subcommand("test", "Remove a test from the project.");
          test_subcommand->footer(std::string(R"(Examples:)")
                + "\n\t" + app.get_name() +R"( update dep MyDep -l AntelopeIO/my_dep")");
-         test_subcommand->add_option("-p", path, "Path containing the project's yaml file.");
-         test_subcommand->add_option("-p", path, "Path containing the project's yaml file.");
-         test_subcommand->add_option("-n, name", dep_name, "The name of the test to remove.")->required();
+         test_subcommand->add_option("-p", path, "Path containing the project's yaml file.")->default_val(".");
+         test_subcommand->add_option("-n", dep_name, "The name of the test to remove.")->required();
          */
 
       }

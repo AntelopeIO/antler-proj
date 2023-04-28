@@ -14,9 +14,9 @@ namespace antler {
          subcommand = app.add_subcommand("init", "Initialize a new project creating the directory tree and a `project.yaml` file.");
          subcommand->footer(std::string(R"(Examples:)")
                + "\n\t" + app.get_name() +R"( init MyProjectName 1.0.0)");
-         subcommand->add_option("-p, path", path, "The root path to create the project in.")->required();
-         subcommand->add_option("-n, project_name", name, "The name of the project.")->required();
-         subcommand->add_option("-v, version", version, "The version to store in the project file.")->default_val("0.0.0");
+         subcommand->add_option("-p", path, "The root path to create the project in.")->required()->default_val(".");
+         subcommand->add_option("-n", name, "The name of the project.")->required();
+         subcommand->add_option("-v", version, "The version to store in the project file.")->default_val("0.0.0");
       }
 
       int32_t exec() {
