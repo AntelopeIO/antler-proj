@@ -12,7 +12,6 @@
 namespace antler {
    struct populate_project {
       inline populate_project(CLI::App& app) {
-         path = system::fs::current_path().string();
          subcommand = app.add_subcommand("populate", "Populate a project's dependencies and CMake.");
          subcommand->footer(std::string(R"(Examples:)")
                + "\n\t" + app.get_name() +R"( populate ./path-to-project)");

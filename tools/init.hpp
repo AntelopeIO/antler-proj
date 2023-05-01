@@ -10,7 +10,6 @@
 namespace antler {
    struct init_project {
       inline init_project(CLI::App& app) {
-         path = system::fs::current_path().string();
          subcommand = app.add_subcommand("init", "Initialize a new project creating the directory tree and a `project.yaml` file.");
          subcommand->footer(std::string(R"(Examples:)")
                + "\n\t" + app.get_name() +R"( init MyProjectName 1.0.0)");

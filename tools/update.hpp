@@ -110,10 +110,9 @@ namespace antler {
       }
 
       update_project(CLI::App& app) {
-         path = system::fs::current_path().string();
          subcommand = app.add_subcommand("update", "Update an app, dependency, library or test in your project.");
 
-         subcommand->add_option("-p", path, "Path containing the project's yaml file.")->default_val(".");
+         subcommand->add_option("-p,--path", path, "Path containing the project's yaml file.")->default_val(".");
 
          app_subcommand = subcommand->add_subcommand("app", "Update an app in the project.");
          app_subcommand->footer(std::string(R"(Examples:)")
