@@ -49,9 +49,9 @@ initializes it.
 \f[C]
 Command arguments:
     -h,--help                   Print this help message and exit
-    -p <path>                   Path to the root of the project. Here a \[ga]project.yaml\[ga] file will be created. Default is current directory.
-    -n <project_name>           The name of the project.
-    -v <version>                The version to store in the project file. Default version is 0.0.1
+    -p,--path                   Path to the root of the project. Here a \[ga]project.yaml\[ga] file will be created. Default is current directory.
+    -n,--name                   The name of the project.
+    -v,--version                The version to store in the project file. Default version is 0.0.1
 \f[R]
 .fi
 .PP
@@ -64,7 +64,7 @@ project.
 \f[C]
 Command arguments:
   -h,--help                   Print this help message and exit
-  -p <path>                   This must be the path to the \[ga]project.yaml\[ga] or the path containing it. Default is current directory.
+  -p,--path                   This must be the path to the \[ga]project.yaml\[ga] or the path containing it. Default is current directory.
   <app,lib,dep>               Type of an entity to work with
 \f[R]
 .fi
@@ -78,7 +78,7 @@ your project.
 \f[C]
 Command arguments:
   -h,--help                   Print this help message and exit
-  -p <path>                   This must be the path to the \[ga]project.yaml\[ga] or the path containing it. Default is current directory.
+  -p,--path                   This must be the path to the \[ga]project.yaml\[ga] or the path containing it. Default is current directory.
   <app,lib,dep>               Type of an entity to work with
 \f[R]
 .fi
@@ -92,7 +92,7 @@ from your project.
 \f[C]
 Command arguments:
   -h,--help                   Print this help message and exit
-  -p <path>                   This must be the path to the \[ga]project.yaml\[ga] or the path containing it. Default is current directory.
+  -p,--path                   This must be the path to the \[ga]project.yaml\[ga] or the path containing it. Default is current directory.
   <app,lib,dep>               Type of an entity to work with
 \f[R]
 .fi
@@ -114,7 +114,7 @@ Downloads all the updates in a way depending on where it is located.
 \f[C]
 Command arguments:
     -h,--help                   Print this help message and exit
-    -p <path>                   This must be the path to the \[ga]project.yml\[ga] or the path containing it. Default is current directory.
+    -p,--path                   This must be the path to the \[ga]project.yml\[ga] or the path containing it. Default is current directory.
     [path]                      Path to the root of the project.
 \f[R]
 .fi
@@ -138,7 +138,7 @@ exist and if it is possible to download all remote dependencies.
 \f[C]
 Command arguments:
     -h,--help                   Print this help message and exit
-    -p <path>                   This must be the path to the \[ga]project.yml\[ga] or the path containing it. Default is current directory.
+    -p,--path                   This must be the path to the \[ga]project.yml\[ga] or the path containing it. Default is current directory.
     -V,--verbose                Verbose output.
 \f[R]
 .fi
@@ -152,7 +152,7 @@ project.yaml, their dependencies and tests.
 \f[C]
 Command arguments:
     -h,--help                   Print this help message and exit
-    -p <path>                   This must be the path to the \[ga]project.yml\[ga] or the path containing it. Default is current directory.
+    -p,--path                   This must be the path to the \[ga]project.yml\[ga] or the path containing it. Default is current directory.
     [path]                      Path to the root of the project.
 \f[R]
 .fi
@@ -166,18 +166,36 @@ application \f[B]Example: \f[VB]antler-proj --version\f[B]\f[R]
 .nf
 \f[C]
   antler-proj add app -n MyApp -l C++ --comp \[rs]\[rs]-O2
+  antler-proj add app --name MyApp --langl C++ --comp \[rs]\[rs]-O2
   antler-proj add app -n MyApp -l C++ --comp \[dq]\[rs]-O2 -WError\[dq] --limk \[rs]\[rs]-s
+  antler-proj add app --name MyApp --lang C++ --comp \[dq]\[rs]-O2 -WError\[dq] --limk \[rs]\[rs]-s
   antler-proj add lib -n MyLib -l C++ --comp \[rs]\[rs]-O2 --link \[dq]\[rs]-s\[dq]
+  antler-proj add lib --name MyLib --lang C++ --comp \[rs]\[rs]-O2 --link \[dq]\[rs]-s\[dq]
   antler-proj add dep -o MyApp -d MyDep
+  antler-proj add dep --obj_name MyApp --dep_name MyDep
+
   antler-proj build -j3
+  antler-proj build --jobs 3
+
   antler-proj init -n MyProjectName -v 1.0.0
+  antler-proj init --name MyProjectName --version 1.0.0
+
   antler-proj populate -p ./path-to-project
+  antler-proj populate --path ./path-to-project
+
   antler-proj remove app -n MyApp
+  antler-proj remove app --name MyApp
   antler-proj remove lib -n MyLib
+  antler-proj remove lib --name MyLib
   antler-proj remove dep -d MyDep -o MyApp
+  antler-proj remove dep --dep_name MyDep --obj_name MyApp
+
   antler-proj update app -n MyApp -l C++ --comp \[rs]\[rs]-O2
+  antler-proj update app --name MyApp --lang C++ --comp \[rs]\[rs]-O2
   antler-proj update lib -n MyLib -l C++ --comp \[rs]\[rs]-O2 --link \[dq]\[rs]-s\[dq]
-  antler-proj update dep -d MyDep -l AntelopeIO/my_dep
+  antler-proj update lib --name MyLib --lang C++ --comp \[rs]\[rs]-O2 --link \[dq]\[rs]-s\[dq]
+  antler-proj update dep -d MyDep -l C++ AntelopeIO/my_dep
+  antler-proj update dep --dep_name MyDep --lang C++ AntelopeIO/my_dep
   antler-proj validate
 \f[R]
 .fi

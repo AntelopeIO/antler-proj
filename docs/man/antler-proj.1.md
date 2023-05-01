@@ -33,9 +33,9 @@ Below is described a full list of all possible commands and their possible argum
 ```
 Command arguments:
     -h,--help                   Print this help message and exit
-    -p <path>                   Path to the root of the project. Here a `project.yaml` file will be created. Default is current directory.
-    -n <project_name>           The name of the project.
-    -v <version>                The version to store in the project file. Default version is 0.0.1
+    -p,--path                   Path to the root of the project. Here a `project.yaml` file will be created. Default is current directory.
+    -n,--name                   The name of the project.
+    -v,--version                The version to store in the project file. Default version is 0.0.1
 ```
 **Example: `antler-proj init ./project hello_world 0.1`**
 
@@ -45,7 +45,7 @@ Command arguments:
 ```
 Command arguments:
   -h,--help                   Print this help message and exit
-  -p <path>                   This must be the path to the `project.yaml` or the path containing it. Default is current directory.
+  -p,--path                   This must be the path to the `project.yaml` or the path containing it. Default is current directory.
   <app,lib,dep>               Type of an entity to work with
 ```
 **Example: `antler-proj add ./project app`**
@@ -56,7 +56,7 @@ Command arguments:
 ```
 Command arguments:
   -h,--help                   Print this help message and exit
-  -p <path>                   This must be the path to the `project.yaml` or the path containing it. Default is current directory.
+  -p,--path                   This must be the path to the `project.yaml` or the path containing it. Default is current directory.
   <app,lib,dep>               Type of an entity to work with
 ```
 **Example: `antler-proj update ./project app`**
@@ -67,7 +67,7 @@ Command arguments:
 ```
 Command arguments:
   -h,--help                   Print this help message and exit
-  -p <path>                   This must be the path to the `project.yaml` or the path containing it. Default is current directory.
+  -p,--path                   This must be the path to the `project.yaml` or the path containing it. Default is current directory.
   <app,lib,dep>               Type of an entity to work with
 ```
 **Example: `antler-proj remove ./project app`**
@@ -81,7 +81,7 @@ Command arguments:
 ```
 Command arguments:
     -h,--help                   Print this help message and exit
-    -p <path>                   This must be the path to the `project.yml` or the path containing it. Default is current directory.
+    -p,--path                   This must be the path to the `project.yml` or the path containing it. Default is current directory.
     [path]                      Path to the root of the project.
 ```
 **Example: `antler-proj populate ./project`**
@@ -97,7 +97,7 @@ Command arguments:
 ```
 Command arguments:
     -h,--help                   Print this help message and exit
-    -p <path>                   This must be the path to the `project.yml` or the path containing it. Default is current directory.
+    -p,--path                   This must be the path to the `project.yml` or the path containing it. Default is current directory.
     -V,--verbose                Verbose output.
 ```
 **Example: `antler-proj validate ./project`**
@@ -107,7 +107,7 @@ Command arguments:
 ```
 Command arguments:
     -h,--help                   Print this help message and exit
-    -p <path>                   This must be the path to the `project.yml` or the path containing it. Default is current directory.
+    -p,--path                   This must be the path to the `project.yml` or the path containing it. Default is current directory.
     [path]                      Path to the root of the project.
 ```
 **Example: `antler-proj build ./project`**
@@ -120,18 +120,36 @@ Command arguments:
 
 ```
   antler-proj add app -n MyApp -l C++ --comp \\-O2
+  antler-proj add app --name MyApp --langl C++ --comp \\-O2
   antler-proj add app -n MyApp -l C++ --comp "\-O2 -WError" --limk \\-s
+  antler-proj add app --name MyApp --lang C++ --comp "\-O2 -WError" --limk \\-s
   antler-proj add lib -n MyLib -l C++ --comp \\-O2 --link "\-s"
+  antler-proj add lib --name MyLib --lang C++ --comp \\-O2 --link "\-s"
   antler-proj add dep -o MyApp -d MyDep
+  antler-proj add dep --obj_name MyApp --dep_name MyDep
+
   antler-proj build -j3
+  antler-proj build --jobs 3
+
   antler-proj init -n MyProjectName -v 1.0.0
+  antler-proj init --name MyProjectName --version 1.0.0
+
   antler-proj populate -p ./path-to-project
+  antler-proj populate --path ./path-to-project
+
   antler-proj remove app -n MyApp
+  antler-proj remove app --name MyApp
   antler-proj remove lib -n MyLib
+  antler-proj remove lib --name MyLib
   antler-proj remove dep -d MyDep -o MyApp
+  antler-proj remove dep --dep_name MyDep --obj_name MyApp
+
   antler-proj update app -n MyApp -l C++ --comp \\-O2
+  antler-proj update app --name MyApp --lang C++ --comp \\-O2
   antler-proj update lib -n MyLib -l C++ --comp \\-O2 --link "\-s"
-  antler-proj update dep -d MyDep -l AntelopeIO/my_dep
+  antler-proj update lib --name MyLib --lang C++ --comp \\-O2 --link "\-s"
+  antler-proj update dep -d MyDep -l C++ AntelopeIO/my_dep
+  antler-proj update dep --dep_name MyDep --lang C++ AntelopeIO/my_dep
   antler-proj validate
 ```
 

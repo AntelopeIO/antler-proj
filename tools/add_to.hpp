@@ -150,9 +150,9 @@ namespace antler {
                + "\n\t" + app.get_name() +R"( add app -p ./path-to-project/ -n MyApp -l C++ --comp -O2)"
                + "\n\t" + app.get_name() +R"( add app -n MyApp -l C++ "\-O2 -WError" \\-s)");
 
-         app_subcommand->add_option("-p", path, "Path containing the project's yaml file.")->default_val(".");
-         app_subcommand->add_option("-n", obj_name, "The name of the app to add.")->required();
-         app_subcommand->add_option("-l", lang, "Language this app will use.")->required();
+         app_subcommand->add_option("-p, --path", path, "Path containing the project's yaml file.")->default_val(".");
+         app_subcommand->add_option("-n, --name", obj_name, "The name of the app to add.")->required();
+         app_subcommand->add_option("-l, --lang", lang, "Language this app will use.")->required();
          app_subcommand->add_option("--comp", copts, "Options for the compiler for this app.")
             ->transform(escape_transform);
          app_subcommand->add_option("--link", lopts, "Options for the linker for this app.")
@@ -162,9 +162,9 @@ namespace antler {
          lib_subcommand->footer(std::string(R"(Examples:)")
                + "\n\t" + app.get_name() +R"( add lib MyLib C++ \\-O2 "\-s")"
                + "\n\t" + app.get_name() +R"( ./path-to-project/ add lib -n MyLib -l C++ --comp -O2 --link -s)");
-         lib_subcommand->add_option("-p", path, "Path containing the project's yaml file.")->default_val(".");
-         lib_subcommand->add_option("-n", obj_name, "The name of the library to add.")->required();
-         lib_subcommand->add_option("-l", lang, "Language this library will use.")->required();
+         lib_subcommand->add_option("-p, --path", path, "Path containing the project's yaml file.")->default_val(".");
+         lib_subcommand->add_option("-n, --name", obj_name, "The name of the library to add.")->required();
+         lib_subcommand->add_option("-l, --lang", lang, "Language this library will use.")->required();
          lib_subcommand->add_option("--comp", copts, "Options for the compiler for this app.")
             ->transform(escape_transform);
          lib_subcommand->add_option("--link", lopts, "Options for the linker for this app.")
@@ -173,19 +173,19 @@ namespace antler {
          dep_subcommand = subcommand->add_subcommand("dep", "Add a new dependency to the project.");
          dep_subcommand->footer(std::string(R"(Examples:)")
                + "\n\t" + app.get_name() +R"( add dep MyApp MyDep)");
-         dep_subcommand->add_option("-p", path, "Path containing the project's yaml file.")->default_val(".");
-         dep_subcommand->add_option("-o", obj_name, "The name of the object to attach dependency to.")->required();
-         dep_subcommand->add_option("-d", dep_name, "The name of the dependency.")->required();
-         dep_subcommand->add_option("-l", location, "Location of the dependency.");
-         dep_subcommand->add_option("-t", tag, "Tag associated with the dependency.");
-         dep_subcommand->add_option("-r", release, "Release version of the depedency.");
+         dep_subcommand->add_option("-p, --path", path, "Path containing the project's yaml file.")->default_val(".");
+         dep_subcommand->add_option("-o, --obj_name", obj_name, "The name of the object to attach dependency to.")->required();
+         dep_subcommand->add_option("-d, --dep_name", dep_name, "The name of the dependency.")->required();
+         dep_subcommand->add_option("-l, --lang", location, "Location of the dependency.");
+         dep_subcommand->add_option("-t, --tag", tag, "Tag associated with the dependency.");
+         dep_subcommand->add_option("-r, --release_ver", release, "Release version of the depedency.");
          dep_subcommand->add_option("--digest", hash, "Hash of the dependency.");
 
          /* TODO Add back after this release when we have the testing framework finished
          test_subcommand = subcommand->add_subcommand("test", "Add a new test to the project.");
-         test_subcommand->add_option("-p", path, "Path containing the project's yaml file.")->default_val(".");
-         test_subcommand->add_option("-n", obj_name, "The name of the test to add.")->required();
-         test_subcommand->add_option("-c", cmd, "The test command to execute.");
+         test_subcommand->add_option("-p, --path", path, "Path containing the project's yaml file.")->default_val(".");
+         test_subcommand->add_option("-n, --name", obj_name, "The name of the test to add.")->required();
+         test_subcommand->add_option("-c, --cmd", cmd, "The test command to execute.");
          */
       }
 
