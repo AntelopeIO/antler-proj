@@ -6,7 +6,7 @@ namespace antler::project {
 
 bool populator::populate_dependency(const dependency& d, const project& p, uint32_t jobs) {
    using namespace antler::project::location;
-   system::fs::path depends_dir = p.path() / p.dependencies_dir;
+   system::fs::path depends_dir = p.path() / p.dependencies_dir / d.name();
    system::debug_log("populating dependency {0} from {1}", d.name(), d.location());
    std::string tag = d.tag();
    
@@ -26,10 +26,10 @@ bool populator::populate_dependency(const dependency& d, const project& p, uint3
       }
 
       system::debug_log("Cloning {0} with branch {1}", d.location(), tag);
-      if (system::fs::exists(depends_dir / repo))
-         return pull_git_repo(depends_dir / repo);
+      if (system::fs::exists(depends_dir))
+         return pull_git_repo(depends_dir);
       else
-         return clone_github_repo(org, repo, tag, jobs, depends_dir / repo);
+         return clone_github_repo(org, repo, tag, jobs, depends_dir);
    } else {
       system::error_log("Dependency {0} is not a github shorthand.", d.name());
       return false;
@@ -76,7 +76,7 @@ bool populator::populate_project(project& p, uint32_t jobs) {
                   continue;
                if (!populators::mapping_exists(d)) {
                   system::info_log("Grabbing dependency location {0}", d.location());
-                  project next_proj(depends_dir / github::get_repo(d.location()));
+                  project next_proj(depends_dir / d.name()); //github::get_repo(d.location()));
                   
                   // check that the version we grabbed is what we can work with
                   if (!d.release().empty()) {
@@ -89,6 +89,9 @@ bool populator::populate_project(project& p, uint32_t jobs) {
                   if (!populate_project(next_proj, jobs))
                      return false;
                }
+            } catch(const std::exception& e) {
+               system::error_log("Failed to load project: {0}", e.what());
+               return false;
             } catch(...) {
                system::error_log("Failed to load project");
                return false;
