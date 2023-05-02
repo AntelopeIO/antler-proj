@@ -141,7 +141,7 @@ namespace antler {
 
       add_to_project(CLI::App& app) {
          subcommand = app.add_subcommand("add", "Add an app, dependency, library or test to your project.");
-         subcommand->add_option("-p", path, "Path containing the project's yaml file.")->default_val(".");
+         subcommand->add_option("-p,--path", path, "Path containing the project's yaml file.")->default_val(".");
 
          app_subcommand = subcommand->add_subcommand("app", "Add a new app to your project.");
          app_subcommand->footer(std::string(R"(Examples:)")
@@ -149,7 +149,6 @@ namespace antler {
                + "\n\t" + app.get_name() +R"( add app -p ./path-to-project/ -n MyApp -l C++ --comp -O2)"
                + "\n\t" + app.get_name() +R"( add app -n MyApp -l C++ "\-O2 -WError" \\-s)");
 
-         app_subcommand->add_option("-p, --path", path, "Path containing the project's yaml file.")->default_val(".");
          app_subcommand->add_option("-n, --name", obj_name, "The name of the app to add.")->required();
          app_subcommand->add_option("-l, --lang", lang, "Language this app will use.")->required();
          app_subcommand->add_option("--comp", copts, "Options for the compiler for this app.")
@@ -161,7 +160,6 @@ namespace antler {
          lib_subcommand->footer(std::string(R"(Examples:)")
                + "\n\t" + app.get_name() +R"( add lib MyLib C++ \\-O2 "\-s")"
                + "\n\t" + app.get_name() +R"( ./path-to-project/ add lib -n MyLib -l C++ --comp -O2 --link -s)");
-         lib_subcommand->add_option("-p, --path", path, "Path containing the project's yaml file.")->default_val(".");
          lib_subcommand->add_option("-n, --name", obj_name, "The name of the library to add.")->required();
          lib_subcommand->add_option("-l, --lang", lang, "Language this library will use.")->required();
          lib_subcommand->add_option("--comp", copts, "Options for the compiler for this app.")
@@ -172,7 +170,6 @@ namespace antler {
          dep_subcommand = subcommand->add_subcommand("dep", "Add a new dependency to the project.");
          dep_subcommand->footer(std::string(R"(Examples:)")
                + "\n\t" + app.get_name() +R"( add dep MyApp MyDep)");
-         dep_subcommand->add_option("-p, --path", path, "Path containing the project's yaml file.")->default_val(".");
          dep_subcommand->add_option("-o, --obj_name", obj_name, "The name of the object to attach dependency to.")->required();
          dep_subcommand->add_option("-d, --dep_name", dep_name, "The name of the dependency.")->required();
          dep_subcommand->add_option("-l, --lang", location, "Location of the dependency.");

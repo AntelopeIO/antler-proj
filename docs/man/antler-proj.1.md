@@ -33,7 +33,7 @@ Below is described a full list of all possible commands and their possible argum
 ```
 Command arguments:
     -h,--help                   Print this help message and exit
-    -p,--path                   Path to the root of the project. Here a `project.yaml` file will be created. Default is current directory.
+    -p,--path                   Path to the root of the project. Here a `project.yaml` file will be created. Default is ./<name>.
     -n,--name                   The name of the project.
     -v,--version                The version to store in the project file. Default version is 0.0.1
 ```
@@ -82,7 +82,6 @@ Command arguments:
 Command arguments:
     -h,--help                   Print this help message and exit
     -p,--path                   This must be the path to the `project.yml` or the path containing it. Default is current directory.
-    [path]                      Path to the root of the project.
 ```
 **Example: `antler-proj populate ./project`**
 
@@ -108,7 +107,6 @@ Command arguments:
 Command arguments:
     -h,--help                   Print this help message and exit
     -p,--path                   This must be the path to the `project.yml` or the path containing it. Default is current directory.
-    [path]                      Path to the root of the project.
 ```
 **Example: `antler-proj build ./project`**
 
