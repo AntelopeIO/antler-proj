@@ -64,7 +64,8 @@ bool project::sync() {
    }
 
    try {
-      yaml::write(m_path / project::manifest_name, to_yaml());
+      auto manifest = choose_manifest(m_path);
+      yaml::write(m_path / manifest, to_yaml());
       system::info_log("Wrote project manifest to {0}.", m_path.string());
    }
    catch(std::exception& e) {

@@ -35,7 +35,8 @@ public:
    project(const system::fs::path& p)
       : m_path(system::fs::canonical(p)) {
       system::debug_log("project(const system::fs::path&) called with path : {0}" , p.string());
-      ANTLER_CHECK(from_yaml(yaml::load((m_path/manifest_name).string())), "project can't be created from path");
+      auto manifest = choose_manifest(m_path);
+      ANTLER_CHECK(from_yaml(yaml::load((m_path/manifest).string())), "project can't be created from path");
    }
    project(const system::fs::path& path, std::string_view name, std::string_view version_raw) :
       m_path(path), m_name(name), m_ver(version_raw) {
@@ -212,6 +213,13 @@ public:
    bool sync();
 
 private:
+
+   /// Pick the appropriate manifest name (i.e. file extension) for a given path.
+   std::string_view choose_manifest(const system::fs::path& path) {
+      if( system::fs::exists(path/manifest_name) || !system::fs::exists(path/manifest_alternative))
+         return manifest_name;
+      return manifest_alternative;
+   }
 
    system::fs::path m_path;        ///< path to the project.yaml file.
    std::string m_name;             ///< The project name.
