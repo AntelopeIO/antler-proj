@@ -146,8 +146,8 @@ Command arguments:
   antler-proj update app --name MyApp --lang C++ --comp \\-O2
   antler-proj update lib -n MyLib -l C++ --comp \\-O2 --link "\-s"
   antler-proj update lib --name MyLib --lang C++ --comp \\-O2 --link "\-s"
-  antler-proj update dep -d MyDep -l C++ AntelopeIO/my_dep
-  antler-proj update dep --dep_name MyDep --lang C++ AntelopeIO/my_dep
+  antler-proj update dep -u https://github.com/AntelopeIO/my_dep
+  antler-proj update dep --dep_name MyDepCustomName --dep_url C++ https://github.com/AntelopeIO/my_dep
   antler-proj validate
 ```
 

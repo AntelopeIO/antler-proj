@@ -74,9 +74,14 @@ void dependency::patch_remove(const system::fs::path& path) noexcept {
 
 void dependency::set(std::string nm, std::string_view loc, std::string_view tag, std::string_view rel, std::string_view hash) {
 
-   m_name = std::move(nm);
-
    m_loc = location::strip_github_com(loc);
+   if (nm.empty()) {
+      m_name = github::get_repo(m_loc);
+   } else {
+      m_name = std::move(nm);
+   }
+
+   
 
    m_tag_or_commit = tag;
    m_rel = rel;

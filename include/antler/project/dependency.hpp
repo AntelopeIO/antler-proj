@@ -26,8 +26,15 @@ public:
 
    // use default constructors, copy and move constructors and assignments
    dependency() = default;
-   inline dependency(const std::string& name, std::string_view loc, std::string_view tag="",
-                     std::string_view rel="", std::string_view hash="") {
+   /// @note Check that validate_location() returns true before setting these values.
+   /// @note It's preferable to populate `tag` with the github commit value than use `rel`. Note that `rel` + `hash` works as well...
+   /// @param loc  The "location" of the project.  Possibly a github repo, release or tag archive, or a local file.
+   /// @param name  The name of the dependency. Default is repo name deducted from location.
+   /// @param tag  This is either the github repo tag or commit hash, commit hash being preferable. This may be empty if rel is populated or loc points to an archive.
+   /// @param rel  This is a github repo version. Using a commit hash tag is preferable. This may be empty.
+   /// @param hash  If loc points to an archive, this should be populated with the sha256 hash.
+   inline dependency(const std::string& loc, const std::string& name = "", const std::string& tag="",
+                     const std::string& rel="", const std::string& hash="") {
       set(name, loc, tag, rel, hash);
    }
 
@@ -36,17 +43,6 @@ public:
 
    dependency& operator=(const dependency&) = default;
    dependency& operator=(dependency&&) = default;
-
-
-   /// Sets the internal values (regardless of the validity).
-   /// @note Check that validate_location() returns true before setting these values.
-   /// @note It's preferable to populate `tag` with the github commit value than use `rel`. Note that `rel` + `hash` works as well...
-   /// @param name  The name of the dependency.
-   /// @param loc  The "location" of the project.  Possibly a github repo, release or tag archive, or a local file.
-   /// @param tag  This is either the github repo tag or commit hash, commit hash being preferable. This may be empty if rel is populated or loc points to an archive.
-   /// @param rel  This is a github repo version. Using a commit hash tag is preferable. This may be empty.
-   /// @param hash  If loc points to an archive, this should be populated with the sha256 hash.
-   void set(std::string name, std::string_view loc, std::string_view tag, std::string_view rel, std::string_view hash);
 
    /// Get the dependency name.
    /// @return The name of this dependency.
@@ -147,7 +143,10 @@ public:
              ANTLER_TRY_YAML(n, "hash", hash, std::string);
    }
 
-private:
+private:   
+   /// Sets the internal values (regardless of the validity).
+   void set(std::string name, std::string_view loc, std::string_view tag, std::string_view rel, std::string_view hash);
+
    std::string m_name;          ///< Name of the dependency.
    std::string m_loc;           ///< Location of the dep: local or remote archive, github repo (https: or org shorthand)
    std::string m_tag_or_commit; ///< github tag or commit hash. Always prefer a commit hash.

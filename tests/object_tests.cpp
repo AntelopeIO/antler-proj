@@ -20,8 +20,8 @@ TEST_CASE("Testing object") {
    CHECK(app2.compile_options() == v{"-g", "-M"});
    CHECK(app2.link_options() == v{"-lm"});
 
-   dependency dep1= {"dep1", "https::github.com/larryk85/foo"};
-   dependency dep2= {"dep1", "https::github.com/larryk85/foo"};
+   dependency dep1= {"https::github.com/larryk85/foo", "dep1"};
+   dependency dep2= {"https::github.com/larryk85/foo", "dep1"};
 
    CHECK(app1.dependencies().empty());
 
@@ -40,12 +40,53 @@ TEST_CASE("Testing object") {
    CHECK(d->hash().empty());
 
    CHECK(app1.dependencies().size() == 1);
-   CHECK(app1.upsert_dependency({"dep2", "larryk85/foo2"}) == false);
+   CHECK(app1.upsert_dependency({"larryk85/foo2"}) == false);
    CHECK(app1.dependencies().size() == 2);
-   CHECK(app1.remove_dependency("dep2"));
+   CHECK(app1.remove_dependency("foo2"));
 
    CHECK(app1.dependencies().size() == 1);
    CHECK(app1.remove_dependency("dep1"));
+   CHECK(app1.dependencies().empty());
+}
+
+TEST_CASE("Testing default dependency name") {
+   using namespace antler::project;
+   using v = std::vector<std::string>;
+
+   app_t app1 {"test", "C++", "-std=c++11", "-fno-lto"};
+   app_t app2 {"test", "C++", "-g;-M", "-lm"};
+
+   CHECK(app1.name() == app2.name());
+   CHECK(app1.language() == app2.language());
+   CHECK(app1.compile_options() == v{"-std=c++11"});
+   CHECK(app1.link_options() == v{"-fno-lto"});
+   CHECK(app2.compile_options() == v{"-g", "-M"});
+   CHECK(app2.link_options() == v{"-lm"});
+
+   dependency dep1= {"https::github.com/larryk85/foo"};
+   dependency dep2= {"https::github.com/larryk85/foo"};
+
+   CHECK(app1.dependencies().empty());
+
+   CHECK(!app1.dependency_exists("foo"));
+   CHECK(!app1.find_dependency("foo"));
+
+   CHECK(app1.upsert_dependency(std::move(dep1)) == false);
+
+   CHECK(app1.dependency_exists("foo"));
+   const auto& d = app1.find_dependency("foo");
+
+   CHECK(d);
+   CHECK(d->name() == dep2.name());
+   CHECK(d->location() == dep2.location());
+   CHECK(d->tag().empty());
+   CHECK(d->hash().empty());
+
+   CHECK(app1.dependencies().size() == 1);
+   CHECK(app1.upsert_dependency(std::move(dep2)) == true);
+   CHECK(app1.dependencies().size() == 1);
+   CHECK(app1.remove_dependency("foo"));
+
    CHECK(app1.dependencies().empty());
 }
 
@@ -116,8 +157,8 @@ TEST_CASE("Testing object node conversions 2") {
    node["compile_options"] = std::string{"-std=c++14;-fno-rtti"};
    node["link_options"] = std::string{"-fno-lto;-lm"};
 
-   dependency dep1 = {"dep1", "larryk85/foo"};
-   dependency dep2 = {"dep2", "larryk85/foo2"};
+   dependency dep1 = {"larryk85/foo"};
+   dependency dep2 = {"larryk85/foo2"};
 
    node["depends"] = std::vector<dependency>{ dep1, dep2 };
 
@@ -136,11 +177,11 @@ TEST_CASE("Testing object node conversions 2") {
 
    CHECK(app.dependencies().size() == 2);
 
-   CHECK(app.dependencies()["dep1"].name() == dep1.name());
-   CHECK(app.dependencies()["dep1"].location() == dep1.location());
+   CHECK(app.dependencies()["foo"].name() == dep1.name());
+   CHECK(app.dependencies()["foo"].location() == dep1.location());
 
-   CHECK(app.dependencies()["dep2"].name() == dep2.name());
-   CHECK(app.dependencies()["dep2"].location() == dep2.location());
+   CHECK(app.dependencies()["foo2"].name() == dep2.name());
+   CHECK(app.dependencies()["foo2"].location() == dep2.location());
 }
 
 TEST_CASE("Testing object node conversions with dependencies") {

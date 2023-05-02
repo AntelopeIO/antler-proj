@@ -13,20 +13,20 @@ TEST_CASE("Testing project") {
                   {"appc", "C++", "", ""},
                   {"appd", "C++", "", ""} };
 
-   apps[0].upsert_dependency({"foo", "https://github.com/larryk85/dune", "v13.3"});
-   apps[0].upsert_dependency({"foo", "mikelik/dune", "v13.4"});
-   apps[1].upsert_dependency({"bar", "https://github.com/larryk85/fast_math", "blah"});
-   apps[0].upsert_dependency({"baz", "https://github.com/antelopeio/leap", "v2.2.2v"});
-   apps[1].upsert_dependency({"libc", ""});
+   apps[0].upsert_dependency({"https://github.com/larryk85/dune", "foo", "v13.3"});
+   apps[0].upsert_dependency({"mikelik/dune", "foo", "v13.4"});
+   apps[1].upsert_dependency({"https://github.com/larryk85/fast_math", "", "blah"});
+   apps[0].upsert_dependency({"https://github.com/antelopeio/leap", "", "v2.2.2v"});
+   apps[1].upsert_dependency({"", "libc"});
 
    lib_t libs[] = { {"libb", "C++", "", ""},
                   {"libc", "C", "", ""},
                   {"libd", "C++", "", ""} };
 
-   libs[0].upsert_dependency({"foo", "https://github.com/larryk85/dune", "main"});
-   libs[0].upsert_dependency({"foo", "mikelik/dune2", "branch"});
-   libs[0].upsert_dependency({"bar", "https://github.com/larryk85/fast_math", "blah"});
-   libs[1].upsert_dependency({"baz", "https://github.com/antelopeio/leap", "v2.2.2v"});
+   libs[0].upsert_dependency({"https://github.com/larryk85/dune", "foo", "main"});
+   libs[0].upsert_dependency({"mikelik/dune2", "foo", "branch"});
+   libs[0].upsert_dependency({"https://github.com/larryk85/fast_math", "" "blah"});
+   libs[1].upsert_dependency({"https://github.com/antelopeio/leap", "", "v2.2.2v"});
 
    project proj;
    proj.name("test_proj");

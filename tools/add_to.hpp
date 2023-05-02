@@ -109,8 +109,12 @@ namespace antler {
                return false;
             }
 
-            antler::project::dependency dep;
-            dep.set(dep_name, location, tag, release, hash);
+            antler::project::dependency dep(location, dep_name, tag, release, hash);
+            if (!Obj::is_valid_name(dep.name())) {
+               system::error_log("Dependency name: {0} is not a valid name.", obj_name);
+               system::info_log("Valid names are of the form [a-zA-Z][_a-zA-Z0-9]+");
+               return false;
+            }
             if (!proj.validate_dependency(dep)) {
                system::error_log("Dependency: {0} is invalid.", dep_name);
                return false;
@@ -171,8 +175,8 @@ namespace antler {
          dep_subcommand->footer(std::string(R"(Examples:)")
                + "\n\t" + app.get_name() +R"( add dep MyApp MyDep)");
          dep_subcommand->add_option("-o, --obj_name", obj_name, "The name of the object to attach dependency to.")->required();
-         dep_subcommand->add_option("-d, --dep_name", dep_name, "The name of the dependency.")->required();
-         dep_subcommand->add_option("-l, --lang", location, "Location of the dependency.");
+         dep_subcommand->add_option("-d, --dep_name", dep_name, "The name of the dependency.");
+         dep_subcommand->add_option("-u, --dep_url", location, "Location of the dependency.");
          dep_subcommand->add_option("-t, --tag", tag, "Tag associated with the dependency.");
          dep_subcommand->add_option("-r, --release_ver", release, "Release version of the depedency.");
          dep_subcommand->add_option("--digest", hash, "Hash of the dependency.");
