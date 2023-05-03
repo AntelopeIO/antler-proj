@@ -63,7 +63,6 @@ std::string_view cmake::add_contract_template = {"file(GLOB {1}-source ${{CMAKE_
 
 // 0: object name, 1: target name, 2: source extension, 3: location
 std::string_view cmake::add_library_template = {"file(GLOB {1}-source ${{CMAKE_CURRENT_SOURCE_DIR}}/../../../libs/{0}/*{2})\n\n"
-                                                "add_library({1} STATIC ${{{1}-source}})\n"
-                                                "target_compile_options({1} PUBLIC -contract {0})\n\n"};
+                                                "add_library({1} STATIC ${{{1}-source}})\n\n"};
 
 } // namespace antler::project
