@@ -171,7 +171,7 @@ namespace antler::project {
       /// @param repo
       /// @param branch
       static bool clone(const std::string& org, const std::string& repo, const std::string& branch, const system::fs::path& dest) {
-         int32_t ret = system::execute(std::string(executable), { "clone", "https://github.com/"+org+"/"+repo, "--depth", "1", branch, dest.string() });
+         int32_t ret = system::execute(std::string(executable), { "clone", "https://github.com/"+org+"/"+repo, "--depth", "1", "--branch", branch, dest.string() });
 
          system::debug_log("clone for {0}/{1} returned {2}\n", org, repo, ret);
          if (ret != 0)
