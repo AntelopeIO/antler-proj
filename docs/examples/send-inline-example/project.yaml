@@ -1,0 +1,17 @@
+project: send_inline
+version: 0.0.0
+apps:
+  - name: send_inline
+    lang: CXX
+    compile_options: ""
+    link_options: ""
+    depends:
+      - name: hello
+        location: ""
+        tag: ""
+        release: ""
+        hash: ""
+  - name: hello
+    lang: CXX
+    compile_options: ""
+    link_options: ""
