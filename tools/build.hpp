@@ -18,7 +18,7 @@ namespace antler {
          subcommand->footer(std::string(R"(Examples:)")
                + "\n\t" + app.get_name() +R"( build -j3)");
          subcommand->add_option("-p, path", path, "This is the path to the root of the project.");
-         subcommand->add_option("-j, --jobs", jobs, "The number of submodules fetched at the same time.")->default_val(1);
+         subcommand->add_option("-j, --jobs", jobs, "The number of jobs to use with cmake build tool. Default is number of CPUs.");
          subcommand->add_flag("-c, --clean", clean, "This will force a clean build.")->default_val(false);
       }
 
@@ -39,7 +39,11 @@ namespace antler {
          system::fs::create_directory(bin_dir);
          system::info_log("Building project...");
 
-         return system::execute("cmake", {"--build", bin_dir.string(), "-j", std::to_string(jobs)});
+         CLI::results_t args = {"--build", bin_dir.string(), "-j"};
+         if (jobs)
+            args.push_back(std::to_string(jobs));
+
+         return system::execute("cmake", std::move(args));
       }
 
       void move_artifacts(const project::project& proj) noexcept {
@@ -66,12 +70,13 @@ namespace antler {
       }
 
       int32_t exec() {
+         
          auto proj = load_project(path);
 
          bool repopulated = false;
          if (should_repopulate(proj)) {
             repopulated = true;
-            ANTLER_CHECK(project::populators::get(proj).populate(jobs), "failed to populate dependencies");
+            ANTLER_CHECK(project::populators::get(proj).populate(), "failed to populate dependencies");
 
          }
 
@@ -97,7 +102,7 @@ namespace antler {
 
       CLI::App*   subcommand = nullptr;
       std::string path;
-      uint32_t    jobs = 1;
+      uint32_t    jobs = 0;
       bool        clean = false;
    };
 } // namespace antler

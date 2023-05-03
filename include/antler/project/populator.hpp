@@ -21,9 +21,8 @@ namespace antler::project {
          populator(populator&&) = default;
 
          /// Populate the directory by generating files for build and gathering the dependencies.
-         /// @param jobs The number of jobs used to clone or pull dependencies.
          /// @return true for success; false for failure.
-         [[nodiscard]] bool populate(uint32_t jobs=1);
+         [[nodiscard]] bool populate();
 
          template <typename P>
          void emit_cmake(P& pops) { emitter.emit(pops); }
@@ -32,15 +31,13 @@ namespace antler::project {
 
          /// Populate a given project.
          /// @param proj The project to populate from.
-         /// @param jobs The number of jobs used to clone or pull dependencies.
          /// @return true for success; false for failure.
-         [[nodiscard]] bool populate_project(project& proj, uint32_t jobs=1);
+         [[nodiscard]] bool populate_project(project& proj);
 
          /// Populate a particular dependency.
          /// @param dep The dependency to populate.
-         /// @param jobs The number of jobs used to clone or pull the dependency.
          /// @return true for success; false for failure.
-         [[nodiscard]] bool populate_dependency(const dependency& dep, const project& proj, uint32_t jobs=1);
+         [[nodiscard]] bool populate_dependency(const dependency& dep, const project& proj);
 
 
          cmake    emitter;

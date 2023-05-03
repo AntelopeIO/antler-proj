@@ -119,7 +119,7 @@ namespace antler {
             obj.upsert_dependency(std::move(dep));
 
             // We have values, so query the user if they want to apply.
-            system::info_log("\nObject name (to update): {0}\n"
+            system::info_log("Adding dependency:\nObject name (to update): {0}\n"
                              "Dependency name: {1}\n"
                              "Dependency location: {2}\n"
                              "tag/commit hash: {3}\n"

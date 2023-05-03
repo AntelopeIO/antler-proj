@@ -4,7 +4,6 @@
 #include <string>
 #include <string_view>
 #include <memory>
-#include <vector>
 #include <optional>
 #include <tuple>
 
@@ -26,14 +25,16 @@ static V depends(V&& v) { return std::forward<V>(v); }
 
 template <typename... Ts>
 struct runner {
-   runner(CLI::App& app)
-      : tup(depends<Ts>(app)...) {}
+   explicit runner(CLI::App& app)
+      : tup(depends<Ts>(app)...), _app(app) {}
 
    template <std::size_t I=0>
    constexpr inline int exec() {
       if constexpr (I == sizeof...(Ts)) {
-         std::cerr << "Please run one of the subcommands available. Use --help to see what is available." << std::endl;
-         return -1;
+         std::cout << _app.help() << std::endl
+                   << "Please run one of the subcommands with --help option to get detailed help. "
+                   << "Example: antler-proj init --help" << std::endl;
+         return 1;
       } else {
          if (*std::get<I>(tup).subcommand) {
             return std::get<I>(tup).exec();
@@ -44,6 +45,9 @@ struct runner {
 
    }
    std::tuple<Ts...> tup;
+
+   private:
+      const CLI::App& _app;
 };
 
 int main(int argc, char** argv) {
@@ -53,14 +57,17 @@ int main(int argc, char** argv) {
 
    CLI::App app{"Antelope Smart Contract Project Management Tool", app_name};
 
+   // Explicit help flags:
+   app.set_help_flag("-h,--help","Print this help message and exit.");
+   app.set_help_all_flag("--help-all","Expanded help with subcomands.");
+
    // Add version flag with callback here.
    app.add_flag_callback("-V,--version",
          [&app]() {
             std::cout << app.get_name() << " v" << antler::system::version::full() << std::endl;
-            std::exit(0);       // Succesfull exit MUST happen here.
+            std::exit(0);       // Successful exit MUST happen here.
          },
-         "get the version of antler-proj");
-
+         "Get the version of antler-proj.");
 
    runner<antler::add_to_project,
           antler::build_project,
@@ -70,11 +77,31 @@ int main(int argc, char** argv) {
           antler::update_project,
           antler::validate_project> runner{app};
 
-   CLI11_PARSE(app, argc, argv);
+   try {
+      app.parse(argc, argv);
+   }
+   // This hack fix parsing error handling of an empty command argument. Example: antler-proj build ~/path/proj ""
+   catch (const CLI::ExtrasError& e) {
+
+      std::string error_message(e.what());
+      CLI::detail::trim(error_message);
+
+      if (error_message == "The following argument was not expected:" ||
+          error_message == "The following arguments were not expected:") {
+         return app.exit(CLI::ExtrasError("Empty argument(s) encountered in the command line.", e.get_exit_code()));
+      }
+      return app.exit(e);
+   } catch (const CLI::ParseError& e) {
+      return app.exit(e);
+   }
 
    try {
       return runner.exec();
-   } catch(...) {
+   } catch(const std::exception& ex) {
+      antler::system::error_log("{}", ex.what());
       return -1;
+   } catch(...) {
+      antler::system::error_log("unhandled exception");
+      return -2;
    }
 }
