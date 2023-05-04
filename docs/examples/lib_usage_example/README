@@ -1,0 +1,10 @@
+This project houses a simple project that creates and utilizes C and C++ libraries for smart contract development.
+
+The `print_number` C++ library houses a small function that will print a number of type `int`.
+The `print_float` C library houses a small function that will print a number of type float.
+
+The smart contract app `lib_usage` depends on the two above libraries.
+
+The `lib_usage.wasm` and `lib_usage.abi` should be produced by this project for deployment.
+
+Look at documentation for DUNE or cleos for how to deploy and call the actions.

@@ -1,0 +1,6 @@
+This example project houses a simple 'hello world' project and smart contract.
+
+To build run the command `antler-proj build`,
+this should create the hello_world.wasm and hello_world.abi file needed for deployment.
+
+Look at documentation for DUNE or cleos for how to deploy and call the actions.

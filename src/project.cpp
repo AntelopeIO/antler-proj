@@ -118,7 +118,7 @@ void project::version(const antler::project::version& ver) noexcept {
 
 bool project::validate_dependency(const dependency& dep) const noexcept {
    if (dep.location().empty()) {
-      return lib_exists(dep.name());
+      return lib_exists(dep.name()) || app_exists(dep.name());
    } else if (!dep.is_valid_location()) {
       system::error_log("Error dependency: {0} is invalid.", dep.name());
       return false;
