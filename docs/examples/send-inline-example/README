@@ -1,0 +1,5 @@
+This project creates the same `hello-world` contract as the hello-world project and a new `send-inline` project that utilizes that contract.
+
+The `hello_world.wasm`, `send_inline.wasm`, `hello_world.abi`, and `send_inline.abi` should be produced by this project for deployment.
+
+Look at documentation for DUNE or cleos for how to deploy and call the actions.

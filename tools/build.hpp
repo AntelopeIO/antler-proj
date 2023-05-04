@@ -73,6 +73,11 @@ namespace antler {
          
          auto proj = load_project(path);
 
+         system::debug_log("Project loaded at {0}", proj.path().string());
+
+         // reset the path to the root of the project
+         path = proj.path().string();
+
          bool repopulated = false;
          if (should_repopulate(proj)) {
             repopulated = true;
