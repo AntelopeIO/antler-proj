@@ -14,7 +14,7 @@ namespace antler {
       inline populate_project(CLI::App& app) {
          subcommand = app.add_subcommand("populate", "Populate a project's dependencies and CMake.");
          subcommand->footer(std::string(R"(Examples:)")
-               + "\n\t" + app.get_name() +R"( populate ./path-to-project)");
+               + "\n\t" + app.get_name() +R"( populate --path ./path-to-project)");
          subcommand->add_option("-p, --path", path, "Path containing the project's yaml file.")->default_val(".");
          subcommand->add_flag("-f, --force", force, "This flag will force a repopulation of the project.")->default_val(false);
       }

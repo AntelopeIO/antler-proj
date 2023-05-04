@@ -116,8 +116,8 @@ namespace antler {
 
          app_subcommand = subcommand->add_subcommand("app", "Update an app in the project.");
          app_subcommand->footer(std::string(R"(Examples:)")
-               + "\n\t" + app.get_name() +R"( update app MyApp C++ \\-O2)"
-               + "\n\t" + app.get_name() +R"( update ./path-to-project/ app -n MyApp --comp -O2)");
+               + "\n\t" + app.get_name() +R"( update app --name MyApp --lang C++ --comp \\-O2)"
+               + "\n\t" + app.get_name() +R"( update --path ./path-to-project/ app -n MyApp --comp -O2)");
          app_subcommand->add_option("-n, --name", obj_name, "The name of the app to remove.")->required();
          app_subcommand->add_option("-l, --lang", lang, "The language of the app.");
          app_subcommand->add_option("--comp", copts, "The compile options used to build the app.")
@@ -127,8 +127,8 @@ namespace antler {
 
          lib_subcommand = subcommand->add_subcommand("lib", "Update a lib in the project.");
          lib_subcommand->footer(std::string(R"(Examples:)")
-               + "\n\t" + app.get_name() +R"( update lib MyLib C++ \\-O2 "\-s")"
-               + "\n\t" + app.get_name() +R"( update lib MyLib --link -s)");
+               + "\n\t" + app.get_name() +R"( update lib --name MyLib --lang C++ --comp \\-O2 --link "\-s")"
+               + "\n\t" + app.get_name() +R"( update lib -n MyLib --link -s)");
          lib_subcommand->add_option("-n, --name", obj_name, "The name of the library to add.")->required();
          lib_subcommand->add_option("-l, --lang", lang, "The language of the lib.");
          lib_subcommand->add_option("--comp", copts, "The compile options used to build the app.")
@@ -138,7 +138,7 @@ namespace antler {
 
          dep_subcommand = subcommand->add_subcommand("dep", "Update a dependency in the project.");
          dep_subcommand->footer(std::string(R"(Examples:)")
-               + "\n\t" + app.get_name() +R"( update dep MyDep -l AntelopeIO/my_dep)");
+               + "\n\t" + app.get_name() +R"( update dep --dep_name MyDep -u AntelopeIO/my_dep)");
          dep_subcommand->add_option("-d, --dep_name", dep_name, "The name of the dependency.")->required();
          dep_subcommand->add_option("-o, --obj_name", obj_name, "The name of the object the dependency is attached to.");
          dep_subcommand->add_option("-l, --lang", loc, "The location of the dependency.");
