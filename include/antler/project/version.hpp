@@ -120,20 +120,20 @@ public:
             return parse_component(comp, s, true);
          };
 
-         const auto& opt_component = [&](std::string_view s, uint16_t& comp) {
+         const auto& opt_component = [&](std::string_view s, uint16_t& comp) -> uint64_t {
             if (s.size() > 1 && s[0] == '.') {
                return component(s.substr(1), comp) + 1;
             }  
-            return 0L;
+            return 0;
          };
 
          const auto& tweak_component = [&](std::string_view s, std::string& comp) -> uint64_t {
             if (s.size() > 1 && s[0] == '-') {
                ANTLER_CHECK(s.size() > 2, "expected a non-empty version string");
                comp = s.substr(1);
-               return comp.size() + 1L;
+               return comp.size() + 1;
             }
-            return 0L;
+            return 0;
          };
 
          const auto& get_component = [&](auto& comp, auto F) {

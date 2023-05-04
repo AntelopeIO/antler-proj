@@ -49,11 +49,20 @@ std::string_view cmake::entry_template = {"include(ExternalProject)\n"
 
 // 0: object name, 1: target name, 2: source extension
 std::string_view cmake::add_contract_template = {"file(GLOB {1}-source ${{CMAKE_CURRENT_SOURCE_DIR}}/../../../apps/{0}/*{2})\n"
-                                                 "add_contract({0} {1} ${{{1}-source}})\n\n"};
+                                                 "add_library({1} STATIC ${{{1}-source}})\n"
+                                                 "target_compile_options({1} PRIVATE -Wno-unused-command-line-argument)\n"
+                                                 "add_executable({1}-app ${{{1}-source}})\n"
+                                                 "get_target_property({1}-BINOUTPUT {1}-app BINARY_DIR)\n"
+                                                 "target_compile_options({1}-app PUBLIC -contract {0})\n"
+                                                 "target_compile_options({1}-app PUBLIC -abigen)\n"
+                                                 "target_compile_options({1}-app PUBLIC -abigen_output=${{{1}-BINOUTPUT}}/{0}.abi)\n"
+                                                 "set_target_properties({1}-app PROPERTIES OUTPUT_NAME {0})\n"
+                                                 "target_include_directories({1}-app PUBLIC $<TARGET_PROPERTY:{1},INTERFACE_INCLUDE_DIRECTORIES>)\n"
+                                                 "target_link_libraries({1}-app PUBLIC $<TARGET_PROPERTY:{1},LINK_LIBRARIES>)\n"
+                                                 "target_compile_options({1}-app PUBLIC $<TARGET_PROPERTY:{1},COMPILE_OPTIONS>)\n\n"};
 
-// 0: object name, 1: target name, 2: source extension
+// 0: object name, 1: target name, 2: source extension, 3: location
 std::string_view cmake::add_library_template = {"file(GLOB {1}-source ${{CMAKE_CURRENT_SOURCE_DIR}}/../../../libs/{0}/*{2})\n\n"
-                                                "add_library({0} ${{{1}-source}})\n\n"};
-
+                                                "add_library({1} STATIC ${{{1}-source}})\n\n"};
 
 } // namespace antler::project

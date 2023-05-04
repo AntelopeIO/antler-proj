@@ -53,8 +53,8 @@ namespace antler {
 
          for (const auto& [app_nm, app] : proj.apps()) {
             std::string proj_nm = std::string(proj.name());
-            auto from_wasm = bin_dir / sf::path(proj.name()) / sf::path(app_nm+"/"+proj_nm+"-"+app_nm+".wasm");
-            auto from_abi = bin_dir / sf::path(proj.name()) / sf::path(app_nm+"/"+proj_nm+"-"+app_nm+".abi");
+            auto from_wasm = bin_dir / sf::path(proj.name()) / sf::path(app_nm+"/"+app_nm+".wasm");
+            auto from_abi = bin_dir / sf::path(proj.name()) / sf::path(app_nm+"/"+app_nm+".abi");
 
             auto to_wasm = build_dir /  sf::path(app_nm+".wasm");
             auto to_abi = build_dir / sf::path(app_nm+".abi");
