@@ -28,6 +28,11 @@ def expect_subvalue(array_of_lists, name, tag, value):
             return i[tag] == value
     return False
 
+def find_app(yaml, app_name):
+    apps = yaml["apps"]
+    for app in apps:
+        if app["name"] == app_name:
+            return app
 
 def setup_project():
     """Setup the project ensuring there is a fresh project file.
@@ -130,9 +135,38 @@ def test_lib_options():
 
     assert expect_subvalue(load_project(PROJECT_PATH)["libs"], "Lib1", "compile_options", "-O2")
 
+def test_add_dep_options():
+    """Adds deepndency to projects application and test if it appears in yaml file
+    """
+    out, _ = antler_in_proj_cmd(PROJECT_PATH, "add app -n App4 -l C++ --comp \\\\-O3")
+    print(out)
+    project = load_project(PROJECT_PATH)
+    
+    assert expect_subvalue(load_project(PROJECT_PATH)["apps"], "App4", "compile_options", "-O3")
 
+    out, _ = antler_in_proj_cmd(os.path.join(PROJECT_PATH, "apps/App4"), "add dep -u https://github.com/larryk85/cturtle")
+    print(out)
 
+    app4 = find_app(load_project(PROJECT_PATH), "App4")
+    assert app4 is not None
 
+    assert expect_subvalue(app4["depends"], "cturtle", "location", "larryk85/cturtle")
+
+    out, _ = antler_in_proj_cmd(os.path.join(PROJECT_PATH, "apps/App4"), "add dep -n Dep4 -u https://github.com/larryk85/test_repo")
+    print(out)
+
+    app4 = find_app(load_project(PROJECT_PATH), "App4")
+    assert app4 is not None
+
+    assert expect_subvalue(app4["depends"], "Dep4", "location", "larryk85/test_repo")
+
+    out, _ = antler_in_proj_cmd(PROJECT_PATH, "add dep --to App4 -u https://github.com/larryk85/sample_contract")
+    print(out)
+
+    app4 = find_app(load_project(PROJECT_PATH), "App4")
+    assert app4 is not None
+    
+    assert expect_subvalue(app4["depends"], "sample_contract", "location", "larryk85/sample_contract")
 
 if __name__ == "__main__":
     setup_project()
@@ -140,3 +174,4 @@ if __name__ == "__main__":
     test_app_link_options()
     test_app_update_options()
     test_lib_options()
+    test_add_dep_options()

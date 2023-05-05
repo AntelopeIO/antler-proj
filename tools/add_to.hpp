@@ -110,7 +110,8 @@ namespace antler {
             }
 
             antler::project::dependency dep(location, dep_name, tag, release, hash);
-            if (!Obj::is_valid_name(dep.name())) {
+            dep_name = dep.name();
+            if (!Obj::is_valid_name(dep_name)) {
                system::error_log("Dependency name: {0} is not a valid name.", obj_name);
                system::info_log("Valid names are of the form [a-zA-Z][_a-zA-Z0-9]+");
                return false;
@@ -171,10 +172,11 @@ namespace antler {
 
          dep_subcommand = subcommand->add_subcommand("dep", "Add a new dependency to the project.");
          dep_subcommand->footer(std::string(R"(Examples:)")
-               + "\n\t" + app.get_name() +R"( add dep --obj_name MyApp --dep_name MyDep)");
-         dep_subcommand->add_option("-o, --obj_name", obj_name, "The name of the object to attach dependency to.")->required();
-         dep_subcommand->add_option("-d, --dep_name", dep_name, "The name of the dependency.");
-         dep_subcommand->add_option("-u, --dep_url", location, "Location of the dependency.");
+               + "\n\t" + app.get_name() +R"( add dep -u https://github.com/org/repo)"
+               + "\n\t" + app.get_name() +R"( add dep --to MyApp --name MyDep -url https://github.com/org/repo)");
+         dep_subcommand->add_option("--to", obj_name, "The name of the object to attach dependency to. Default is current directory.");
+         dep_subcommand->add_option("-n, --name", dep_name, "The name of the dependency. Default is repo from url.");
+         dep_subcommand->add_option("-u, --url", location, "Location of the dependency.");
          dep_subcommand->add_option("-t, --tag", tag, "Tag associated with the dependency.");
          dep_subcommand->add_option("-r, --release_ver", release, "Release version of the depedency.");
          dep_subcommand->add_option("--digest", hash, "Hash of the dependency.");
@@ -195,6 +197,10 @@ namespace antler {
          } else if (*lib_subcommand) {
             ANTLER_CHECK(add_lib(proj), "failed to add lib");
          } else if (*dep_subcommand) {
+            if (obj_name.empty()) {
+               obj_name = std::filesystem::current_path().filename().c_str();
+               system::debug_log("object path is empty, using {0}", obj_name);
+            }
             if (proj.app_exists(obj_name)) {
                ANTLER_CHECK(add_dependency<antler::project::app_t>(proj), "failed to add dependency");
             } else if (proj.lib_exists(obj_name)) {
