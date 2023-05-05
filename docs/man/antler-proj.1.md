@@ -37,7 +37,7 @@ Command arguments:
     -n,--name                   The name of the project.
     -v,--version                The version to store in the project file. Default version is 0.0.1
 ```
-**Example: `antler-proj init ./project hello_world 0.1`**
+**Example: `antler-proj init hello_world 0.1`**
 
 
 **add** command adds an app, dependency, library or test to your project.
@@ -48,7 +48,7 @@ Command arguments:
   -p,--path                   This must be the path to the `project.yaml` or the path containing it. Default is current directory.
   <app,lib,dep>               Type of an entity to work with
 ```
-**Example: `antler-proj add ./project app`**
+**Example: `antler-proj add app`**
 
 
 **update** command updates an app, dependency, library or test to your project.
@@ -59,7 +59,7 @@ Command arguments:
   -p,--path                   This must be the path to the `project.yaml` or the path containing it. Default is current directory.
   <app,lib,dep>               Type of an entity to work with
 ```
-**Example: `antler-proj update ./project app`**
+**Example: `antler-proj update app`**
 
 
 **remove** command removes an app, dependency, library or test from your project.
@@ -70,7 +70,7 @@ Command arguments:
   -p,--path                   This must be the path to the `project.yaml` or the path containing it. Default is current directory.
   <app,lib,dep>               Type of an entity to work with
 ```
-**Example: `antler-proj remove ./project app`**
+**Example: `antler-proj remove app`**
 
 
 **populate** command loads existing information about the project starting from the root project.yaml file as described in the chapter `"Loading of a project"` in the User's guide.
@@ -83,7 +83,7 @@ Command arguments:
     -h,--help                   Print this help message and exit
     -p,--path                   This must be the path to the `project.yml` or the path containing it. Default is current directory.
 ```
-**Example: `antler-proj populate ./project`**
+**Example: `antler-proj populate`**
 
 **validate** command performs a check of the project to ensure that all data that describes the project is correct.
 
@@ -99,7 +99,7 @@ Command arguments:
     -p,--path                   This must be the path to the `project.yml` or the path containing it. Default is current directory.
     -V,--verbose                Verbose output.
 ```
-**Example: `antler-proj validate ./project`**
+**Example: `antler-proj validate`**
 
 **build** command builds all applications described in the project.yaml, their dependencies and tests.
 
@@ -108,7 +108,7 @@ Command arguments:
     -h,--help                   Print this help message and exit
     -p,--path                   This must be the path to the `project.yml` or the path containing it. Default is current directory.
 ```
-**Example: `antler-proj build ./project`**
+**Example: `antler-proj build`**
 
 
 **`--version`**                     Returns the version of antler-proj application
