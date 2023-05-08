@@ -145,7 +145,7 @@ namespace antler {
       }
 
       add_to_project(CLI::App& app) {
-         subcommand = app.add_subcommand("add", "Add an app, dependency, library or test to your project.");
+         subcommand = app.add_subcommand("add", "Add an app, dependency, library or test to your project.")->fallthrough(true);
          subcommand->add_option("-p,--path", path, "Path containing the project's yaml file.")->default_val(".");
 
          app_subcommand = subcommand->add_subcommand("app", "Add a new app to your project.");

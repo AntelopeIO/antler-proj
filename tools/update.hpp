@@ -110,7 +110,7 @@ namespace antler {
       }
 
       update_project(CLI::App& app) {
-         subcommand = app.add_subcommand("update", "Update an app, dependency, library or test in your project.");
+         subcommand = app.add_subcommand("update", "Update an app, dependency, library or test in your project.")->fallthrough(true);
 
          subcommand->add_option("-p,--path", path, "Path containing the project's yaml file.")->default_val(".");
 

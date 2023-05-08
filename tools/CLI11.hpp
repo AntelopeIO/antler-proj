@@ -6545,6 +6545,9 @@ class App {
     /// Non-const version of the above
     std::vector<Option *> get_options(const std::function<bool(Option *)> filter = {});
 
+    /// Get the list of options including fallthroughs (user facing function, so returns raw pointers), has optional filter function
+    std::vector<const Option *> get_reachable_options(const std::function<bool(const Option *)> filter = {}) const;
+
     /// Get an option by name (noexcept non-const version)
     Option *get_option_no_throw(std::string option_name) noexcept;
 
@@ -7636,6 +7639,18 @@ CLI11_INLINE std::vector<Option *> App::get_options(const std::function<bool(Opt
             std::end(options));
     }
 
+    return options;
+}
+
+CLI11_INLINE std::vector<const Option *> App::get_reachable_options(const std::function<bool(const Option *)> filter) const {
+    auto options = get_options(filter);
+    if(parent_ && parent_->fallthrough_) {
+        for(auto a : parent_->get_reachable_options(filter)) {
+           auto name = a->get_name();
+           if(std::find_if(options.begin(), options.end(), [name](auto opt) {return opt->get_name() == name; }) == options.end())
+              options.push_back(a);
+        }
+    }
     return options;
 }
 
@@ -9451,7 +9466,7 @@ CLI11_INLINE std::string Formatter::make_groups(const App *app, AppFormatMode mo
 
     // Options
     for(const std::string &group : groups) {
-        std::vector<const Option *> opts = app->get_options([app, mode, &group](const Option *opt) {
+        std::vector<const Option *> opts = app->get_reachable_options([app, mode, &group](const Option *opt) {
             return opt->get_group() == group                     // Must be in the right group
                    && opt->nonpositional()                       // Must not be a positional
                    && (mode != AppFormatMode::Sub                // If mode is Sub, then
@@ -9504,7 +9519,7 @@ CLI11_INLINE std::string Formatter::make_usage(const App *app, std::string name)
 
     // Print an Options badge if any options exist
     std::vector<const Option *> non_pos_options =
-        app->get_options([](const Option *opt) { return opt->nonpositional(); });
+        app->get_reachable_options([](const Option *opt) { return opt->nonpositional(); });
     if(!non_pos_options.empty())
         out << " [" << get_label("OPTIONS") << "]";
 
