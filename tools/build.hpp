@@ -18,7 +18,12 @@ namespace antler {
          subcommand->footer(std::string(R"(Examples:)")
                + "\n\t" + app.get_name() +R"( build -j3)");
          subcommand->add_option("-p, path", path, "This is the path to the root of the project.");
+#if defined(WORKAROUND_OLD_CMAKE)
+         // Hide the command in help. But leave it for automated tests.
+         subcommand->add_option("-j, --jobs", jobs, "The number of jobs to use with cmake build tool. Default is number of CPUs.")->group("");
+#else
          subcommand->add_option("-j, --jobs", jobs, "The number of jobs to use with cmake build tool. Default is number of CPUs.");
+#endif
          subcommand->add_flag("-c, --clean", clean, "This will force a clean build.")->default_val(false);
       }
 
@@ -29,7 +34,13 @@ namespace antler {
 
          system::fs::create_directory(bin_dir);
 
+#if defined(WORKAROUND_OLD_CMAKE)
+         std::stringstream ss;
+         ss << "cd " << bin_dir.string() << " ; cmake " << build_dir.string() << " ; cmake --build .";
+         return system::execute(ss.str(),{});
+#else
          return system::execute("cmake", {"-S", build_dir.string(), "-B", bin_dir.string()});
+#endif
       }
 
 
@@ -39,9 +50,13 @@ namespace antler {
          system::fs::create_directory(bin_dir);
          system::info_log("Building project...");
 
+#if defined(WORKAROUND_OLD_CMAKE)
+         CLI::results_t args = {"--build", bin_dir.string()};
+#else
          CLI::results_t args = {"--build", bin_dir.string(), "-j"};
          if (jobs)
             args.push_back(std::to_string(jobs));
+#endif
 
          return system::execute("cmake", std::move(args));
       }

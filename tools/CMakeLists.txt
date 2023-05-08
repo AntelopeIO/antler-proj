@@ -5,6 +5,10 @@ add_executable(antler-proj main.cpp ${src_hpp})
 set_property(TARGET antler-proj PROPERTY CXX_STANDARD 17)
 target_link_libraries(antler-proj PUBLIC antler-project)
 
+if(CMAKE_VERSION LESS "3.13")
+   target_compile_definitions(antler-proj PRIVATE WORKAROUND_OLD_CMAKE=1)
+endif()
+
 macro(add_cli_test name file)
    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/tests/${file} ${CMAKE_CURRENT_BINARY_DIR}/tests/${file} @ONLY)
    add_test(NAME ${name} COMMAND python3 ${file} WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/tests)
