@@ -52,9 +52,13 @@ namespace antler {
 
          CLI::results_t args = {"--build", bin_dir.string(), "-j"};
          if(jobs != std::numeric_limits<uint32_t>::max()) {
-            args.push_back("-j");
-            if(jobs)
-               args.push_back(std::to_string(jobs));
+            if(cmake_is_old)
+               system::warn_log("CMake does not support jobs flag for building.");
+            else {
+               args.push_back("-j");
+               if(jobs)
+                  args.push_back(std::to_string(jobs));
+            }
          }
 
          return system::execute("cmake", std::move(args));
@@ -123,5 +127,6 @@ namespace antler {
       std::string path;
       uint32_t    jobs = std::numeric_limits<uint32_t>::max();
       bool        clean = false;
+      bool        cmake_is_old = false;
    };
 } // namespace antler
