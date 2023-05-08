@@ -50,13 +50,12 @@ namespace antler {
          system::fs::create_directory(bin_dir);
          system::info_log("Building project...");
 
-#if defined(WORKAROUND_OLD_CMAKE)
-         CLI::results_t args = {"--build", bin_dir.string()};
-#else
          CLI::results_t args = {"--build", bin_dir.string(), "-j"};
-         if (jobs)
-            args.push_back(std::to_string(jobs));
-#endif
+         if(jobs != std::numeric_limits<uint32_t>::max()) {
+            args.push_back("-j");
+            if(jobs)
+               args.push_back(std::to_string(jobs));
+         }
 
          return system::execute("cmake", std::move(args));
       }
@@ -85,7 +84,7 @@ namespace antler {
       }
 
       int32_t exec() {
-         
+
          auto proj = load_project(path);
 
          system::debug_log("Project loaded at {0}", proj.path().string());
@@ -122,7 +121,7 @@ namespace antler {
 
       CLI::App*   subcommand = nullptr;
       std::string path;
-      uint32_t    jobs = 0;
+      uint32_t    jobs = std::numeric_limits<uint32_t>::max();
       bool        clean = false;
    };
 } // namespace antler
