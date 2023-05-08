@@ -11,6 +11,11 @@ add_library(antler-project
    version_constraint.cpp
 )
 
+if( ((CMAKE_CXX_COMPILER_ID STREQUAL "Clang") AND (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 11))
+      OR ((CMAKE_CXX_COMPILER_ID STREQUAL "GNU") AND (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9)))
+   set(FSLIB stdc++fs)
+endif()
+
 target_include_directories(antler-project PUBLIC ../include
                                                  ${CMAKE_CURRENT_BINARY_DIR}/../include
                                                  ${CURL_INCLUDE_DIRS}
@@ -18,5 +23,7 @@ target_include_directories(antler-project PUBLIC ../include
 target_link_libraries(antler-project PUBLIC nlohmann_json::nlohmann_json
                                             yaml-cpp::yaml-cpp
                                             bluegrass::cturtle
-                                            ${CURL_LIBRARIES})
+                                            ${CURL_LIBRARIES}
+                                            ${FSLIB}
+                                         )
 set_property(TARGET antler-project PROPERTY CXX_STANDARD 17)

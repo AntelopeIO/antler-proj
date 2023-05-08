@@ -26,7 +26,7 @@ TEST_CASE("Testing cmake emission") {
    cm.emit_preamble(ss);
 
    constexpr std::string_view cmake_preamble_expected = "# Generated with antler-proj, modify at your own risk\n"
-                                                        "cmake_minimum_required(VERSION 3.11)\n"
+                                                        "cmake_minimum_required(VERSION 3.10)\n"
                                                         "project(\"test_proj\" VERSION 1.0.0)\n\n";
 
    REQUIRE( ss.str() == cmake_preamble_expected );
