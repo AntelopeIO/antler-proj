@@ -8,6 +8,7 @@
 #include <type_traits>
 #include <unordered_set>
 #include <vector>
+#include <regex>
 
 #include <bluegrass/cturtle.hpp>
 
@@ -55,6 +56,38 @@ namespace antler::system {
       for (auto& c : s)
          c = toupper(c);
       return s;
+   }
+
+   inline static std::string exec_and_get_output(const std::string cmd) {
+      std::array<char, 256> buffer;
+      std::string result;
+      std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd.c_str(), "r"), pclose);
+      if (!pipe) {
+         system::error_log("internal failure, program {0} not found.", cmd);
+         return result;
+      }
+      while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
+         result += buffer.data();
+      }
+      return result;
+   }
+
+   inline static auto get_cmake_ver() {
+
+      std::string ver = exec_and_get_output("cmake --version");
+
+      std::regex version_regex("cmake version (\\d+)\\.(\\d+)\\.(\\d+)");
+      std::smatch matches;
+      if (std::regex_search(ver, matches, version_regex)) {
+         int v1 = std::stoi(matches[1]);
+         int v2 = std::stoi(matches[2]);
+         int v3 = std::stoi(matches[3]);
+         return std::make_tuple(v1,v2,v3);
+      }
+      else {
+         system::info_log("CMake version {0} is incorrect", ver);
+         return std::make_tuple(0,0,0);
+      }
    }
 
    inline static int32_t execute(std::string_view prog, const std::vector<std::string>& args) {
