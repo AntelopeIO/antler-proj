@@ -83,7 +83,7 @@ namespace antler {
 
       int32_t exec() {
 
-         cmake_is_old = system::get_cmake_ver() <= std::make_tuple(project::cmake::minimum_major, project::cmake::minimum_minor, 2);
+         cmake_is_old = system::get_cmake_ver() < std::make_tuple(3, 13, 0);
 
          auto proj = load_project(path);
 
