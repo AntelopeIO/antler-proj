@@ -72,23 +72,29 @@ namespace antler::system {
       return result;
    }
 
-   /// @return A tuple of ints indicating the version (major, minor, patch). Note that any pre-release or build metadata are ignored.
-   inline static auto get_cmake_ver() {
-
-      std::string ver = exec_and_get_output("cmake --version");
-
+   /// @note This function is not intended to be called directly, consider using get_cmake_ver()
+   inline static auto parse_cmake_ver(const std::string& ver) {
       std::regex version_regex("cmake version (\\d+)\\.(\\d+)\\.(\\d+)");
       std::smatch matches;
       if (std::regex_search(ver, matches, version_regex)) {
-         int v1 = std::stoi(matches[1]);
-         int v2 = std::stoi(matches[2]);
-         int v3 = std::stoi(matches[3]);
-         return std::make_tuple(v1,v2,v3);
+         try {
+            int v1 = std::stoi(matches[1]);
+            int v2 = std::stoi(matches[2]);
+            int v3 = std::stoi(matches[3]);
+            return std::make_tuple(v1,v2,v3);
+         }
+         catch(const std::exception& e) {
+            system::info_log("CMake version {0} is unparseable with error {1}", ver, e.what());
+            return std::make_tuple(-1,-1,-1);
+         }
       }
-      else {
-         system::info_log("CMake version {0} is incorrect", ver);
-         return std::make_tuple(0,0,0);
-      }
+      system::info_log("CMake version {0} is unparseable", ver);
+      return std::make_tuple(-1,-1,-1);
+   }
+
+   /// @return A tuple of ints indicating the version (major, minor, patch). Note that any pre-release or build metadata are ignored.
+   inline static auto get_cmake_ver() {
+      return parse_cmake_ver( exec_and_get_output("cmake --version") );
    }
 
    inline static int32_t execute(std::string_view prog, const std::vector<std::string>& args) {
@@ -111,7 +117,7 @@ namespace antler::system {
       while ((n = fread(buff.data(), 1, buff.size(), h)) > 0) {
          fwrite(buff.data(), 1, n, stdout);
       }
-     
+
       auto rv = pclose(h);
 
       return WEXITSTATUS(rv);
@@ -140,7 +146,7 @@ namespace antler::system {
       while ((n = fread(buff.data(), 1, buff.size(), h)) > 0) {
          ret_val += std::string(buff.data(), n);
       }
-      
+
       auto rv = pclose(h);
 
       return WEXITSTATUS(rv) == 0 ? std::optional<std::string>{ret_val} : std::nullopt;

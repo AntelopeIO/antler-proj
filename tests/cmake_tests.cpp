@@ -49,3 +49,29 @@ TEST_CASE("Testing cmake emission") {
 
    REQUIRE( ss.str() == project_expected );
 }
+
+
+
+TEST_CASE("Testing valid cmake versions") {
+
+   using antler::system::parse_cmake_ver;
+   auto ver = [](int major, int minor, int patch) { return std::make_tuple(major, minor, patch); };
+
+   REQUIRE( parse_cmake_ver("cmake version 3.10.2") == ver(3,10,2) );
+   REQUIRE( parse_cmake_ver("cmake version 3.26.0-rc5") == ver(3,26,0) );
+   REQUIRE( parse_cmake_ver("cmake version 4.0.0+build_metadata") == ver(4,0,0) );
+   REQUIRE( parse_cmake_ver("cmake version 3.26.0-rc2.5.6") == ver(3,26,0) );
+}
+
+
+TEST_CASE("Testing invalid cmake versions") {
+
+   using antler::system::parse_cmake_ver;
+   const auto bad = std::make_tuple(-1,-1,-1);
+
+   REQUIRE( parse_cmake_ver("cmake version  3.10.2") == bad );
+   REQUIRE( parse_cmake_ver("cmake version 3.40") == bad );
+   REQUIRE( parse_cmake_ver("cmake version 2.8.4294967295") == bad );
+   REQUIRE( parse_cmake_ver("cmake version 4.0-rc1") == bad );
+   REQUIRE( parse_cmake_ver("cmake version 4.0+exploratory") == bad );
+}
