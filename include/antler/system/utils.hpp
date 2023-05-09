@@ -58,7 +58,7 @@ namespace antler::system {
       return s;
    }
 
-   inline static std::string exec_and_get_output(const std::string cmd) {
+   inline static std::string exec_and_get_output(const std::string& cmd) {
       std::array<char, 256> buffer;
       std::string result;
       std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd.c_str(), "r"), pclose);
@@ -72,6 +72,7 @@ namespace antler::system {
       return result;
    }
 
+   /// @return A tuple of ints indicating the version (major, minor, patch). Note that any pre-release or build metadata are ignored.
    inline static auto get_cmake_ver() {
 
       std::string ver = exec_and_get_output("cmake --version");
