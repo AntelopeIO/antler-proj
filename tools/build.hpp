@@ -18,7 +18,7 @@ namespace antler {
          subcommand->footer(std::string(R"(Examples:)")
                + "\n\t" + app.get_name() +R"( build -j3)");
          subcommand->add_option("-p, path", path, "This is the path to the root of the project.");
-         subcommand->add_option("-j, --jobs", jobs, "The number of jobs to use with cmake build tool. Default is number of CPUs.");
+         subcommand->add_option("-j, --jobs", jobs, "The number of jobs to use with cmake build tool.");
          subcommand->add_flag("-c, --clean", clean, "This will force a clean build.")->default_val(false);
       }
 
