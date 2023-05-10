@@ -21,13 +21,18 @@ def test_populate_and_build():
     assert shutil.copytree(SOURCE_PATH, PROJECT_PATH)
 
     # Populate the project.
-    result = subprocess.run([APROJ_EXE,"populate", PROJECT_PATH], capture_output=True, text=True, check=False)
+    result = subprocess.run([APROJ_EXE,"populate", "-p", PROJECT_PATH], stdout=subprocess.PIPE,stderr=subprocess.PIPE,  check=False)
     print(result.stdout)
     print(result.stderr)
     assert result.returncode == 0
 
     # Build the project.
-    result = subprocess.run([APROJ_EXE,"build", PROJECT_PATH], capture_output=True, text=True, check=False)
+    result = subprocess.run([APROJ_EXE,"build", "-p", PROJECT_PATH], stdout=subprocess.PIPE,stderr=subprocess.PIPE,  check=False)
+    print(result.stdout)
+    print(result.stderr)
+    assert result.returncode == 0
+
+    result = subprocess.run([APROJ_EXE,"build", "-p", PROJECT_PATH, "-j", "1"], stdout=subprocess.PIPE,stderr=subprocess.PIPE,  check=False)
     print(result.stdout)
     print(result.stderr)
     assert result.returncode == 0

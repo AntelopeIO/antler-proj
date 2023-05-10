@@ -66,7 +66,7 @@ namespace antler::project {
    class cmake {
       public:
          constexpr inline static uint16_t minimum_major = 3;
-         constexpr inline static uint16_t minimum_minor = 11;
+         constexpr inline static uint16_t minimum_minor = 10;
          constexpr inline static std::string_view build_dir_name  = "build";
          constexpr inline static std::string_view apps_dir_name   = "apps";
          constexpr inline static std::string_view libs_dir_name   = "libs";

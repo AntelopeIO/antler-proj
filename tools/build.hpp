@@ -18,7 +18,7 @@ namespace antler {
          subcommand->footer(std::string(R"(Examples:)")
                + "\n\t" + app.get_name() +R"( build -j3)");
          subcommand->add_option("-p, path", path, "This is the path to the root of the project.");
-         subcommand->add_option("-j, --jobs", jobs, "The number of jobs to use with cmake build tool. Default is number of CPUs.");
+         subcommand->add_option("-j, --jobs", jobs, "The number of jobs to use with cmake build tool.");
          subcommand->add_flag("-c, --clean", clean, "This will force a clean build.")->default_val(false);
       }
 
@@ -29,6 +29,11 @@ namespace antler {
 
          system::fs::create_directory(bin_dir);
 
+         if(cmake_is_old) {
+            std::stringstream ss;
+            ss << "cd " << bin_dir.string() << " ; cmake " << build_dir.string() << " ; cmake --build .";
+            return system::execute(ss.str(),{});
+         }
          return system::execute("cmake", {"-S", build_dir.string(), "-B", bin_dir.string()});
       }
 
@@ -39,9 +44,16 @@ namespace antler {
          system::fs::create_directory(bin_dir);
          system::info_log("Building project...");
 
-         CLI::results_t args = {"--build", bin_dir.string(), "-j"};
-         if (jobs)
-            args.push_back(std::to_string(jobs));
+         CLI::results_t args = {"--build", bin_dir.string()};
+         if(jobs != std::numeric_limits<uint32_t>::max()) {
+            if(cmake_is_old)
+               system::warn_log("CMake does not support jobs flag for building.");
+            else {
+               args.push_back("-j");
+               if(jobs)
+                  args.push_back(std::to_string(jobs));
+            }
+         }
 
          return system::execute("cmake", std::move(args));
       }
@@ -70,7 +82,9 @@ namespace antler {
       }
 
       int32_t exec() {
-         
+
+         cmake_is_old = system::get_cmake_ver() < std::make_tuple(3, 13, 0);
+
          auto proj = load_project(path);
 
          system::debug_log("Project loaded at {0}", proj.path().string());
@@ -107,7 +121,8 @@ namespace antler {
 
       CLI::App*   subcommand = nullptr;
       std::string path;
-      uint32_t    jobs = 0;
+      uint32_t    jobs = std::numeric_limits<uint32_t>::max();
       bool        clean = false;
+      bool        cmake_is_old = false;
    };
 } // namespace antler
