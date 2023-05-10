@@ -150,8 +150,8 @@ namespace antler {
 
          app_subcommand = subcommand->add_subcommand("app", "Add a new app to your project.");
          app_subcommand->footer(std::string(R"(Examples:)")
-               + "\n\t" + app.get_name() +R"( add app -p ./path-to-project/ -n MyApp -l C++ --comp -O2)"
-               + "\n\t" + app.get_name() +R"( add app -n MyApp -l C++ "\-O2 -WError" \\-s)");
+               + "\n\t" + app.get_name() +R"( add app -n MyApp -l C++ "\-O2 -WError" \\-s)"
+               + "\n\t" + app.get_name() +R"( add --path ./path-to-project app -n MyApp -l C++ --comp -O2)");
 
          app_subcommand->add_option("-n, --name", obj_name, "The name of the app to add.")->required();
          app_subcommand->add_option("-l, --lang", lang, "Language this app will use.")->required();
