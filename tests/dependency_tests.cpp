@@ -7,9 +7,9 @@
 TEST_CASE("Testing dependency validating locations") {
    using namespace antler::project;
 
-   dependency d = {"test2", "larryk85/dune", "1.0.0"};
+   dependency d = {"larryk85/dune"};
 
-   CHECK(d.name() == "test2");
+   CHECK(d.name() == "dune");
    CHECK(d.location() == "larryk85/dune");
 
    CHECK(d.is_valid_location());
@@ -23,7 +23,7 @@ TEST_CASE("Testing dependency validating locations") {
 TEST_CASE("Testing dependency yaml conversions") {
    using namespace antler::project;
 
-   dependency d = {"test", "larryk85/dune", "v1.0.0"};
+   dependency d = {"larryk85/dune"};
 
    yaml::node_t n = d.to_yaml();
 

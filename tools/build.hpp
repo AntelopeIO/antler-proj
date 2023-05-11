@@ -13,7 +13,6 @@ namespace antler {
 
    struct build_project {
       inline build_project(CLI::App& app) {
-         path = system::fs::current_path().string();
          subcommand = app.add_subcommand("build", "Build a project.");
          subcommand->footer(std::string(R"(Examples:)")
                + "\n\t" + app.get_name() +R"( build -j3)");

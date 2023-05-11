@@ -65,33 +65,29 @@ namespace antler {
       }
 
       remove_from_project(CLI::App& app) {
-         path = system::fs::current_path().string();
          subcommand = app.add_subcommand("remove", "Remove an app, dependency, library or test from your project.");
-         subcommand->add_option("-p, path", path, "Path containing the project's yaml file.");
+         subcommand->add_option("-p,--path", path, "Path containing the project's yaml file.")->default_val(".");
 
          app_subcommand = subcommand->add_subcommand("app", "Remove app from the project.");
          app_subcommand->footer(std::string(R"(Examples:)")
-               + "\n\t" + app.get_name() +R"( remove app MyApp)");
-         app_subcommand->add_option("-p, path", path, "Path containing the project's yaml file.");
-         app_subcommand->add_option("-n, name", obj_name, "The name of the app to remove.")->required();
+               + "\n\t" + app.get_name() +R"( remove app --name MyApp)");
+         app_subcommand->add_option("-n, --name", obj_name, "The name of the app to remove.")->required();
 
          lib_subcommand = subcommand->add_subcommand("lib", "Remove lib from the project.");
          lib_subcommand->footer(std::string(R"(Examples:)")
-               + "\n\t" + app.get_name() +R"( remove lib MyLib)");
-         lib_subcommand->add_option("-p, path", path, "Path containing the project's yaml file.");
-         lib_subcommand->add_option("-n, name", obj_name, "The name of the library to remove.")->required();
+               + "\n\t" + app.get_name() +R"( remove lib --name MyLib)");
+         lib_subcommand->add_option("-n, --name", obj_name, "The name of the library to remove.")->required();
 
          dep_subcommand = subcommand->add_subcommand("dep", "Remove a dependency from the project.");
          dep_subcommand->footer(std::string(R"(Examples:)")
-               + "\n\t" + app.get_name() +R"( remove dep MyDep)"
-               + "\n\t" + app.get_name() +R"( remove dep MyDep MyApp)");
-         dep_subcommand->add_option("-p, path", path, "Path containing the project's yaml file.");
-         dep_subcommand->add_option("-d, dep", dep_name, "The name of the dependency.")->required();
-         dep_subcommand->add_option("-o, obj", obj_name, "The name of the object the dependency is attached to.");
+               + "\n\t" + app.get_name() +R"( remove dep --dep_name MyDep)"
+               + "\n\t" + app.get_name() +R"( remove dep --dep_name MyDep --obj_name MyApp)");
+         dep_subcommand->add_option("-d, --dep_name", dep_name, "The name of the dependency.")->required();
+         dep_subcommand->add_option("-o, --obj_name", obj_name, "The name of the object the dependency is attached to.");
 
          /* TODO Add back after this release when we have the testing framework finished
          test_subcommand = subcommand->add_subcommand("test", "Remove a test from the project.");
-         test_subcommand->add_option("-n, name", dep_name, "The name of the test to remove.")->required();
+         test_subcommand->add_option("-n, --name", dep_name, "The name of the test to remove.")->required();
          */
 
       }
