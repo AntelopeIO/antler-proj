@@ -13,3 +13,4 @@
 *.cpp text eol=lf
 *.patch text eol=lf
 *.in text eol=lf
+*.py text eol=lf
