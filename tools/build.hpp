@@ -16,13 +16,12 @@ namespace antler {
          subcommand = app.add_subcommand("build", "Build a project.");
          subcommand->footer(std::string(R"(Examples:)")
                + "\n\t" + app.get_name() +R"( build -j3)");
-         subcommand->add_option("-p, path", path, "This is the path to the root of the project.");
          subcommand->add_option("-j, --jobs", jobs, "The number of jobs to use with cmake build tool.");
          subcommand->add_flag("-c, --clean", clean, "This will force a clean build.")->default_val(false);
       }
 
       int32_t configure() noexcept {
-         auto build_dir = system::fs::path(path) / "build";
+         auto build_dir = system::fs::path(proj_path) / "build";
          auto bin_dir = build_dir / "antler-bin";
          system::info_log("Configuring project...");
 
@@ -38,7 +37,7 @@ namespace antler {
 
 
       int32_t build() noexcept {
-         auto bin_dir = system::fs::path(path) / "build" / "antler-bin";
+         auto bin_dir = system::fs::path(proj_path) / "build" / "antler-bin";
 
          system::fs::create_directory(bin_dir);
          system::info_log("Building project...");
@@ -59,7 +58,7 @@ namespace antler {
 
       void move_artifacts(const project::project& proj) noexcept {
          namespace sf = system::fs;
-         auto build_dir = sf::path(path) / "build";
+         auto build_dir = sf::path(proj_path) / "build";
          auto bin_dir = build_dir / "antler-bin";
 
          for (const auto& [app_nm, app] : proj.apps()) {
@@ -84,12 +83,12 @@ namespace antler {
 
          cmake_is_old = system::get_cmake_ver() < std::make_tuple(3, 13, 0);
 
-         auto proj = load_project(path);
+         auto proj = load_project(proj_path);
 
          system::debug_log("Project loaded at {0}", proj.path().string());
 
          // reset the path to the root of the project
-         path = proj.path().string();
+         proj_path = proj.path().string();
 
          bool repopulated = false;
          if (should_repopulate(proj)) {
@@ -99,7 +98,7 @@ namespace antler {
          }
 
          if (clean && !repopulated) {
-            system::fs::remove_all(system::fs::path(path) / "build/antler-bin");
+            system::fs::remove_all(system::fs::path(proj_path) / "build/antler-bin");
          }
 
          if (auto rv = configure(); rv != 0) {
@@ -119,7 +118,6 @@ namespace antler {
       }
 
       CLI::App*   subcommand = nullptr;
-      std::string path;
       uint32_t    jobs = std::numeric_limits<uint32_t>::max();
       bool        clean = false;
       bool        cmake_is_old = false;

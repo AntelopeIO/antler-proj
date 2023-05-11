@@ -15,13 +15,12 @@ namespace antler {
          subcommand = app.add_subcommand("validate", "Validate a project.");
          subcommand->footer(std::string(R"(Examples:)")
                + "\n\t" + app.get_name() +R"( validate)");
-         subcommand->add_option("-p, --path", path, "Path containing the project's yaml file.")->default_val(".");
          subcommand->add_flag("-V, --verbose", verbose, "Verbose output.");
 
       }
 
       int32_t exec() {
-         auto proj = load_project(path);
+         auto proj = load_project(proj_path);
          if (verbose) {
             std::cout << proj.to_yaml() << std::endl;
          } else {
@@ -38,7 +37,6 @@ namespace antler {
       }
 
       CLI::App*   subcommand = nullptr;
-      std::string path;
       bool        verbose    = false;
    };
 } // namespace antler

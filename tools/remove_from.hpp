@@ -66,7 +66,6 @@ namespace antler {
 
       remove_from_project(CLI::App& app) {
          subcommand = app.add_subcommand("remove", "Remove an app, dependency, library or test from your project.");
-         subcommand->add_option("-p,--path", path, "Path containing the project's yaml file.")->default_val(".");
 
          app_subcommand = subcommand->add_subcommand("app", "Remove app from the project.");
          app_subcommand->footer(std::string(R"(Examples:)")
@@ -93,7 +92,7 @@ namespace antler {
       }
 
       int32_t exec() {
-         auto proj = load_project(path);
+         auto proj = load_project(proj_path);
 
          if (*app_subcommand) {
             remove_app(proj);
@@ -130,7 +129,6 @@ namespace antler {
       CLI::App*   dep_subcommand;
       CLI::App*   lib_subcommand;
       CLI::App*   test_subcommand;
-      std::string path;
       std::string obj_name;
       std::string dep_name;
    };

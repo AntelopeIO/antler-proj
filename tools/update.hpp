@@ -112,8 +112,6 @@ namespace antler {
       update_project(CLI::App& app) {
          subcommand = app.add_subcommand("update", "Update an app, dependency, library or test in your project.");
 
-         subcommand->add_option("-p,--path", path, "Path containing the project's yaml file.")->default_val(".");
-
          app_subcommand = subcommand->add_subcommand("app", "Update an app in the project.");
          app_subcommand->footer(std::string(R"(Examples:)")
                + "\n\t" + app.get_name() +R"( update app --name MyApp --lang C++ --comp \\-O2)"
@@ -156,7 +154,7 @@ namespace antler {
       }
 
       int32_t exec() {
-         auto proj = load_project(path);
+         auto proj = load_project(proj_path);
 
          if (*app_subcommand) {
             update_app(proj);
@@ -189,7 +187,6 @@ namespace antler {
       CLI::App*   dep_subcommand = nullptr;
       CLI::App*   lib_subcommand = nullptr;
       CLI::App*   test_subcommand = nullptr;
-      std::string path = "";
       std::string obj_name = "";
       std::string dep_name = "";
       std::string lang = "";

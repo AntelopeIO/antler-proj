@@ -15,12 +15,11 @@ namespace antler {
          subcommand = app.add_subcommand("populate", "Populate a project's dependencies and CMake.");
          subcommand->footer(std::string(R"(Examples:)")
                + "\n\t" + app.get_name() +R"( populate --path ./path-to-project)");
-         subcommand->add_option("-p, --path", path, "Path containing the project's yaml file.")->default_val(".");
          subcommand->add_flag("-f, --force", force, "This flag will force a repopulation of the project.")->default_val(false);
       }
 
       int32_t exec() {
-         auto proj = load_project(path);
+         auto proj = load_project(proj_path);
 
          if (force || should_repopulate(proj)) {
             system::fs::remove_all(proj.path()/"build");
@@ -32,7 +31,6 @@ namespace antler {
       }
 
       CLI::App*   subcommand = nullptr;
-      std::string path;
       bool        force = false;
    };
 } // namespace antler

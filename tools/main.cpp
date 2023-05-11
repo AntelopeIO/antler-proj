@@ -9,6 +9,8 @@
 
 #include "CLI11.hpp"
 
+std::string proj_path;
+
 #include "add_to.hpp"
 #include "build.hpp"
 #include "init.hpp"
@@ -37,6 +39,9 @@ struct runner {
          return 1;
       } else {
          if (*std::get<I>(tup).subcommand) {
+            // init wants to know if proj_path was _NOT_ set.
+            if(proj_path.empty() && std::get<I>(tup).subcommand->get_name() != "init")
+               proj_path = ".";
             return std::get<I>(tup).exec();
          } else {
             return exec<I+1>();
@@ -56,6 +61,7 @@ int main(int argc, char** argv) {
    const auto app_name = antler::system::fs::path(argv[0]).filename().string();
 
    CLI::App app{"Antelope Smart Contract Project Management Tool", app_name};
+   app.fallthrough(true);
 
    // Explicit help flags:
    app.set_help_flag("-h,--help","Print this help message and exit.");
@@ -68,6 +74,10 @@ int main(int argc, char** argv) {
             std::exit(0);       // Successful exit MUST happen here.
          },
          "Get the version of antler-proj.");
+
+   app.fallthrough(true);
+   app.add_option("-p,--path", proj_path, "Path containing/to contain the project's yaml file.");
+
 
    runner<antler::add_to_project,
           antler::build_project,
