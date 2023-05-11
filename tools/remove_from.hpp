@@ -65,7 +65,7 @@ namespace antler {
       }
 
       remove_from_project(CLI::App& app) {
-         subcommand = app.add_subcommand("remove", "Remove an app, dependency, library or test from your project.");
+         subcommand = app.add_subcommand("remove", "Remove an app, dependency, library or test from your project.")->fallthrough(true);
          subcommand->add_option("-p,--path", path, "Path containing the project's yaml file.")->default_val(".");
 
          app_subcommand = subcommand->add_subcommand("app", "Remove app from the project.");
