@@ -1,0 +1,7 @@
+project: hello-world
+version: 1.0.0
+apps:
+  - name: hello
+    lang: CXX
+    compile_options: ""
+    link_options: ""

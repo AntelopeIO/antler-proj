@@ -1,0 +1,27 @@
+project: lib_usage
+version: 1.0.0
+apps:
+  - name: lib_usage
+    lang: CXX
+    compile_options: ""
+    link_options: ""
+    depends:
+      - name: print_float
+        location: ""
+        tag: ""
+        release: ""
+        hash: ""
+      - name: print_number
+        location: ""
+        tag: ""
+        release: ""
+        hash: ""
+libs:
+  - name: print_float
+    lang: C
+    compile_options: ""
+    link_options: ""
+  - name: print_number
+    lang: CXX
+    compile_options: ""
+    link_options: ""

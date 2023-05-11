@@ -66,7 +66,7 @@ namespace antler::project {
    class cmake {
       public:
          constexpr inline static uint16_t minimum_major = 3;
-         constexpr inline static uint16_t minimum_minor = 11;
+         constexpr inline static uint16_t minimum_minor = 10;
          constexpr inline static std::string_view build_dir_name  = "build";
          constexpr inline static std::string_view apps_dir_name   = "apps";
          constexpr inline static std::string_view libs_dir_name   = "libs";
@@ -114,6 +114,8 @@ namespace antler::project {
 
          template <typename Stream>
          inline void emit_add_subdirectory(Stream& s, system::fs::path path, std::string_view name) noexcept {
+            if (path.empty()) 
+               return;
             s << fmt::format(add_subdirectory_template, (path / name).string());
          }
 
@@ -136,22 +138,25 @@ namespace antler::project {
 
          template <typename Populators, typename Stream, typename Tag>
          inline void emit_dependencies(Populators&& pops, Stream& s, const object<Tag>& obj) noexcept {
-            system::debug_log("Object {0}", obj.name());
+            std::string obj_target = "";
+            std::string dep_target = "";
             for (const auto& [k, dep] : obj.dependencies()) {
                system::debug_log("emitting dependencies for {0} at {1}", dep.name(), dep.location().empty() ? "local" : dep.location());
                if (!dep.location().empty()) {
                   std::string repo = std::string(github::get_repo(dep.location()));
                   s << fmt::format(add_subdirectory2_template,
-                                   "../../dependencies/"+repo+"/build/apps/",
+                                   "../../dependencies/"+dep.name()+"/build/apps/",
                                    repo);
-                  s << fmt::format(target_link_libs_template,
-                                   target_name(obj),
-                                   pops.get_mapping(dep)+"-"+dep.name());
+                  obj_target = target_name(obj);
+                  dep_target = pops.get_mapping(dep)+"-"+dep.name();
                } else {
-                  s << fmt::format(target_link_libs_template,
-                                   target_name(obj),
-                                   target_name(dep));
+                  obj_target = target_name(obj);
+                  dep_target = target_name(dep);
                }
+
+               s << fmt::format(target_link_libs_template,
+                                obj_target,
+                                dep_target);
             }
             s << "\n";
          }
@@ -199,10 +204,6 @@ namespace antler::project {
                cmake_lists obj_lists(s.base_path() / obj.name());
                emit_object(pops, obj_lists, obj);
             }
-         }
-
-         template <typename Stream, typename Tag>
-         inline void emit_dependency(Stream& s, const object<Tag>& dep) noexcept {
          }
 
          template <typename Pops>

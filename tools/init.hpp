@@ -29,8 +29,6 @@ namespace antler {
 
          proj.sync();
 
-         std::cout << "PROJ " << proj.path() << std::endl;
-
          system::info_log("Created project {0} at location {1}", name, path);
          return 0;
       }

@@ -114,6 +114,13 @@ bool project::populate(bool, std::ostream& error_stream) noexcept {
             error_stream << "Error emitting cmake for app: " << app.name() << "\n";
             return false;
          }
+
+	 if (!try_emit(app_path, [&]() {
+            cmake::emit_lib(apfs, app, *this);
+         })) {
+            error_stream << "Error emitting cmake for app-lib: " << app.name() << "\n";
+            return false;
+         }
       }
 
       for (const auto& lib : libs()) {

@@ -64,7 +64,8 @@ bool project::sync() {
    }
 
    try {
-      yaml::write(m_path / project::manifest_name, to_yaml());
+      auto manifest = choose_manifest(m_path);
+      yaml::write(m_path / manifest, to_yaml());
       system::info_log("Wrote project manifest to {0}.", m_path.string());
    }
    catch(std::exception& e) {
@@ -117,7 +118,7 @@ void project::version(const antler::project::version& ver) noexcept {
 
 bool project::validate_dependency(const dependency& dep) const noexcept {
    if (dep.location().empty()) {
-      return lib_exists(dep.name());
+      return lib_exists(dep.name()) || app_exists(dep.name());
    } else if (!dep.is_valid_location()) {
       system::error_log("Error dependency: {0} is invalid.", dep.name());
       return false;
