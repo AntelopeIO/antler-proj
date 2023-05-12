@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+for FILE in $(git diff --cached --name-only)
+do
+        if [[ "$FILE" =~ \.(c|cpp|h|hpp)$ ]]; then
+                clang-format -i "$FILE"
+        fi
+done
