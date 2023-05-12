@@ -214,7 +214,7 @@ namespace antler {
          */
          } else {
             system::error_log("Need to supply either dep/app/lib/test after `add`");
-            return -1;
+            return EX_USAGE;
          }
 
          proj.sync();

@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <string>
+#include <sysexits.h>
 
 #include "CLI11.hpp"
 
@@ -25,7 +26,7 @@ namespace antler {
          antler::project::project proj = {path, name, version};
 
          if (!proj.init_dirs(path))
-            return -1;
+            return EX_CANTCREAT;
 
          proj.sync();
 
