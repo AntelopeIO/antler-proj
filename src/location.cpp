@@ -12,68 +12,101 @@
 #include <nlohmann/json.hpp>
 
 
-namespace antler::project::location {
+namespace antler::project::location
+{
 
-bool is_archive(std::string_view s) {
-   return ends_with(s, ".tar.gz")  ||
-         ends_with(s, ".tgz")     ||
-         ends_with(s, ".tar.bz2") ||
-         ends_with(s, ".tar.xz")  ||
-         ends_with(s, ".tar.zst");
+bool is_archive(std::string_view s)
+{
+   return ends_with(s, ".tar.gz") ||
+          ends_with(s, ".tgz") ||
+          ends_with(s, ".tar.bz2") ||
+          ends_with(s, ".tar.xz") ||
+          ends_with(s, ".tar.zst");
 }
 
 constexpr std::string_view github_com = "https://github.com/";
 
-std::string_view strip_github_com(std::string_view location) {
-   if (is_github_repo(location)) {
+std::string_view strip_github_com(std::string_view location)
+{
+   if (is_github_repo(location))
+   {
       return location.substr(github_com.size());
-   }   
+   }
 
    return location;
 }
 
-static inline bool is_github(std::string_view s) { return starts_with(s, github_com); }
+static inline bool is_github(std::string_view s)
+{
+   return starts_with(s, github_com);
+}
 
-bool is_github_archive(std::string_view s) { return is_github(s) && is_archive(s); }
+bool is_github_archive(std::string_view s)
+{
+   return is_github(s) && is_archive(s);
+}
 
-bool is_url(std::string_view l) { return curl::is_url(l); }
+bool is_url(std::string_view l)
+{
+   return curl::is_url(l);
+}
 
-bool is_github_shorthand(std::string_view s) { return github::is_shorthand(s); }
+bool is_github_shorthand(std::string_view s)
+{
+   return github::is_shorthand(s);
+}
 
-bool is_github_repo(std::string_view s) { return is_github(s) && !is_archive(s); }
+bool is_github_repo(std::string_view s)
+{
+   return is_github(s) && !is_archive(s);
+}
 
-bool is_reachable(std::string_view l) {
-   if (!is_github_shorthand(l)) {
+bool is_reachable(std::string_view l)
+{
+   if (!is_github_shorthand(l))
+   {
       system::error_log("In this version of antler-proj only github shorthands (i.e. org/project) and github URLs (i.e. https://github.com/org/project) are supported. Archives will be supported in a future version.");
       return false;
    }
 
    return github{}.is_reachable(l);
    // TODO add support for archives
-   if (is_github_repo(l) || is_github_shorthand(l)) {
+   if (is_github_repo(l) || is_github_shorthand(l))
+   {
       return github{}.is_reachable(l);
-   } else if (is_archive(l) || is_url(l) || is_github_archive(l)) {
+   }
+   else if (is_archive(l) || is_url(l) || is_github_archive(l))
+   {
       return curl{}.is_reachable(l);
-   } else {
+   }
+   else
+   {
       return false;
    }
 }
 
-bool clone_github_repo(const std::string& org, const std::string& repo, const std::string& branch, system::fs::path dest) {
+bool clone_github_repo(const std::string& org, const std::string& repo, const std::string& branch, system::fs::path dest)
+{
    return git::clone(org, repo, branch, dest);
 }
 
-bool clone_git_repo(const std::string& url, const std::string& branch, system::fs::path dest) {
+bool clone_git_repo(const std::string& url, const std::string& branch, system::fs::path dest)
+{
    return git::clone(url, branch, dest);
 }
 
-bool pull_git_repo(system::fs::path src) { return git::pull(src); }
+bool pull_git_repo(system::fs::path src)
+{
+   return git::pull(src);
+}
 
-std::string github_request(const std::string& org, const std::string& repo) {
+std::string github_request(const std::string& org, const std::string& repo)
+{
    return github{}.request(org, repo);
 }
 
-std::string get_github_default_branch(const std::string& org, const std::string& repo) {
+std::string get_github_default_branch(const std::string& org, const std::string& repo)
+{
    return github{}.get_default_branch(org, repo);
 }
 

@@ -6,9 +6,10 @@
 
 using namespace std::literals;
 
-TEST_CASE("shorthand") {
+TEST_CASE("shorthand")
+{
    using namespace antler::project;
-   
+
    CHECK(github::is_shorthand("org/project"sv));
    CHECK(github::is_shorthand("org/a"sv));
 

@@ -1,17 +1,18 @@
 /// @copyright See `LICENSE` in the root directory of this project.
 
 #include "../include/antler/project/object.hpp"
-//#include <antler/project/object.hpp>
+// #include <antler/project/object.hpp>
 
 #include <catch2/catch.hpp>
 
 
-TEST_CASE("Testing object") {
+TEST_CASE("Testing object")
+{
    using namespace antler::project;
    using v = std::vector<std::string>;
 
-   app_t app1 {"test", "C++", "-std=c++11", "-fno-lto"};
-   app_t app2 {"test", "C++", "-g;-M", "-lm"};
+   app_t app1{"test", "C++", "-std=c++11", "-fno-lto"};
+   app_t app2{"test", "C++", "-g;-M", "-lm"};
 
    CHECK(app1.name() == app2.name());
    CHECK(app1.language() == app2.language());
@@ -20,8 +21,8 @@ TEST_CASE("Testing object") {
    CHECK(app2.compile_options() == v{"-g", "-M"});
    CHECK(app2.link_options() == v{"-lm"});
 
-   dependency dep1= {"https::github.com/larryk85/foo", "dep1"};
-   dependency dep2= {"https::github.com/larryk85/foo", "dep1"};
+   dependency dep1 = {"https::github.com/larryk85/foo", "dep1"};
+   dependency dep2 = {"https::github.com/larryk85/foo", "dep1"};
 
    CHECK(app1.dependencies().empty());
 
@@ -49,12 +50,13 @@ TEST_CASE("Testing object") {
    CHECK(app1.dependencies().empty());
 }
 
-TEST_CASE("Testing default dependency name") {
+TEST_CASE("Testing default dependency name")
+{
    using namespace antler::project;
    using v = std::vector<std::string>;
 
-   app_t app1 {"test", "C++", "-std=c++11", "-fno-lto"};
-   app_t app2 {"test", "C++", "-g;-M", "-lm"};
+   app_t app1{"test", "C++", "-std=c++11", "-fno-lto"};
+   app_t app2{"test", "C++", "-g;-M", "-lm"};
 
    CHECK(app1.name() == app2.name());
    CHECK(app1.language() == app2.language());
@@ -63,8 +65,8 @@ TEST_CASE("Testing default dependency name") {
    CHECK(app2.compile_options() == v{"-g", "-M"});
    CHECK(app2.link_options() == v{"-lm"});
 
-   dependency dep1= {"https::github.com/larryk85/foo"};
-   dependency dep2= {"https::github.com/larryk85/foo"};
+   dependency dep1 = {"https::github.com/larryk85/foo"};
+   dependency dep2 = {"https::github.com/larryk85/foo"};
 
    CHECK(app1.dependencies().empty());
 
@@ -90,7 +92,8 @@ TEST_CASE("Testing default dependency name") {
    CHECK(app1.dependencies().empty());
 }
 
-TEST_CASE("Testing object::is_valid_name") {
+TEST_CASE("Testing object::is_valid_name")
+{
    using namespace antler::project;
 
    CHECK(app_t::is_valid_name("hello"));
@@ -107,10 +110,11 @@ TEST_CASE("Testing object::is_valid_name") {
    CHECK(!app_t::is_valid_name("9"));
 }
 
-TEST_CASE("Testing object node conversions <pass>") {
+TEST_CASE("Testing object node conversions <pass>")
+{
    using namespace antler::project;
 
-   app_t app1 {"test", "C++", "-std=c++11;foo;bar", "-fno-lto;test;baz"};
+   app_t app1{"test", "C++", "-std=c++11;foo;bar", "-fno-lto;test;baz"};
 
    app_t app2;
 
@@ -124,18 +128,21 @@ TEST_CASE("Testing object node conversions <pass>") {
 
    CHECK(app1.compile_options().size() == app2.compile_options().size());
 
-   for (std::size_t i=0; i < app1.compile_options().size(); i++) {
+   for (std::size_t i = 0; i < app1.compile_options().size(); i++)
+   {
       CHECK(app1.compile_options()[i] == app2.compile_options()[i]);
    }
 
    CHECK(app1.link_options().size() == app2.link_options().size());
 
-   for (std::size_t i=0; i < app1.link_options().size(); i++) {
+   for (std::size_t i = 0; i < app1.link_options().size(); i++)
+   {
       CHECK(app1.link_options()[i] == app2.link_options()[i]);
    }
 }
 
-TEST_CASE("Testing object node conversions 2") {
+TEST_CASE("Testing object node conversions 2")
+{
    using namespace antler::project;
 
    YAML::Node node;
@@ -155,12 +162,12 @@ TEST_CASE("Testing object node conversions 2") {
    CHECK(app.dependencies().empty());
 
    node["compile_options"] = std::string{"-std=c++14;-fno-rtti"};
-   node["link_options"] = std::string{"-fno-lto;-lm"};
+   node["link_options"]    = std::string{"-fno-lto;-lm"};
 
    dependency dep1 = {"larryk85/foo"};
    dependency dep2 = {"larryk85/foo2"};
 
-   node["depends"] = std::vector<dependency>{ dep1, dep2 };
+   node["depends"] = std::vector<dependency>{dep1, dep2};
 
    std::cout << "Node: " << node << std::endl;
 
@@ -184,7 +191,8 @@ TEST_CASE("Testing object node conversions 2") {
    CHECK(app.dependencies()["foo2"].location() == dep2.location());
 }
 
-TEST_CASE("Testing object node conversions with dependencies") {
+TEST_CASE("Testing object node conversions with dependencies")
+{
    using namespace antler::project;
 
    app_t app = {"test", "C", "abc;def", ""};
@@ -198,22 +206,25 @@ TEST_CASE("Testing object node conversions with dependencies") {
 
    app_t app2;
    CHECK(app2.from_yaml(node["test"]));
-   
+
    CHECK(app.name() == app2.name());
    CHECK(app.language() == app2.language());
 
    CHECK(app.compile_options().size() == app2.compile_options().size());
-   for (std::size_t i=0; i < app.compile_options().size(); i++) {
+   for (std::size_t i = 0; i < app.compile_options().size(); i++)
+   {
       CHECK(app.compile_options()[i] == app2.compile_options()[i]);
    }
 
    CHECK(app.link_options().size() == app2.link_options().size());
-   for (std::size_t i=0; i < app.compile_options().size(); i++) {
+   for (std::size_t i = 0; i < app.compile_options().size(); i++)
+   {
       CHECK(app.compile_options()[i] == app2.compile_options()[i]);
    }
 
    CHECK(app.dependencies().size() == app2.dependencies().size());
-   for (const auto& [k,v] : app.dependencies()) {
+   for (const auto& [k, v] : app.dependencies())
+   {
       CHECK(app2.dependency_exists(k));
       const auto& d = app2.find_dependency(k);
       CHECK(d); // it is not a null optional

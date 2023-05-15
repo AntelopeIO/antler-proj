@@ -4,7 +4,8 @@
 
 #include <catch2/catch.hpp>
 
-TEST_CASE("Testing dependency validating locations") {
+TEST_CASE("Testing dependency validating locations")
+{
    using namespace antler::project;
 
    dependency d = {"larryk85/dune"};
@@ -20,7 +21,8 @@ TEST_CASE("Testing dependency validating locations") {
    CHECK(!d.is_valid_location());
 }
 
-TEST_CASE("Testing dependency yaml conversions") {
+TEST_CASE("Testing dependency yaml conversions")
+{
    using namespace antler::project;
 
    dependency d = {"larryk85/dune"};

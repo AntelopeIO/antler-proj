@@ -7,7 +7,8 @@
 #include "../system/utils.hpp"
 #include "net_utils.hpp"
 
-namespace antler::project::location {
+namespace antler::project::location
+{
 
 /// If location is github URL then strips out `https://github.com/` from URL. Otherwise returns input argument.
 /// @param loc Github location - either full URL or shorthand
