@@ -3,7 +3,7 @@
 namespace antler::project {
 
 // 0: path
-std::string_view cmake::add_subdirectory_template  = {"add_subdirectory(${{CMAKE_CURRENT_SOURCE_DIR}}/{0})\n\n"};
+std::string_view cmake::add_subdirectory_template = {"add_subdirectory(${{CMAKE_CURRENT_SOURCE_DIR}}/{0})\n\n"};
 // 0: src_path, 1: bin_path
 std::string_view cmake::add_subdirectory2_template = {"add_subdirectory(${{CMAKE_CURRENT_SOURCE_DIR}}/{0}\n"
                                                       "                 ${{CMAKE_CURRENT_BINARY_DIR}}/{1})\n\n"};
@@ -30,7 +30,7 @@ std::string_view cmake::target_include_template = {"target_include_directories({
 // 0: target name, 1: link libs
 std::string_view cmake::target_link_libs_template = {"target_link_libraries({0} PUBLIC {1})\n\n"};
 
-//0: proj
+// 0: proj
 std::string_view cmake::entry_template = {"include(ExternalProject)\n"
                                           "if(CDT_ROOT STREQUAL \"\" OR NOT CDT_ROOT)\n"
                                           "   find_package(cdt)\n"

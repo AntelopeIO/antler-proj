@@ -8,7 +8,7 @@
 
 TEST_CASE("Testing init subcommand") {
    using namespace antler::project;
-   
+
    project proj = {"./foo", "foo", "v1.0.0"};
 
    remove_file("./foo");

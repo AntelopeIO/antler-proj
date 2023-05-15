@@ -8,7 +8,7 @@
 
 #include <ryml.hpp>
 #ifndef _RYML_SINGLE_HEADER_AMALGAMATED_HPP_
-#  include <c4/std/string.hpp> // to_csubstr(std::string)
+#include <c4/std/string.hpp> // to_csubstr(std::string)
 #endif
 
 #pragma GCC diagnostic pop
@@ -19,9 +19,15 @@
 
 namespace antler::project {
 
-inline static c4::csubstr to_csubstr(std::string_view sv) noexcept { return {sv.data(), sv.size()}; }
-inline static c4::csubstr to_csubstr(token tok) noexcept { return to_csubstr(system::to_string(tok)); }
-inline static c4::csubstr to_csubstr(const version& v) noexcept { return to_csubstr(v.to_string()); }
+inline static c4::csubstr to_csubstr(std::string_view sv) noexcept {
+   return {sv.data(), sv.size()};
+}
+inline static c4::csubstr to_csubstr(token tok) noexcept {
+   return to_csubstr(system::to_string(tok));
+}
+inline static c4::csubstr to_csubstr(const version& v) noexcept {
+   return to_csubstr(v.to_string());
+}
 
 void project::print(std::ostream& os) const noexcept {
 
@@ -47,8 +53,8 @@ void project::print(std::ostream& os) const noexcept {
    // We are going to use the same code to write out the library, apps, and test sequences. To do this, we will create a list
    // containing a reference/pointer to the project's lists and a list of the corresponding type. We iterate through each one.
 
-   const std::vector<const object::list_t*> obj_lists{ &m_libs, &m_apps, &m_tests };
-   const std::vector<token>                 list_type{ token::libraries, token::apps, token::tests };
+   const std::vector<const object::list_t*> obj_lists{&m_libs, &m_apps, &m_tests};
+   const std::vector<token>                 list_type{token::libraries, token::apps, token::tests};
 
    for (size_t i = 0; i < obj_lists.size(); ++i) {
       const auto& obj_list = *obj_lists[i]; // convenience.
@@ -80,7 +86,7 @@ void project::print(std::ostream& os) const noexcept {
          const auto& conjoin_opts = [&](const auto& opts) {
             std::string s;
             for (const auto& o : opts)
-              s += std::string(o) + ";";
+               s += std::string(o) + ";";
             return s;
          };
 

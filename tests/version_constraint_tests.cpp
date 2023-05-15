@@ -10,7 +10,9 @@
 
 using namespace antler::project;
 
-inline bool test_constraint(std::string_view v, std::string_view c) { return version_constraint{c}.test(version{v}); }
+inline bool test_constraint(std::string_view v, std::string_view c) {
+   return version_constraint{c}.test(version{v});
+}
 
 TEST_CASE("Testing version constraints parsing") {
    using namespace antler::project;
@@ -81,7 +83,6 @@ TEST_CASE("Testing version constraints parsing") {
       CHECK_THROWS(version_constraint("<=1.2.3*rc1"));
       CHECK_THROWS(version_constraint(">>d.2.3-rc1"));
    }
-
 }
 
 TEST_CASE("Testing version constraints") {

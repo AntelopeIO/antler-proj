@@ -22,14 +22,17 @@
 
 
 template <typename T, typename V>
-static V depends(V&& v) { return std::forward<V>(v); }
+static V depends(V&& v) {
+   return std::forward<V>(v);
+}
 
 template <typename... Ts>
 struct runner {
    explicit runner(CLI::App& app)
-      : tup(depends<Ts>(app)...), _app(app) {}
+      : tup(depends<Ts>(app)...)
+      , _app(app) {}
 
-   template <std::size_t I=0>
+   template <std::size_t I = 0>
    constexpr inline int exec() {
       if constexpr (I == sizeof...(Ts)) {
          std::cout << _app.help() << std::endl
@@ -40,15 +43,14 @@ struct runner {
          if (*std::get<I>(tup).subcommand) {
             return std::get<I>(tup).exec();
          } else {
-            return exec<I+1>();
+            return exec<I + 1>();
          }
       }
-
    }
    std::tuple<Ts...> tup;
 
-   private:
-      const CLI::App& _app;
+private:
+   const CLI::App& _app;
 };
 
 int main(int argc, char** argv) {
@@ -59,16 +61,17 @@ int main(int argc, char** argv) {
    CLI::App app{"Antelope Smart Contract Project Management Tool", app_name};
 
    // Explicit help flags:
-   app.set_help_flag("-h,--help","Print this help message and exit.");
-   app.set_help_all_flag("--help-all","Expanded help with subcomands.");
+   app.set_help_flag("-h,--help", "Print this help message and exit.");
+   app.set_help_all_flag("--help-all", "Expanded help with subcomands.");
 
    // Add version flag with callback here.
-   app.add_flag_callback("-V,--version",
-         [&app]() {
-            std::cout << app.get_name() << " v" << antler::system::version::full() << std::endl;
-            std::exit(0);       // Successful exit MUST happen here.
-         },
-         "Get the version of antler-proj.");
+   app.add_flag_callback(
+      "-V,--version",
+      [&app]() {
+         std::cout << app.get_name() << " v" << antler::system::version::full() << std::endl;
+         std::exit(0); // Successful exit MUST happen here.
+      },
+      "Get the version of antler-proj.");
 
    runner<antler::add_to_project,
           antler::build_project,
@@ -76,7 +79,8 @@ int main(int argc, char** argv) {
           antler::populate_project,
           antler::remove_from_project,
           antler::update_project,
-          antler::validate_project> runner{app};
+          antler::validate_project>
+      runner{app};
 
    try {
       app.parse(argc, argv);
@@ -98,10 +102,10 @@ int main(int argc, char** argv) {
 
    try {
       return runner.exec();
-   } catch(const std::exception& ex) {
+   } catch (const std::exception& ex) {
       antler::system::error_log("{}", ex.what());
       return EXIT_FAILURE;
-   } catch(...) {
+   } catch (...) {
       antler::system::error_log("unhandled exception");
       return EXIT_FAILURE;
    }
