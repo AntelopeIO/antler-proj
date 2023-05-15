@@ -109,7 +109,7 @@ namespace antler {
          //update_dep(dep_name, proj.tests());
       }
 
-      update_project(CLI::App& app) {
+      explicit update_project(CLI::App& app) {
          subcommand = app.add_subcommand("update", "Update an app, dependency, library or test in your project.");
 
          subcommand->add_option("-p,--path", path, "Path containing the project's yaml file.")->default_val(".");
@@ -177,7 +177,7 @@ namespace antler {
          */
          } else {
             system::error_log("Need to supply either a dep/app/lib/test after `update`");
-            return -1;
+            return EX_USAGE;
          }
 
          proj.sync();
@@ -189,15 +189,15 @@ namespace antler {
       CLI::App*   dep_subcommand = nullptr;
       CLI::App*   lib_subcommand = nullptr;
       CLI::App*   test_subcommand = nullptr;
-      std::string path = "";
-      std::string obj_name = "";
-      std::string dep_name = "";
-      std::string lang = "";
-      std::string copts = "";
-      std::string lopts = "";
-      std::string loc = "";
-      std::string tag = "";
-      std::string release = "";
-      std::string digest = "";
+      std::string path;
+      std::string obj_name;
+      std::string dep_name;
+      std::string lang;
+      std::string copts;
+      std::string lopts;
+      std::string loc;
+      std::string tag;
+      std::string release;
+      std::string digest;
    };
 } // namespace antler

@@ -172,8 +172,8 @@ TEST_CASE("Testing version class comparisons") {
 TEST_CASE("Testing version yaml conversions") {
    using namespace antler::project;
 
-   version v1 = {"v1.2.3"};
-   version v2 = {"2.3.4"};
+   version v1 = version{"v1.2.3"};
+   version v2 = version{"2.3.4"};
 
    yaml::node_t n1 = v1.to_yaml();
    yaml::node_t n2 = v2.to_yaml();

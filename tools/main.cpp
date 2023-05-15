@@ -3,9 +3,10 @@
 #include <iostream>
 #include <string>
 #include <string_view>
-#include <memory>
 #include <optional>
 #include <tuple>
+#include <sysexits.h>
+#include <cstdlib>
 
 #include "CLI11.hpp"
 
@@ -34,7 +35,7 @@ struct runner {
          std::cout << _app.help() << std::endl
                    << "Please run one of the subcommands with --help option to get detailed help. "
                    << "Example: antler-proj init --help" << std::endl;
-         return 1;
+         return EX_USAGE;
       } else {
          if (*std::get<I>(tup).subcommand) {
             return std::get<I>(tup).exec();
@@ -99,9 +100,9 @@ int main(int argc, char** argv) {
       return runner.exec();
    } catch(const std::exception& ex) {
       antler::system::error_log("{}", ex.what());
-      return -1;
+      return EXIT_FAILURE;
    } catch(...) {
       antler::system::error_log("unhandled exception");
-      return -2;
+      return EXIT_FAILURE;
    }
 }

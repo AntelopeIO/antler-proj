@@ -24,7 +24,7 @@ public:
    using self = version;        ///< Alias for self type.
 
    /// @param ver  A string to create this version with.
-   inline version(std::string_view ver) {
+   explicit inline version(std::string_view ver) {
       system::info_log("project.version {0}", ver);
       ANTLER_CHECK(parse(ver) >= 0, "version malformed");
    }
@@ -33,7 +33,7 @@ public:
    /// @param min  Minor version component.
    /// @param pat  Patch version component.
    /// @param tweak  Tweak version component.
-   inline version(uint16_t maj=0, uint16_t min=0, uint16_t pat=0, std::string tweak="")
+   explicit inline version(uint16_t maj=0, uint16_t min=0, uint16_t pat=0, std::string tweak="")
       : major_comp(maj), minor_comp(min), patch_comp(pat), tweak_comp(std::move(tweak)) {}
 
    /// Copy constructor.
@@ -97,7 +97,7 @@ public:
 
       if (s[0] >= '0' && s[0] <= '9') {
          c = std::atoi(s.data());
-         consumed += c == 0 ? 1 : std::log10(c) + 1; ///< get the # of digits
+         consumed += c == 0 ? 1 : static_cast<int64_t>(std::log10(c) + 1); ///< get the # of digits
       } else {
          system::error_log("invalid version component : {0}", s);
          throw std::runtime_error("invalid version component");
@@ -200,7 +200,7 @@ public:
 
    /// Deserialization function from yaml node to version
    [[nodiscard]] inline bool from_yaml(const yaml::node_t& n) noexcept {
-      std::string s = n.as<std::string>();
+      auto s = n.as<std::string>();
       return parse({s.c_str(), s.size()}) > 0;
    }
 
@@ -208,7 +208,7 @@ private:
    uint16_t major_comp = 0;
    uint16_t minor_comp = 0;
    uint16_t patch_comp = 0;
-   std::string tweak_comp = "";
+   std::string tweak_comp;
 };
 
    // these don't need to be in global namespace ADL will handle finding the right one

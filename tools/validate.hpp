@@ -30,7 +30,7 @@ namespace antler {
 
          if (!proj.has_valid_dependencies()) {
             system::error_log("The project contains invalid dependencies");
-            return -1;
+            return EXIT_FAILURE;
          }
 
          system::info_log("Valid project dependencies and all are reachable");

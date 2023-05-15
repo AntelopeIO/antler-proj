@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <string>
+#include <sysexits.h>
 
 #include "CLI11.hpp"
 
@@ -31,7 +32,7 @@ namespace antler {
       // TODO reenable remove_test() when test code is completed.
       //inline bool remove_test(antler::project::project& proj) { return remove_obj<antler::project::test_t>(proj); }
 
-      bool remove_dependency_from_all(antler::project::project& proj) {
+      bool remove_dependency_from_all(antler::project::project& proj) const {
          const auto& remove_dep = [](auto dep, auto& objs) {
             for (auto& [k, o] : objs) {
                if (o.remove_dependency(dep)) {
@@ -45,7 +46,7 @@ namespace antler {
          // TODO reenable call to remove_dep() when test code is completed.
          //remove_dep(dep_name, proj.tests());
 
-         return 0;
+         return false;
       }
 
       template <typename Obj>
@@ -64,7 +65,7 @@ namespace antler {
          return true;
       }
 
-      remove_from_project(CLI::App& app) {
+      explicit remove_from_project(CLI::App& app) {
          subcommand = app.add_subcommand("remove", "Remove an app, dependency, library or test from your project.");
          subcommand->add_option("-p,--path", path, "Path containing the project's yaml file.")->default_val(".");
 
@@ -117,7 +118,7 @@ namespace antler {
          */
          } else {
             system::error_log("Need to supply either dep/app/lib/test after remove");
-            return -1;
+            return EX_USAGE;
          }
 
          proj.sync();

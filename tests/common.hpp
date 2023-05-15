@@ -43,7 +43,7 @@ static antler::project::project create_project() {
 
    project proj;
    proj.name("test_proj");
-   proj.version({1, 3, 4});
+   proj.version(version{1, 3, 4});
 
    proj.upsert(std::move(apps[0]));
    proj.upsert(std::move(libs[0]));

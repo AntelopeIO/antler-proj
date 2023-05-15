@@ -9,6 +9,7 @@
 #include <unordered_set>
 #include <vector>
 #include <regex>
+#include <sysexits.h>
 
 #include <bluegrass/cturtle.hpp>
 
@@ -106,7 +107,7 @@ namespace antler::system {
       FILE* h = popen(cmd.c_str(), "r");
       if (h == nullptr) {
          system::error_log("internal failure, program {0} not found.", prog);
-         return -1;
+         return EX_SOFTWARE;
       }
 
       constexpr size_t array_size = 64;
