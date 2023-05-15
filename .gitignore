@@ -10,3 +10,4 @@ tests/Testing/*
 .vscode/*
 
 tools/tests/__pycache__/*
+/cmake-build-debug/

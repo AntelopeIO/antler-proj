@@ -3,7 +3,7 @@
 #include <antler/project/dependency.hpp>
 #include <antler/project/location.hpp>
 
-#include <algorithm> // std::sort, std::find()
+#include <algorithm>  // std::sort, std::find()
 
 
 namespace {
@@ -11,10 +11,8 @@ namespace {
 inline bool is_valid_hash(std::string_view s, size_t byte_count = 32) noexcept {
    if (s.size() != byte_count)
       return false;
-   for(auto a : s) {
-      if( !(a >= '0' && a <= '9')
-            && !(a >= 'a' && a <= 'f')
-            &&  !(a >= 'A' && a <= 'F') ) {
+   for (auto a : s) {
+      if (!(a >= '0' && a <= '9') && !(a >= 'a' && a <= 'f') && !(a >= 'A' && a <= 'F')) {
          return false;
       }
    }
@@ -22,11 +20,10 @@ inline bool is_valid_hash(std::string_view s, size_t byte_count = 32) noexcept {
 }
 
 
-} // anonymous namespace
+}  // anonymous namespace
 
 
 namespace antler::project {
-
 
 
 
@@ -56,7 +53,7 @@ void dependency::patch_add(const system::fs::path& path) noexcept {
    if (i != m_patchfiles.end())
       return;
    m_patchfiles.push_back(path);
-   std::sort(m_patchfiles.begin(), m_patchfiles.end()); // <-- this could be optimized with a binary search...
+   std::sort(m_patchfiles.begin(), m_patchfiles.end());  // <-- this could be optimized with a binary search...
 }
 
 
@@ -66,14 +63,12 @@ const dependency::patch_list_t& dependency::patch_files() const noexcept {
 
 
 void dependency::patch_remove(const system::fs::path& path) noexcept {
-
    auto i = std::find(m_patchfiles.begin(), m_patchfiles.end(), path);
    if (i != m_patchfiles.end())
       m_patchfiles.erase(i);
 }
 
 void dependency::set(std::string nm, std::string_view loc, std::string_view tag, std::string_view rel, std::string_view hash) {
-
    m_loc = location::strip_github_com(loc);
    if (nm.empty()) {
       m_name = github::get_repo(m_loc);
@@ -81,11 +76,11 @@ void dependency::set(std::string nm, std::string_view loc, std::string_view tag,
       m_name = std::move(nm);
    }
 
-   
+
 
    m_tag_or_commit = tag;
-   m_rel = rel;
-   m_hash = hash;
+   m_rel           = rel;
+   m_hash          = hash;
    m_patchfiles.clear();
 
    if (!m_tag_or_commit.empty() && !m_rel.empty()) {
@@ -125,17 +120,11 @@ bool dependency::is_valid_location() const noexcept {
 }
 
 bool dependency::validate_location(std::string_view s) {
-
-   return
-      location::is_archive(s)
-      || location::is_github_repo(s)
-      || location::is_github_shorthand(s)
-      ;
+   return location::is_archive(s) || location::is_github_repo(s) || location::is_github_shorthand(s);
 }
 
 
 bool dependency::validate_location(std::string_view loc, std::string_view tag, std::string_view rel, std::string_view hash) {
-
    if (!tag.empty()) {
       if (!hash.empty()) {
          system::warn_log("tag and hash flags are not valid at the same time for location.");
@@ -150,4 +139,4 @@ bool dependency::retrieve() {
    return false;
 }
 
-} // namespace antler::project
+}  // namespace antler::project

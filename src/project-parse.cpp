@@ -2,14 +2,14 @@
 
 #include <antler/project/project.hpp>
 #include "token.hpp"
-//#include "key.hpp"
+// #include "key.hpp"
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wold-style-cast"
 
 #include <ryml.hpp>
 #ifndef _RYML_SINGLE_HEADER_AMALGAMATED_HPP_
-#  include <c4/std/string.hpp>    // to_substr(std::string)
+#include <c4/std/string.hpp>  // to_substr(std::string)
 #endif
 
 #pragma GCC diagnostic pop
@@ -23,10 +23,14 @@
 
 namespace antler::project {
 
-namespace { // anonymous
+namespace {  // anonymous
 
-inline std::string_view sv_from_csubstr(const c4::csubstr& s) { return {s.data(), s.size()}; }
-inline std::string s_from_csubstr(const c4::csubstr& s) { return {s.data(), s.size()}; }
+inline std::string_view sv_from_csubstr(const c4::csubstr& s) {
+   return {s.data(), s.size()};
+}
+inline std::string s_from_csubstr(const c4::csubstr& s) {
+   return {s.data(), s.size()};
+}
 
 /// Load a text file into a string.
 ///
@@ -36,8 +40,6 @@ inline std::string s_from_csubstr(const c4::csubstr& s) { return {s.data(), s.si
 /// @param os  ostream to write errors to.
 /// @return An optional string that is populated with the file contents *if* the load was successful; otherwise, it's invalid for any error.
 [[nodiscard]] std::optional<std::string> load(const std::filesystem::path& path, std::ostream& os) {
-
-
    // Sanity check and determine the file size.
    if (!std::filesystem::exists(path)) {
       os << "Path doesn't exist: " << path << "\n";
@@ -49,7 +51,7 @@ inline std::string s_from_csubstr(const c4::csubstr& s) { return {s.data(), s.si
    }
 
    std::error_code sec;
-   std::uintmax_t sz = std::filesystem::file_size(path, sec);
+   std::uintmax_t  sz = std::filesystem::file_size(path, sec);
    if (sec || sz == static_cast<std::uintmax_t>(-1)) {
       os << "Can't determine file size for: " << path << " with error " << sec << "\n";
       return {};
@@ -71,7 +73,7 @@ inline std::string s_from_csubstr(const c4::csubstr& s) { return {s.data(), s.si
 }
 
 
-} // anonymous namespace
+}  // anonymous namespace
 
 
 /// Parse the dependency portion of an antler-pack project file. Error are written to os.
@@ -81,7 +83,6 @@ inline std::string s_from_csubstr(const c4::csubstr& s) { return {s.data(), s.si
 /// @return optional of dependency type. Dependency is populated on successful parse only.
 template <typename NODE_T>
 [[nodiscard]] std::optional<dependency> parse_depends(const NODE_T& node, std::ostream& os) {
-
    dependency rv;
 
    // We assume node is a map.
@@ -97,7 +98,6 @@ template <typename NODE_T>
       // Get the key as one of our enums for a switch.
       auto tok = system::from_string<token>(sv_from_csubstr(i.key()));
       switch (tok) {
-
          case token::name: {
             // Sanity check before setting value.
             if (!i.has_val()) {
@@ -125,7 +125,7 @@ template <typename NODE_T>
          } break;
 
          case token::release:
-         case token::version: { // Allow version to mean release.
+         case token::version: {  // Allow version to mean release.
             // Sanity check before setting value.
             if (!i.has_val()) {
                os << tok << " tag in dependency list with no value.\n";
@@ -213,7 +213,6 @@ template <typename NODE_T>
 /// @return optional of object type. Dependency is populated on successful parse only.
 template <typename NODE_T>
 [[nodiscard]] std::optional<object> parse_object(const NODE_T& node, object::type_t type, std::ostream& os) {
-
    object rv(type);
 
    for (auto i : node) {
@@ -225,7 +224,6 @@ template <typename NODE_T>
       // Get the key as one of our enums for a switch.
       auto tok = system::from_string<token>(sv_from_csubstr(i.key()));
       switch (tok) {
-
          case token::name: {
             // Sanity check before setting value.
             if (!i.has_val()) {
@@ -364,7 +362,6 @@ template <typename NODE_T>
 
 
 std::optional<project> project::parse(const std::filesystem::path& path, std::ostream& os) {
-
    // Get file contents and store it in source.
    std::string source;
    {
@@ -393,7 +390,6 @@ std::optional<project> project::parse(const std::filesystem::path& path, std::os
       auto tok = system::from_string<token>(sv_from_csubstr(i.key()));
 
       switch (tok) {
-
          case token::project: {
             // Sanity check before setting value.
             if (!i.has_val()) {
@@ -436,12 +432,10 @@ std::optional<project> project::parse(const std::filesystem::path& path, std::os
 
             // The list type.
             const object::type_t ot =
-               (tok == token::apps ? object::type_t::app :
-                     (tok == token::libraries ? object::type_t::lib : object::type_t::test) );
+               (tok == token::apps ? object::type_t::app : (tok == token::libraries ? object::type_t::lib : object::type_t::test));
             // A reference to the list we want to populate.
             object::list_t& list =
-               (ot == object::type_t::app ? rv.m_apps :
-                     (ot == object::type_t::lib ? rv.m_libs : rv.m_tests) );
+               (ot == object::type_t::app ? rv.m_apps : (ot == object::type_t::lib ? rv.m_libs : rv.m_tests));
 
             // For each object in the list, call parse object.
             for (auto node : i) {
@@ -467,10 +461,10 @@ std::optional<project> project::parse(const std::filesystem::path& path, std::os
 
 
    // Validate here.
-   //if (!rv.is_valid(os))
+   // if (!rv.is_valid(os))
    //   return {};
 
    return rv;
 }
 
-} // namespace antler::project
+}  // namespace antler::project

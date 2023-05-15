@@ -11,113 +11,115 @@
 
 namespace antler::project {
 
-   enum class relation {
-      lt, ///< less than
-      le, ///< less than or equal
-      gt, ///< greater than
-      ge, ///< greater than or equal
-      eq  ///< equal
-   };
+enum class relation {
+   lt,  ///< less than
+   le,  ///< less than or equal
+   gt,  ///< greater than
+   ge,  ///< greater than or equal
+   eq   ///< equal
+};
 
-   static std::string relation_to_string(relation rel) {
-      switch(rel) {
-         case relation::lt:
-            return "<";
-         case relation::le:
-            return "<=";
-         case relation::gt:
-            return ">";
-         case relation::ge:
-            return ">=";
-         default:
-            return "";
-      }
+static std::string relation_to_string(relation rel) {
+   switch (rel) {
+      case relation::lt:
+         return "<";
+      case relation::le:
+         return "<=";
+      case relation::gt:
+         return ">";
+      case relation::ge:
+         return ">=";
+      default:
+         return "";
+   }
+}
+
+struct bound {
+   relation rel;
+   version  ver;
+
+   inline std::string to_string() const { return relation_to_string(rel) + " " + ver.to_string(); }
+};
+
+struct constraint {
+   bound                lower_bound;
+   std::optional<bound> upper_bound;
+
+   inline std::string to_string() const { return lower_bound.to_string() + (upper_bound ? ", " + upper_bound->to_string() : ""); }
+};
+
+/// This class encapsulates a version constraint. (e.g `package > 3.0.2`, `package > 3.0.2 < 4 | > 4.1`)
+class version_constraint {
+public:
+   /// Default constructor.
+   version_constraint() = default;
+
+   /// Construct from a string.
+   /// @param ver  The string to parse into a constraint.
+   explicit version_constraint(std::string_view ver) {
+      system::debug_log("version_constraint(std::string_view ver) called with constraint : {0}", ver);
+      ANTLER_CHECK(parse(ver), "invalid version constraint : {0}", ver);
    }
 
-   struct bound {
-      relation rel;
-      version  ver;
+   /// @param ver  The string to parse into a constraint.
+   version_constraint& operator=(std::string_view ver) {
+      system::debug_log("operator=(std::string_view ver) called with constraint : {0}", ver);
+      parse(ver);
+      ANTLER_CHECK(parse(ver), "invalid version constraint : {0}", ver);
+      return *this;
+   }
 
-      inline std::string to_string() const { return relation_to_string(rel) + " " + ver.to_string(); }
-   };
+   /// Clear this constraint.
+   inline void clear() { m_constraints.clear(); }
 
-   struct constraint {
-      bound lower_bound;
-      std::optional<bound> upper_bound;
+   /// @return true if the constraint is a unque value (e.g. `== 3.0.2` as opposed to `>= 3.0.2` or `== 3.0.2 | == 4.0.)
+   [[nodiscard]] bool is_unique() const noexcept;
 
-      inline std::string to_string() const { return lower_bound.to_string() + (upper_bound ? ", " + upper_bound->to_string() : ""); }
-   };
+   /// @return true if this constraint is empty or invalid.
+   [[nodiscard]] bool empty() const noexcept { return !m_constraints.empty(); }
 
-   /// This class encapsulates a version constraint. (e.g `package > 3.0.2`, `package > 3.0.2 < 4 | > 4.1`)
-   class version_constraint {
-   public:
+   /// @return the string representation of this constraint.
+   [[nodiscard]] std::string to_string() const noexcept;
 
-      /// Default constructor.
-      version_constraint() = default;
+   /// @note if empty() would return true, this function will ALWAYS return true.
+   /// @param ver  The version to test against this constraint.
+   /// @return true if ver met this constraint; false, otherwise.
+   [[nodiscard]] bool test(const version& ver) const noexcept;
 
-      /// Construct from a string.
-      /// @param ver  The string to parse into a constraint.
-      explicit version_constraint(std::string_view ver) {
-         system::debug_log("version_constraint(std::string_view ver) called with constraint : {0}", ver);
-         ANTLER_CHECK(parse(ver), "invalid version constraint : {0}", ver);
-      }
+   /// Print this constraint to a stream.
+   void print(std::ostream& os) const noexcept;
 
-      /// @param ver  The string to parse into a constraint.
-      version_constraint& operator=(std::string_view ver) {
-         system::debug_log("operator=(std::string_view ver) called with constraint : {0}", ver);
-         parse(ver);
-         ANTLER_CHECK(parse(ver), "invalid version constraint : {0}", ver);
-         return *this;
-      }
+   /// get the constraints
+   /// @return a vector of constraints.
+   [[nodiscard]] inline const std::vector<constraint>& constraints() const noexcept { return m_constraints; }
 
-      /// Clear this constraint.
-      inline void clear() { m_constraints.clear(); }
+   /// Serialization function from version to yaml node
+   [[nodiscard]] inline yaml::node_t to_yaml() const noexcept { return yaml::node_t{to_string()}; }
 
-      /// @return true if the constraint is a unque value (e.g. `== 3.0.2` as opposed to `>= 3.0.2` or `== 3.0.2 | == 4.0.)
-      [[nodiscard]] bool is_unique() const noexcept;
+   /// Deserialization function from yaml node to version
+   [[nodiscard]] inline bool from_yaml(const yaml::node_t& n) noexcept {
+      std::string s = n.as<std::string>();
+      return parse({s.c_str(), s.size()});
+   }
 
-      /// @return true if this constraint is empty or invalid.
-      [[nodiscard]] bool empty() const noexcept { return !m_constraints.empty(); }
-
-      /// @return the string representation of this constraint.
-      [[nodiscard]] std::string to_string() const noexcept;
-
-      /// @note if empty() would return true, this function will ALWAYS return true.
-      /// @param ver  The version to test against this constraint.
-      /// @return true if ver met this constraint; false, otherwise.
-      [[nodiscard]] bool test(const version& ver) const noexcept;
-
-      /// Print this constraint to a stream.
-      void print(std::ostream& os) const noexcept;
-
-      /// get the constraints
-      /// @return a vector of constraints.
-      [[nodiscard]] inline const std::vector<constraint>& constraints() const noexcept { return m_constraints; }
-
-      /// Serialization function from version to yaml node
-      [[nodiscard]] inline yaml::node_t to_yaml() const noexcept { return yaml::node_t{to_string()}; }
-
-      /// Deserialization function from yaml node to version
-      [[nodiscard]] inline bool from_yaml(const yaml::node_t& n) noexcept {
-         std::string s = n.as<std::string>();
-         return parse({s.c_str(), s.size()});
-      }
-
-      [[nodiscard]] inline bool empty() noexcept { return m_constraints.empty(); }
+   [[nodiscard]] inline bool empty() noexcept { return m_constraints.empty(); }
 
 
-   private:
-      /// Attempt to parse and load this version from a string. Print warnings and errors to os.
-      bool parse(std::string_view s);
+private:
+   /// Attempt to parse and load this version from a string. Print warnings and errors to os.
+   bool parse(std::string_view s);
 
-      std::pair<version, std::string_view> parse_version(std::string_view s);
+   std::pair<version, std::string_view> parse_version(std::string_view s);
 
-      std::vector<constraint> m_constraints; // The list of constraints.
-   };
+   std::vector<constraint> m_constraints;  // The list of constraints.
+};
 
-   inline std::ostream& operator<<(std::ostream& os, const antler::project::version_constraint& o) { o.print(os); return os; }
+inline std::ostream& operator<<(std::ostream& os, const antler::project::version_constraint& o) {
+   o.print(os);
+   return os;
+}
 
-} // namespace antler::project
+}  // namespace antler::project
 
 
 ANTLER_YAML_CONVERSIONS(antler::project::version_constraint);

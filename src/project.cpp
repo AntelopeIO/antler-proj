@@ -7,13 +7,12 @@
 
 #include <iostream>
 #include <fstream>
-#include <algorithm>            // find_if()
+#include <algorithm>  // find_if()
 
 namespace antler::project {
 
 //--- alphabetic --------------------------------------------------------------------------------------------------------
 bool project::init_dirs(const system::fs::path& path) noexcept {
-
    std::error_code sec;
 
    // Create the root directory.
@@ -25,11 +24,11 @@ bool project::init_dirs(const system::fs::path& path) noexcept {
 
    // Create the directory structure.
    {
-      const std::vector<system::fs::path> files = { "apps", "include", "ricardian", "libs", "tests" };
+      const std::vector<system::fs::path> files = {"apps", "include", "ricardian", "libs", "tests"};
       for (const auto& fn : files) {
-         system::fs::create_directory(path/fn, sec);
+         system::fs::create_directory(path / fn, sec);
          if (sec) {
-            system::error_log("{0} could not be created: {1}", (path/fn).string(), sec.message());
+            system::error_log("{0} could not be created: {1}", (path / fn).string(), sec.message());
             return false;
          }
       }
@@ -57,7 +56,6 @@ void project::path(const system::fs::path& path) noexcept {
 
 
 bool project::sync() {
-
    if (m_path.empty()) {
       system::error_log("Path: {0} is a valid path to write to.", m_path.string());
       return false;
@@ -67,8 +65,7 @@ bool project::sync() {
       auto manifest = choose_manifest(m_path);
       yaml::write(m_path / manifest, to_yaml());
       system::info_log("Wrote project manifest to {0}.", m_path.string());
-   }
-   catch(std::exception& e) {
+   } catch (std::exception& e) {
       system::error_log("Exception during syncing : {0}", e.what());
       return false;
    }
@@ -78,7 +75,6 @@ bool project::sync() {
 
 
 bool project::update_path(system::fs::path& path) noexcept {
-
    system::fs::path search_path = path;
    if (search_path.empty())
       search_path = system::fs::current_path();
@@ -102,7 +98,7 @@ bool project::update_path(system::fs::path& path) noexcept {
 
       search_path = search_path.parent_path();
    }
-   
+
    return false;
 }
 
@@ -137,7 +133,7 @@ bool project::has_valid_dependencies() const noexcept {
       return true;
    };
 
-   return test_deps(m_apps) && test_deps(m_libs); // && test_deps(m_tests);
+   return test_deps(m_apps) && test_deps(m_libs);  // && test_deps(m_tests);
 }
 
-} // namespace antler::project
+}  // namespace antler::project

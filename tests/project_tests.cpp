@@ -8,10 +8,12 @@
 
 TEST_CASE("Testing project") {
    using namespace antler::project;
-   app_t apps[] = { {"appa", "C", "", ""},
-                  {"appb", "C++", "", ""},
-                  {"appc", "C++", "", ""},
-                  {"appd", "C++", "", ""} };
+   app_t apps[] = {
+      {"appa", "C",   "", ""},
+      {"appb", "C++", "", ""},
+      {"appc", "C++", "", ""},
+      {"appd", "C++", "", ""}
+   };
 
    apps[0].upsert_dependency({"https://github.com/larryk85/dune", "foo", "v13.3"});
    apps[0].upsert_dependency({"mikelik/dune", "foo", "v13.4"});
@@ -19,13 +21,17 @@ TEST_CASE("Testing project") {
    apps[0].upsert_dependency({"https://github.com/antelopeio/leap", "", "v2.2.2v"});
    apps[1].upsert_dependency({"", "libc"});
 
-   lib_t libs[] = { {"libb", "C++", "", ""},
-                  {"libc", "C", "", ""},
-                  {"libd", "C++", "", ""} };
+   lib_t libs[] = {
+      {"libb", "C++", "", ""},
+      {"libc", "C",   "", ""},
+      {"libd", "C++", "", ""}
+   };
 
    libs[0].upsert_dependency({"https://github.com/larryk85/dune", "foo", "main"});
    libs[0].upsert_dependency({"mikelik/dune2", "foo", "branch"});
-   libs[0].upsert_dependency({"https://github.com/larryk85/fast_math", "" "blah"});
+   libs[0].upsert_dependency({"https://github.com/larryk85/fast_math",
+                              ""
+                              "blah"});
    libs[1].upsert_dependency({"https://github.com/antelopeio/leap", "", "v2.2.2v"});
 
    project proj;

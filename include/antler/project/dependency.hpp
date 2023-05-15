@@ -7,7 +7,7 @@
 #include <string_view>
 #include <vector>
 #include <iostream>
-#include <utility> // std::pair
+#include <utility>  // std::pair
 
 #include "location.hpp"
 #include "version.hpp"
@@ -20,9 +20,9 @@ namespace antler::project {
 /// This class models and contains the dependency portion of an ANTLER project.
 class dependency {
 public:
-   using list_t = std::vector<dependency>; ///< Alias for the list type.
+   using list_t = std::vector<dependency>;  ///< Alias for the list type.
 
-   using patch_list_t = std::vector<system::fs::path>; ///< Alias for the patch file list type.
+   using patch_list_t = std::vector<system::fs::path>;  ///< Alias for the patch file list type.
 
    // use default constructors, copy and move constructors and assignments
    dependency() = default;
@@ -33,16 +33,15 @@ public:
    /// @param tag  This is either the github repo tag or commit hash, commit hash being preferable. This may be empty if rel is populated or loc points to an archive.
    /// @param rel  This is a github repo version. Using a commit hash tag is preferable. This may be empty.
    /// @param hash  If loc points to an archive, this should be populated with the sha256 hash.
-   inline dependency(const std::string& loc, const std::string& name = "", const std::string& tag="",
-                     const std::string& rel="", const std::string& hash="") {
+   inline dependency(const std::string& loc, const std::string& name = "", const std::string& tag = "", const std::string& rel = "", const std::string& hash = "") {
       set(name, loc, tag, rel, hash);
    }
 
    dependency(const dependency&) = default;
-   dependency(dependency&&) = default;
+   dependency(dependency&&)      = default;
 
    dependency& operator=(const dependency&) = default;
-   dependency& operator=(dependency&&) = default;
+   dependency& operator=(dependency&&)      = default;
 
    /// Get the dependency name.
    /// @return The name of this dependency.
@@ -80,7 +79,7 @@ public:
 
    /// Set the new github release version.
    /// @param s  The new, possibly empty, release version.
-   void release(std::string_view s) noexcept { m_rel = s;}
+   void release(std::string_view s) noexcept { m_rel = s; }
 
    /// Get the archive or release hash.
    /// @note For commit hash, see tag()
@@ -126,44 +125,44 @@ public:
    /// Serialization function from version to yaml node
    [[nodiscard]] inline yaml::node_t to_yaml() const noexcept {
       yaml::node_t node;
-      node["name"] = m_name;
+      node["name"]     = m_name;
       node["location"] = m_loc;
-      node["tag"] = m_tag_or_commit;
-      node["release"] = m_rel;
-      node["hash"] = m_hash;
+      node["tag"]      = m_tag_or_commit;
+      node["release"]  = m_rel;
+      node["hash"]     = m_hash;
       return node;
    }
 
    /// Deserialization function from yaml node to version
    [[nodiscard]] inline bool from_yaml(const yaml::node_t& n) noexcept {
-      return ANTLER_EXPECT_YAML(n, "name",  name, std::string) &&
+      return ANTLER_EXPECT_YAML(n, "name", name, std::string) &&
              ANTLER_TRY_YAML(n, "location", location, std::string) &&
              ANTLER_TRY_YAML(n, "tag", tag, std::string) &&
              ANTLER_TRY_YAML(n, "release", release, std::string) &&
              ANTLER_TRY_YAML(n, "hash", hash, std::string);
    }
 
-private:   
+private:
    /// Sets the internal values (regardless of the validity).
    void set(std::string name, std::string_view loc, std::string_view tag, std::string_view rel, std::string_view hash);
 
-   std::string m_name;          ///< Name of the dependency.
-   std::string m_loc;           ///< Location of the dep: local or remote archive, github repo (https: or org shorthand)
-   std::string m_tag_or_commit; ///< github tag or commit hash. Always prefer a commit hash.
-   std::string m_rel;           ///< github release version. Not valid with tag_or_commit.
-   std::string m_hash;          ///< valid when m_loc is an archive (including github release version).
-   patch_list_t m_patchfiles;   ///< List of patch files.
+   std::string  m_name;           ///< Name of the dependency.
+   std::string  m_loc;            ///< Location of the dep: local or remote archive, github repo (https: or org shorthand)
+   std::string  m_tag_or_commit;  ///< github tag or commit hash. Always prefer a commit hash.
+   std::string  m_rel;            ///< github release version. Not valid with tag_or_commit.
+   std::string  m_hash;           ///< valid when m_loc is an archive (including github release version).
+   patch_list_t m_patchfiles;     ///< List of patch files.
 };
 
-} // namespace antler::project
+}  // namespace antler::project
 
 namespace std {
-   template <>
-   struct hash<antler::project::dependency> {
-      std::size_t operator()(const antler::project::dependency& d) const {
-         return std::hash<std::string>{}(d.name());
-      }
-   };
-}
+template <>
+struct hash<antler::project::dependency> {
+   std::size_t operator()(const antler::project::dependency& d) const {
+      return std::hash<std::string>{}(d.name());
+   }
+};
+}  // namespace std
 
 ANTLER_YAML_CONVERSIONS(antler::project::dependency);

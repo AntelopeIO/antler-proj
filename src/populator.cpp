@@ -9,10 +9,10 @@ bool populator::populate_dependency(const dependency& d, const project& p) {
    system::fs::path depends_dir = p.path() / p.dependencies_dir / d.name();
    system::debug_log("populating dependency {0} from {1}", d.name(), d.location());
    std::string tag = d.tag();
-   
+
    if (populators::mapping_exists(d))
       return true;
-   
+
    // this dependency is a local dependency
    if (d.location().empty())
       return true;
@@ -37,7 +37,7 @@ bool populator::populate_dependency(const dependency& d, const project& p) {
    }
 
    // TODO still need to support recursion into general git repos and archives.
-   //if (is_reachable(d.location())) {
+   // if (is_reachable(d.location())) {
    //   if (is_github_repo(d.location())) {
    //      if (d.tag().empty()) {
    //         tag = "main";
@@ -54,7 +54,7 @@ bool populator::populate_dependency(const dependency& d, const project& p) {
    //      return clone_github_repo(org, repo, tag, depends_dir / d.name());
    //   }
    //}
-   //return false;
+   // return false;
 }
 
 bool populator::populate_project(project& p) {
@@ -77,23 +77,26 @@ bool populator::populate_project(project& p) {
                   continue;
                if (!populators::mapping_exists(d)) {
                   system::info_log("Grabbing dependency location {0}", d.location());
-                  project next_proj(depends_dir / d.name()); //github::get_repo(d.location()));
-                  
+                  project next_proj(depends_dir / d.name());  // github::get_repo(d.location()));
+
                   // check that the version we grabbed is what we can work with
                   if (!d.release().empty()) {
                      version_constraint vc(d.release());
-                     ANTLER_CHECK(vc.test(next_proj.version()), 
-                         "Project {0} version is too low {1}, given version {2} as a constraint", next_proj.name(), next_proj.version().to_string(), d.release());
+                     ANTLER_CHECK(vc.test(next_proj.version()),
+                                  "Project {0} version is too low {1}, given version {2} as a constraint",
+                                  next_proj.name(),
+                                  next_proj.version().to_string(),
+                                  d.release());
                   }
 
                   populators::add_mapping(d, std::string(next_proj.name()));
                   if (!populate_project(next_proj))
                      return false;
                }
-            } catch(const std::exception& e) {
+            } catch (const std::exception& e) {
                system::error_log("Failed to load project: {0}", e.what());
                return false;
-            } catch(...) {
+            } catch (...) {
                system::error_log("Failed to load project");
                return false;
             }
@@ -108,7 +111,7 @@ bool populator::populate_project(project& p) {
    }
    if (!pop_deps(p.libs())) {
       system::error_log("Failed to populate libs");
-      return false; 
+      return false;
    }
 
    populators::emit_cmake(p);
@@ -117,8 +120,8 @@ bool populator::populate_project(project& p) {
 
 
 bool populator::populate() {
-   populators::add_mapping("", std::string(proj->name())); // add the default empty location to this project mapping
+   populators::add_mapping("", std::string(proj->name()));  // add the default empty location to this project mapping
    return populate_project(*proj);
 }
 
-} // namespace antler::project
+}  // namespace antler::project

@@ -21,7 +21,7 @@ namespace antler::project {
 /// Simple class to encapsulate a project version.
 class version {
 public:
-   using self = version;        ///< Alias for self type.
+   using self = version;  ///< Alias for self type.
 
    /// @param ver  A string to create this version with.
    explicit inline version(std::string_view ver) {
@@ -33,7 +33,7 @@ public:
    /// @param min  Minor version component.
    /// @param pat  Patch version component.
    /// @param tweak  Tweak version component.
-   explicit inline version(uint16_t maj=0, uint16_t min=0, uint16_t pat=0, std::string tweak="")
+   explicit inline version(uint16_t maj = 0, uint16_t min = 0, uint16_t pat = 0, std::string tweak = "")
       : major_comp(maj), minor_comp(min), patch_comp(pat), tweak_comp(std::move(tweak)) {}
 
    /// Copy constructor.
@@ -54,7 +54,7 @@ public:
    /// @return Follows standard rules.
    //[[nodiscard]] std::strong_ordering operator<=>(const self& rhs) const;
    [[nodiscard]] inline bool operator<(const self& rhs) const noexcept { return compare(rhs) == -1; }
-   [[nodiscard]] inline bool operator<=(const self& rhs) const noexcept{ return compare(rhs) != 1; }
+   [[nodiscard]] inline bool operator<=(const self& rhs) const noexcept { return compare(rhs) != 1; }
    [[nodiscard]] inline bool operator>(const self& rhs) const noexcept { return compare(rhs) == 1; }
    [[nodiscard]] inline bool operator>=(const self& rhs) const noexcept { return compare(rhs) != -1; }
 
@@ -80,9 +80,9 @@ public:
 
    /// @return The string this version was built from.
    [[nodiscard]] std::string to_string() const noexcept {
-      std::string ret = std::to_string(major_comp)+"."+std::to_string(minor_comp)+"."+std::to_string(patch_comp);
+      std::string ret = std::to_string(major_comp) + "." + std::to_string(minor_comp) + "." + std::to_string(patch_comp);
       if (!tweak_comp.empty())
-         ret += "-" +tweak_comp;
+         ret += "-" + tweak_comp;
       return ret;
    }
 
@@ -97,7 +97,7 @@ public:
 
       if (s[0] >= '0' && s[0] <= '9') {
          c = std::atoi(s.data());
-         consumed += c == 0 ? 1 : static_cast<int64_t>(std::log10(c) + 1); ///< get the # of digits
+         consumed += c == 0 ? 1 : static_cast<int64_t>(std::log10(c) + 1);  ///< get the # of digits
       } else {
          system::error_log("invalid version component : {0}", s);
          throw std::runtime_error("invalid version component");
@@ -123,7 +123,7 @@ public:
          const auto& opt_component = [&](std::string_view s, uint16_t& comp) -> uint64_t {
             if (s.size() > 1 && s[0] == '.') {
                return component(s.substr(1), comp) + 1;
-            }  
+            }
             return 0;
          };
 
@@ -138,9 +138,9 @@ public:
 
          const auto& get_component = [&](auto& comp, auto F) {
             std::decay_t<decltype(comp)> ret = comp;
-            int64_t amt = F(s, ret);
+            int64_t                      amt = F(s, ret);
             ANTLER_CHECK(amt >= 0, "failed to parse component");
-            s = amt >= s.size() ? "" : s.substr(amt);
+            s    = amt >= s.size() ? "" : s.substr(amt);
             comp = ret;
             consumed += amt;
          };
@@ -151,7 +151,7 @@ public:
          get_component(tweak_comp, tweak_component);
 
          return consumed;
-      } catch(...) {
+      } catch (...) {
          return -1;
       }
    }
@@ -174,9 +174,7 @@ public:
          return c;
       };
 
-      return compare_one(patch(), o.patch(),
-               compare_one(minor(), o.minor(),
-                  compare_one(major(), o.major(), 0)));
+      return compare_one(patch(), o.patch(), compare_one(minor(), o.minor(), compare_one(major(), o.major(), 0)));
    }
 
    /// Get the major component of the version.
@@ -205,15 +203,18 @@ public:
    }
 
 private:
-   uint16_t major_comp = 0;
-   uint16_t minor_comp = 0;
-   uint16_t patch_comp = 0;
+   uint16_t    major_comp = 0;
+   uint16_t    minor_comp = 0;
+   uint16_t    patch_comp = 0;
    std::string tweak_comp;
 };
 
-   // these don't need to be in global namespace ADL will handle finding the right one
-   inline std::ostream& operator<<(std::ostream& os, const antler::project::version& o) { os << o.to_string(); return os; }
+// these don't need to be in global namespace ADL will handle finding the right one
+inline std::ostream& operator<<(std::ostream& os, const antler::project::version& o) {
+   os << o.to_string();
+   return os;
+}
 
-} // namespace antler::project
+}  // namespace antler::project
 
 ANTLER_YAML_CONVERSIONS(antler::project::version);

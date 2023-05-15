@@ -72,4 +72,4 @@ namespace antler::project::location {
 /// @return branch name
 [[nodiscard]] std::string get_github_default_branch(const std::string& org, const std::string& repo);
 
-} // namespace antler::project::location
+}  // namespace antler::project::location
