@@ -27,3 +27,9 @@ target_link_libraries(antler-project PUBLIC nlohmann_json::nlohmann_json
                                             ${FSLIB}
                                          )
 set_property(TARGET antler-project PROPERTY CXX_STANDARD 17)
+
+add_custom_command(
+    TARGET antler-project POST_BUILD
+    COMMAND git config core.hooksPath .githooks
+    COMMENT "Git hook set to directory .githooks"
+)

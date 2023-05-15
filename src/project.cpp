@@ -7,7 +7,7 @@
 
 #include <iostream>
 #include <fstream>
-#include <algorithm>            // find_if()
+#include <algorithm> // find_if()
 
 namespace antler::project {
 
@@ -25,11 +25,11 @@ bool project::init_dirs(const system::fs::path& path) noexcept {
 
    // Create the directory structure.
    {
-      const std::vector<system::fs::path> files = { "apps", "include", "ricardian", "libs", "tests" };
+      const std::vector<system::fs::path> files = {"apps", "include", "ricardian", "libs", "tests"};
       for (const auto& fn : files) {
-         system::fs::create_directory(path/fn, sec);
+         system::fs::create_directory(path / fn, sec);
          if (sec) {
-            system::error_log("{0} could not be created: {1}", (path/fn).string(), sec.message());
+            system::error_log("{0} could not be created: {1}", (path / fn).string(), sec.message());
             return false;
          }
       }
@@ -67,8 +67,7 @@ bool project::sync() {
       auto manifest = choose_manifest(m_path);
       yaml::write(m_path / manifest, to_yaml());
       system::info_log("Wrote project manifest to {0}.", m_path.string());
-   }
-   catch(std::exception& e) {
+   } catch (std::exception& e) {
       system::error_log("Exception during syncing : {0}", e.what());
       return false;
    }
@@ -102,7 +101,7 @@ bool project::update_path(system::fs::path& path) noexcept {
 
       search_path = search_path.parent_path();
    }
-   
+
    return false;
 }
 

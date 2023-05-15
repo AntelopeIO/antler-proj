@@ -42,17 +42,17 @@ bool project::populate(bool, std::ostream& error_stream) noexcept {
    // Find the project path, and make sure the subdirs/project directory tree exists.
    auto project_path = m_path.parent_path();
    if (!init_dirs(project_path, error_stream)) // expect_empty is `false`, it's okay if everthing exists.
-      return false;                                   // But its not okay if the filesystem doesn't already exist AND can't be created.
-   
+      return false;                            // But its not okay if the filesystem doesn't already exist AND can't be created.
+
    auto build_path = project_path / std::filesystem::path("build");
    std::filesystem::create_directory(build_path);
    std::filesystem::create_directory(project_path / std::filesystem::path("build") / std::filesystem::path("apps"));
    std::filesystem::create_directory(project_path / std::filesystem::path("build") / std::filesystem::path("libs"));
    std::filesystem::create_directory(project_path / std::filesystem::path("build") / std::filesystem::path("tests"));
 
-   auto root_path = build_path / cmake::cmake_lists;
-   auto apps_path = build_path / std::filesystem::path("apps") / cmake::cmake_lists;
-   auto libs_path = build_path / std::filesystem::path("libs") / cmake::cmake_lists;
+   auto root_path  = build_path / cmake::cmake_lists;
+   auto apps_path  = build_path / std::filesystem::path("apps") / cmake::cmake_lists;
+   auto libs_path  = build_path / std::filesystem::path("libs") / cmake::cmake_lists;
    auto tests_path = build_path / std::filesystem::path("tests") / cmake::cmake_lists;
 
    // Look to see if the header contains the magic, if it does we will not create the file.
@@ -81,43 +81,43 @@ bool project::populate(bool, std::ostream& error_stream) noexcept {
       return false;
    } else {
       if (!try_emit(root_path, [&]() {
-         cmake::emit_preamble(rfs, *this);
-         cmake::emit_entry(rfs, *this);
-      })) {
+             cmake::emit_preamble(rfs, *this);
+             cmake::emit_entry(rfs, *this);
+          })) {
          error_stream << "Error emitting cmake for root.\n";
          return false;
       }
-      
+
       if (!try_emit(apps_path, [&]() {
-         cmake::emit_preamble(afs, *this);
-         cmake::emit_project(afs, *this);
-      })) {
+             cmake::emit_preamble(afs, *this);
+             cmake::emit_project(afs, *this);
+          })) {
          error_stream << "Error emitting base cmake for project.\n";
          return false;
       }
-      
+
       for (const auto& app : apps()) {
          auto app_path = apps_path.parent_path() / std::filesystem::path(app.name()) / cmake::cmake_lists;
          std::filesystem::create_directory(app_path.parent_path());
          std::ofstream apfs(app_path);
 
-         if (!try_emit(apps_path, [&](){
-            cmake::emit_add_subdirectory(afs, ".", app.name());
-         })) {
+         if (!try_emit(apps_path, [&]() {
+                cmake::emit_add_subdirectory(afs, ".", app.name());
+             })) {
             error_stream << "Error emitting cmake for app: " << app.name() << "\n";
             return false;
          }
 
          if (!try_emit(app_path, [&]() {
-            cmake::emit_app(apfs, app, *this);
-         })) {
+                cmake::emit_app(apfs, app, *this);
+             })) {
             error_stream << "Error emitting cmake for app: " << app.name() << "\n";
             return false;
          }
 
-	 if (!try_emit(app_path, [&]() {
-            cmake::emit_lib(apfs, app, *this);
-         })) {
+         if (!try_emit(app_path, [&]() {
+                cmake::emit_lib(apfs, app, *this);
+             })) {
             error_stream << "Error emitting cmake for app-lib: " << app.name() << "\n";
             return false;
          }
@@ -128,21 +128,20 @@ bool project::populate(bool, std::ostream& error_stream) noexcept {
          std::filesystem::create_directory(lib_path.parent_path());
          std::ofstream lpfs(lib_path);
 
-         if (!try_emit(libs_path, [&](){
-            cmake::emit_add_subdirectory(lfs, "../libs", lib.name());
-         })) {
+         if (!try_emit(libs_path, [&]() {
+                cmake::emit_add_subdirectory(lfs, "../libs", lib.name());
+             })) {
             error_stream << "Error emitting cmake for lib: " << lib.name() << "\n";
             return false;
          }
 
          if (!try_emit(lib_path, [&]() {
-            cmake::emit_lib(lpfs, lib, *this);
-         })) {
+                cmake::emit_lib(lpfs, lib, *this);
+             })) {
             error_stream << "Error emitting cmake for lib: " << lib.name() << "\n";
             return false;
          }
       }
-
    }
 
    return true;
