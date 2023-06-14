@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <string>
+#include <cstdlib>
 
 #include "CLI11.hpp"
 
@@ -80,6 +81,22 @@ struct build_project {
    }
 
    int32_t exec() {
+      if (std::system("which cdt-cpp > /dev/null 2>&1") != 0 ){
+          system::error_log("cannot build the project, because CDT is not installed properly in your system!\n"
+                           "See https://github.com/AntelopeIO/cdt for the details of installing CDT");
+          return -1;
+      }
+      else {
+         // //'man cmake' indicates cmake --find-package is kept for compatibility but should not be used in new projects.
+         // // If cdt.pc is added in CDT in the future for tool pkg-config, 'pkg-config --exists cdt' can be used here
+         //
+         // if (std::system("cmake --find-package -DNAME=cdt -DCOMPILER_ID=GNU -DLANGUAGE=C -DMODE=EXIST > /dev/null 2>&1") !=0){
+         //    system::error_log("cannot build the project, CDT is not installed properly, cmake find_package(cdt) failed!\n"
+         //                   "Make sure cdt-cpp and related *.cmake files are properly installed in your system!");
+         //    return -2;
+         // }
+         system::info_log("Found the CDT compiler tool cdt-cpp");
+      }
 
       cmake_is_old = system::get_cmake_ver() < std::make_tuple(3, 13, 0);
 
