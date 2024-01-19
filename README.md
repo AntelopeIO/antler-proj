@@ -1,3 +1,6 @@
+| :memo:        | As part of our ongoing commitment to efficiently deliver value to the EOS Network, Antler has been deprecated as of January 2024. This repository will not receive future updates or support. Your questions and concerns are important to us; please direct feedback to our [Antler Deprecation Feedback Tracker](https://github.com/eosnetworkfoundation/product/issues/282) |
+|---------------|:------------------------|
+
 # ANTLER Project Tools
 
 ANTLER Project Tools (aproj) is a set of tools to help in the
